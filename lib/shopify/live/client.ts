@@ -7,7 +7,7 @@ import type { Cart, Collection, Product } from "../types";
 
 /**
  * ============================================================================
- * LIVE Storefront API client — STUB (fill in when credentials exist)
+ * LIVE Storefront API client, STUB (fill in when credentials exist)
  * ============================================================================
  *
  * This is the ONLY file to implement to go live. The env flag in

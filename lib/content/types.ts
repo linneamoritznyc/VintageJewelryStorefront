@@ -5,7 +5,7 @@
  * developer. Today it is served from code defaults (see `mock.ts`, which reads
  * `lib/config/*`). When live, `getSiteContent()` reads the same shape from
  * **Shopify metaobjects**, so the owner edits banner text, the sale end-date,
- * the bundle price and homepage copy directly in Shopify admin — no code, no
+ * the bundle price and homepage copy directly in Shopify admin, no code, no
  * redeploy. See `index.ts` for the metaobject definitions and swap point.
  */
 

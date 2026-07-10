@@ -1,6 +1,6 @@
 # Shopify-import — mock-katalogen som produkt-CSV
 
-`vintageskatten-products.csv` är hela mock-katalogen (34 produkter, ≥8 per
+`fyndladan-products.csv` är hela mock-katalogen (34 produkter, ≥8 per
 kategori) i **Shopifys egna importformat**. Använd den för att fylla en
 (dev-)butik med exakt samma katalog som sajten byggdes mot, så att du kan testa
 mot det riktiga Storefront API:t.

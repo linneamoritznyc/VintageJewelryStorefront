@@ -1,4 +1,4 @@
-# Vintageskatten — Headless Shopify Storefront
+# Fyndlådan — Headless Shopify Storefront
 
 Swedish-language, mobile-first storefront for **unused vintage (deadstock)
 jewelry**. This is the customer-facing **frontend only**; Shopify owns the

@@ -2,7 +2,7 @@ import type { Money } from "@/lib/shopify/types";
 import { formatMoney, discountPercentage } from "@/lib/utils/format";
 
 /**
- * Price display with optional original (compare-at) price struck through — the
+ * Price display with optional original (compare-at) price struck through, the
  * deadstock "original vs. current" credibility hook. Shows a saved-percentage
  * chip when there's a genuine discount.
  */

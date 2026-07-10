@@ -4,7 +4,7 @@ import { JewelryArt } from "./jewelryArt";
 /**
  * Renders a product image. During development, mock images use a `mock:art:hue`
  * URL and are drawn as a jewelry illustration (see jewelryArt) on a tinted
- * gradient — no network needed, stable between server and client render. When
+ * gradient, no network needed, stable between server and client render. When
  * live, image URLs are real Shopify CDN links and this component renders a
  * normal <img> (swap to next/image if desired).
  */

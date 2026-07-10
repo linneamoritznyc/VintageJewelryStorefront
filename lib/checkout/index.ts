@@ -2,12 +2,12 @@ import type { Cart } from "@/lib/shopify/types";
 
 /**
  * ============================================================================
- * CHECKOUT HANDOFF — SINGLE INTEGRATION POINT (STUBBED)
+ * CHECKOUT HANDOFF, SINGLE INTEGRATION POINT (STUBBED)
  * ============================================================================
  *
  * Checkout is owned by Shopify. When live, this function creates/updates a
  * Shopify cart from the local cart, applies the discount code via
- * `cartDiscountCodesUpdate`, and returns `cart.checkoutUrl` — the hosted
+ * `cartDiscountCodesUpdate`, and returns `cart.checkoutUrl`, the hosted
  * checkout the customer is redirected to (payments, taxes, shipping and
  * discounts are all Shopify-managed there).
  *

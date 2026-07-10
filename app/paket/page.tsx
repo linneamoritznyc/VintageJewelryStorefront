@@ -29,7 +29,7 @@ export default async function BundlePage() {
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-plum-soft">
           Välj {bundle.size} valfria pjäser från vilka kategorier du vill. Vi
-          packar allt fint i en {bundle.packageName.toLowerCase()} — för{" "}
+          packar allt fint i en {bundle.packageName.toLowerCase()}, för{" "}
           {formatPrice(bundle.pricePerBundle)}. Perfekt att ge bort eller unna
           dig själv.
         </p>

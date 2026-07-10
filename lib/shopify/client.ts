@@ -2,7 +2,7 @@ import type { Cart, Collection, Product } from "./types";
 
 /**
  * The commerce data contract. NO component imports Shopify (or the mock)
- * directly — everything goes through a `StoreClient`. `lib/shopify/index.ts`
+ * directly, everything goes through a `StoreClient`. `lib/shopify/index.ts`
  * picks the mock or live implementation from an env flag, so going live is a
  * change to the flag + `live/client.ts`, nothing in component code.
  */

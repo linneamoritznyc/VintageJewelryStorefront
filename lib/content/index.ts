@@ -4,7 +4,7 @@ import { getMockSiteContent } from "./mock";
 
 /**
  * ============================================================================
- * SITE CONTENT — OWNER-EDITABLE, SINGLE SWAP POINT
+ * SITE CONTENT, OWNER-EDITABLE, SINGLE SWAP POINT
  * ============================================================================
  *
  * Marketing copy and campaign settings the owner controls without a developer.
@@ -16,7 +16,7 @@ import { getMockSiteContent } from "./mock";
  * call it, one fetch).
  *
  * ---------------------------------------------------------------------------
- * GOING LIVE — create these metaobjects in Shopify admin
+ * GOING LIVE, create these metaobjects in Shopify admin
  *   (Settings → Custom data → Metaobjects), then read them here via the
  *   Storefront API.
  *

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Köpvillkor",
-  description: "Allmänna köpvillkor för Vintageskatten.",
+  description: "Allmänna köpvillkor för Fyndlådan.",
 };
 
 export default function TermsPage() {

@@ -2,7 +2,7 @@ import type { Collection } from "../types";
 
 /**
  * The four storefront categories. Order here defines nav order. Adding a
- * category later is a single new entry (plus products tagged to its handle) —
+ * category later is a single new entry (plus products tagged to its handle) , 
  * nothing downstream hardcodes this list's length.
  */
 export const MOCK_COLLECTIONS: Collection[] = [
@@ -11,7 +11,7 @@ export const MOCK_COLLECTIONS: Collection[] = [
     handle: "orhangen",
     title: "Örhängen",
     description:
-      "Från diskreta studs till dramatiska kristaller — örhängen som legat och väntat på sitt första öra.",
+      "Från diskreta studs till dramatiska kristaller, örhängen som legat och väntat på sitt första öra.",
     image: null,
   },
   {

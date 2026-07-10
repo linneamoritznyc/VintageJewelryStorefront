@@ -24,7 +24,7 @@ export interface CouponDefinition {
 
 /**
  * The storewide 10% code. Shared by the announcement banner and the
- * email-capture popup so the two surfaces stay logically consistent — both
+ * email-capture popup so the two surfaces stay logically consistent, both
  * offer THIS code. Keeping it in one constant is the single source of truth.
  */
 export const STOREWIDE_DISCOUNT_CODE = "VINTAGE10";

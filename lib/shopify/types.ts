@@ -3,7 +3,7 @@
  * shapes. Components consume ONLY these types, never the mock module directly.
  *
  * When live credentials arrive, the mock client in `mock/index.ts` is replaced
- * by real Storefront API queries that return these same shapes — so component
+ * by real Storefront API queries that return these same shapes, so component
  * code does not change. See `lib/shopify/index.ts` for the single swap point.
  *
  * Field names and nesting intentionally follow the Storefront API so the
@@ -13,7 +13,7 @@
  */
 
 export interface Money {
-  /** Decimal string, e.g. "90.00" — matches Storefront API `MoneyV2.amount`. */
+  /** Decimal string, e.g. "90.00", matches Storefront API `MoneyV2.amount`. */
   amount: string;
   /** ISO currency code, e.g. "SEK". */
   currencyCode: string;

@@ -16,24 +16,33 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Brand palette (Fyndlådan): warm, light, fyndjakt-coded. Token names are
+      // kept stable across the codebase; the VALUES map to the brand colours.
+      //   cream  = créme (light background)
+      //   sand   = warm neutral (sections)
+      //   ink    = espresso (text)
+      //   plum   = oliv (dark blocks / secondary text)
+      //   fuchsia= terrakotta (accent / CTA / sale price)
+      //   gold   = restrained warm metallic accent
+      //   mint   = muted olive (success)
       colors: {
-        cream: "#FBF6EE",
-        sand: "#F3E9DA",
-        ink: "#2A1B2E",
+        cream: "#FCFAF5",
+        sand: "#F4ECDF",
+        ink: "#2B2320",
         plum: {
-          DEFAULT: "#5B2A57",
-          soft: "#7A3E75",
+          DEFAULT: "#3E4328",
+          soft: "#6E7355",
         },
         fuchsia: {
-          brand: "#E23E8C",
-          hot: "#F4478A",
-          deep: "#C42C74",
+          brand: "#B4573A",
+          hot: "#C56A4B",
+          deep: "#8F4026",
         },
         gold: {
-          DEFAULT: "#C9A24B",
-          soft: "#E6CF95",
+          DEFAULT: "#B98C4A",
+          soft: "#E7D3B0",
         },
-        mint: "#3BB6A0",
+        mint: "#5F7A52",
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],
@@ -43,8 +52,8 @@ const config: Config = {
         pill: "999px",
       },
       boxShadow: {
-        card: "0 6px 24px -12px rgba(42, 27, 46, 0.35)",
-        pop: "0 12px 40px -12px rgba(226, 62, 140, 0.45)",
+        card: "0 6px 24px -12px rgba(43, 35, 32, 0.30)",
+        pop: "0 12px 40px -12px rgba(180, 87, 58, 0.40)",
       },
       keyframes: {
         "slide-in-right": {

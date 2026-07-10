@@ -9,7 +9,7 @@ import type { Product, ProductVariant, Image } from "../types";
  *
  * Image URLs use a `mock:` scheme consumed by <ProductImage>, which renders a
  * deterministic gradient placeholder. When live, these become Shopify CDN URLs
- * and the same component renders them via next/image — no component changes.
+ * and the same component renders them via next/image, no component changes.
  */
 
 const CURRENCY = "SEK";
@@ -202,7 +202,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Klassiska droppformade örhängen med en liten sötvattenspärla. Diskreta nog för vardag, fina nog för fest.",
     vintageStory:
-      "En kvarglömd klassiker från lagret — aldrig burna, aldrig sålda. Tidlösa pärlor som stått och väntat på sin första ägare sedan varumärket lade ner.",
+      "En kvarglömd klassiker från lagret, aldrig burna, aldrig sålda. Tidlösa pärlor som stått och väntat på sin första ägare sedan varumärket lade ner.",
     tags: ["pärla", "klassiker"],
   },
   {
@@ -217,7 +217,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Små ringörhängen i guldton. Den där lagom-storleken som passar till precis allt.",
     vintageStory:
-      "Deadstock i sin originalpåse. Små hoops som aldrig hann ut i butik innan lagret tömdes — nu får de äntligen ett öra att sitta på.",
+      "Deadstock i sin originalpåse. Små hoops som aldrig hann ut i butik innan lagret tömdes, nu får de äntligen ett öra att sitta på.",
     tags: ["hoops", "guld", "vardag"],
     metals: ["Guld", "Silver"],
   },
@@ -232,7 +232,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 1,
     description: "Pyttesmå stjärnor i studs-modell. Blänker till precis lagom.",
     vintageStory:
-      "Ett fynd ur konkurslagret — små stjärnor som legat orörda i sina fack. Aldrig burna, redo att glittra för första gången.",
+      "Ett fynd ur konkurslagret, små stjärnor som legat orörda i sina fack. Aldrig burna, redo att glittra för första gången.",
     tags: ["studs", "stjärna"],
   },
   {
@@ -247,7 +247,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Handmålad emaljblomma i varma toner. Retro-vibbar rakt av.",
     vintageStory:
-      "Färgstarka emaljblommor som andas 90-tal. Osålt lager från varumärkets sista kollektion — helt oanvända.",
+      "Färgstarka emaljblommor som andas 90-tal. Osålt lager från varumärkets sista kollektion, helt oanvända.",
     tags: ["emalj", "retro", "färg"],
   },
   {
@@ -262,7 +262,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Hängande kristaller som fångar ljuset. Festörhängena du inte visste att du behövde.",
     vintageStory:
-      "De mest dramatiska i lagret. Kristaller som aldrig fått dansa på ett golv — deadstock som väntar på sin premiär.",
+      "De mest dramatiska i lagret. Kristaller som aldrig fått dansa på ett golv, deadstock som väntar på sin premiär.",
     tags: ["kristall", "fest"],
   },
   {
@@ -290,7 +290,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 6,
     description: "Böjda halvmånar med matt finish. Lite mystiska, väldigt fina.",
     vintageStory:
-      "Månar som legat i mörkret på ett lager i åratal. Aldrig burna — nu redo att lysa upp.",
+      "Månar som legat i mörkret på ett lager i åratal. Aldrig burna, nu redo att lysa upp.",
     tags: ["måne", "matt"],
   },
   {
@@ -305,7 +305,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Ett litet kluster av pärlor i olika storlekar. Romantiskt utan att bli sött.",
     vintageStory:
-      "Romantik ur ett konkursbo. Pärlkluster som aldrig hann bli någons favorit — förrän nu.",
+      "Romantik ur ett konkursbo. Pärlkluster som aldrig hann bli någons favorit, förrän nu.",
     tags: ["pärla", "romantisk"],
   },
   {
@@ -319,7 +319,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 12,
     description: "Rörliga tofsar som svänger när du går. Fest i öronen.",
     vintageStory:
-      "Deadstock med rörelse. Tofsar som stått stilla i ett lager alldeles för länge — dags att få dem att svaja.",
+      "Deadstock med rörelse. Tofsar som stått stilla i ett lager alldeles för länge, dags att få dem att svaja.",
     tags: ["tofs", "fest"],
   },
 
@@ -350,7 +350,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 4,
     description: "Tunn guldkedja för lagning. Bär ensam eller trassla ihop.",
     vintageStory:
-      "Basplagget alla vill ha. Tunna kedjor från ett tömt lager — aldrig burna, alltid rätt.",
+      "Basplagget alla vill ha. Tunna kedjor från ett tömt lager, aldrig burna, alltid rätt.",
     tags: ["guld", "kedja", "layering"],
     metals: ["Guld", "Silver"],
   },
@@ -366,7 +366,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Öppningsbar medaljong i hjärtform. Gömställe för ett litet minne.",
     vintageStory:
-      "En medaljong utan bild i — ännu. Deadstock som väntar på att få bära ditt hemlighet.",
+      "En medaljong utan bild i, ännu. Deadstock som väntar på att få bära ditt hemlighet.",
     tags: ["medaljong", "hjärta", "romantisk"],
   },
   {
@@ -395,7 +395,7 @@ const SEEDS: SeedInput[] = [
     description:
       "En enda färgad sten på tunn kedja. Enkelt statement i turkos.",
     vintageStory:
-      "Den sista i sitt slag på lagret. En färgsten som aldrig fått fångas av dagsljus — tills nu.",
+      "Den sista i sitt slag på lagret. En färgsten som aldrig fått fångas av dagsljus, tills nu.",
     tags: ["sten", "statement", "färg"],
   },
   {
@@ -424,7 +424,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Fin kedja med små kulor jämnt fördelade. Diskret men detaljrik.",
     vintageStory:
-      "Detaljen som gör skillnad. Satellitkedjor ur deadstock — oanvända och oemotståndliga.",
+      "Detaljen som gör skillnad. Satellitkedjor ur deadstock, oanvända och oemotståndliga.",
     tags: ["kedja", "layering"],
     metals: ["Guld", "Silver"],
   },
@@ -439,7 +439,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 13,
     description: "Emaljblomma i glada färger på kort kedja. Ren dopaminstyling.",
     vintageStory:
-      "Färgexplosion ur ett konkurslager. En blomma som aldrig fått blomma — förrän på din hals.",
+      "Färgexplosion ur ett konkurslager. En blomma som aldrig fått blomma, förrän på din hals.",
     tags: ["emalj", "blomma", "färg"],
   },
 
@@ -455,7 +455,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 2,
     description: "Elastiskt pärlarmband som passar de flesta handleder.",
     vintageStory:
-      "Enkelt och älskbart. Elastiska pärlarmband ur deadstock — aldrig burna, alltid redo.",
+      "Enkelt och älskbart. Elastiska pärlarmband ur deadstock, aldrig burna, alltid redo.",
     tags: ["pärla", "vardag"],
   },
   {
@@ -485,7 +485,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Armband med små berlocker: hjärta, nyckel och stjärna. Fyll på med minnen.",
     vintageStory:
-      "Ett armband som vill samla på minnen. Deadstock med berlocker som aldrig fått en historia — börja din.",
+      "Ett armband som vill samla på minnen. Deadstock med berlocker som aldrig fått en historia, börja din.",
     tags: ["berlock", "charm"],
   },
   {
@@ -498,7 +498,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 1,
     description: "Slät, tunn bangle att stapla flera av. Enkelheten själv.",
     vintageStory:
-      "Byggstenen i varje stack. Tunna banglar ur ett tömt lager — oanvända och oändligt kombinerbara.",
+      "Byggstenen i varje stack. Tunna banglar ur ett tömt lager, oanvända och oändligt kombinerbara.",
     tags: ["bangle", "stapla"],
     metals: ["Guld", "Silver"],
   },
@@ -513,7 +513,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 8,
     description: "Randig emalj i glada kulörer. Sommar året runt.",
     vintageStory:
-      "Solsken på burk. Randiga emaljarmband ur konkurslagret — aldrig burna, alltid glada.",
+      "Solsken på burk. Randiga emaljarmband ur konkurslagret, aldrig burna, alltid glada.",
     tags: ["emalj", "färg", "sommar"],
   },
   {
@@ -528,7 +528,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Rad av glittrande kristaller hela vägen runt. Diskret lyx-känsla.",
     vintageStory:
-      "Glitter ur ett konkursbo. Ett tennisarmband som aldrig fått blänka på en handled — dags att ändra på det.",
+      "Glitter ur ett konkursbo. Ett tennisarmband som aldrig fått blänka på en handled, dags att ändra på det.",
     tags: ["kristall", "glitter", "fest"],
   },
   {
@@ -542,7 +542,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 3,
     description: "Flätat läder med liten gulddetalj. Ledig och lite tuff.",
     vintageStory:
-      "Råare i tonen. Flätade läderarmband ur deadstock — oanvända, redo för vardagsslitage.",
+      "Råare i tonen. Flätade läderarmband ur deadstock, oanvända, redo för vardagsslitage.",
     tags: ["läder", "ledig"],
   },
   {
@@ -556,7 +556,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 12,
     description: "Två rader pärlor för lite extra. Klassiskt med volym.",
     vintageStory:
-      "Dubbelt upp ur lagret. Pärlarmband i två rader som aldrig fått pryda en arm — förrän din.",
+      "Dubbelt upp ur lagret. Pärlarmband i två rader som aldrig fått pryda en arm, förrän din.",
     tags: ["pärla", "klassiker"],
   },
 
@@ -572,7 +572,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 2,
     description: "Fin fotlänk med små pärlor. Sandaler och sommar väntar.",
     vintageStory:
-      "Semesterkänsla ur deadstock. Fotlänkar som aldrig fått känna varm asfalt — nu är det dags.",
+      "Semesterkänsla ur deadstock. Fotlänkar som aldrig fått känna varm asfalt, nu är det dags.",
     tags: ["fotlänk", "sommar"],
   },
   {
@@ -586,7 +586,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 5,
     description: "Tunn guldkedja för foten. Diskret glitter vid varje steg.",
     vintageStory:
-      "Ett litet lyft för fotleden. Guldfotlänkar ur konkurslagret — oanvända och sommarredo.",
+      "Ett litet lyft för fotleden. Guldfotlänkar ur konkurslagret, oanvända och sommarredo.",
     tags: ["fotlänk", "guld"],
     metals: ["Guld", "Silver"],
   },
@@ -615,7 +615,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 3,
     description: "Slät signetring med matt yta. Cool ensam eller i sällskap.",
     vintageStory:
-      "Tidlös form ur deadstock. Signetringar som aldrig fått ett finger att sitta på — än.",
+      "Tidlös form ur deadstock. Signetringar som aldrig fått ett finger att sitta på, än.",
     tags: ["ring", "minimal"],
     metals: ["Guld", "Silver"],
   },
@@ -644,7 +644,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 4,
     description: "Hårspänne dekorerat med pärlor. Snabb uppgradering av frisyren.",
     vintageStory:
-      "Detaljen håret väntat på. Pärlspännen ur deadstock — aldrig använda, alltid redo för en dålig hårdag.",
+      "Detaljen håret väntat på. Pärlspännen ur deadstock, aldrig använda, alltid redo för en dålig hårdag.",
     tags: ["hår", "pärla"],
   },
   {
@@ -658,7 +658,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 11,
     description: "Glittrig fjärilsbrosch. Y2K-nostalgi i högsta grad.",
     vintageStory:
-      "Rakt ur tidskapseln. Fjärilsbroscher ur ett konkursbo som aldrig fått flyga — dags att släppa loss dem.",
+      "Rakt ur tidskapseln. Fjärilsbroscher ur ett konkursbo som aldrig fått flyga, dags att släppa loss dem.",
     tags: ["brosch", "y2k", "glitter"],
   },
   {
@@ -673,7 +673,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Nyckelring med små berlocker. Lite smycke även på nyckelknippan.",
     vintageStory:
-      "Smycke för nycklarna. Berlock-nyckelringar ur deadstock — oanvända och redo att skramla.",
+      "Smycke för nycklarna. Berlock-nyckelringar ur deadstock, oanvända och redo att skramla.",
     tags: ["nyckelring", "charm"],
   },
   {

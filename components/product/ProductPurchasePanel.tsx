@@ -10,7 +10,7 @@ import { stockStatus } from "@/lib/utils/stock";
 /**
  * Purchase panel: variant selection, quantity, live stock status and
  * add-to-cart. Built to handle variants generically even though most mock
- * products have a single default variant — the option UI only appears when
+ * products have a single default variant, the option UI only appears when
  * the product actually has options.
  */
 export function ProductPurchasePanel({ product }: { product: Product }) {

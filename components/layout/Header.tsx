@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Collection } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/CartContext";
+import { RingMark } from "@/components/ui/RingMark";
 
 export function Header({ collections }: { collections: Collection[] }) {
   const { cart, openCart, isReady } = useCart();
@@ -34,13 +35,11 @@ export function Header({ collections }: { collections: Collection[] }) {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-baseline gap-1 font-display text-xl font-bold text-ink sm:text-2xl"
+          className="flex items-center gap-1.5 font-display text-xl font-bold text-ink sm:text-2xl"
           onClick={() => setMenuOpen(false)}
         >
-          <span aria-hidden className="text-fuchsia-brand">
-            ✧
-          </span>
-          Vintageskatten
+          <RingMark className="text-fuchsia-brand" size={22} />
+          Fyndlådan
         </Link>
 
         {/* Desktop nav */}

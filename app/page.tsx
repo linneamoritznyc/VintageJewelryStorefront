@@ -65,7 +65,7 @@ export default async function HomePage() {
               ⏳ Fyndkväll pågår
             </p>
             <p className="text-sm text-plum-soft">
-              Extra fynd så länge lagret räcker — passa på innan tiden rinner ut.
+              Extra fynd så länge lagret räcker, passa på innan tiden rinner ut.
             </p>
           </div>
           <CountdownTimer endsAt={content.saleCountdownEndsAt} />
@@ -166,7 +166,7 @@ export default async function HomePage() {
               <p className="mt-2 max-w-md text-plum-soft">
                 Välj {bundle.size} valfria pjäser från vilka kategorier du vill,
                 samla dem i din bricka och få allt i en{" "}
-                {bundle.packageName.toLowerCase()} — för bara{" "}
+                {bundle.packageName.toLowerCase()}, för bara{" "}
                 {formatPrice(bundle.pricePerBundle)}.
               </p>
               <Link

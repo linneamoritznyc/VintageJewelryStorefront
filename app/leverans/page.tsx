@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Leverans & retur",
-  description: "Information om frakt, leveranstid och returer hos Vintageskatten.",
+  description: "Information om frakt, leveranstid och returer hos Fyndlådan.",
 };
 
 export default function ShippingPage() {
@@ -36,10 +36,10 @@ export default function ShippingPage() {
         <p className="text-sm">
           Har du frågor? Mejla oss på{" "}
           <a
-            href="mailto:hej@vintageskatten.se"
+            href="mailto:hej@fyndladan.se"
             className="font-semibold text-fuchsia-brand underline"
           >
-            hej@vintageskatten.se
+            hej@fyndladan.se
           </a>
           .
         </p>

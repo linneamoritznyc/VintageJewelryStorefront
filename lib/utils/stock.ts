@@ -3,7 +3,7 @@ import type { ProductVariant } from "@/lib/shopify/types";
 /**
  * Threshold below which a variant is considered "low stock" and shows the
  * scarcity indicator (e.g. "Endast 1 kvar"). Driven entirely by the stock
- * field — no one-of-a-kind special-casing.
+ * field, no one-of-a-kind special-casing.
  */
 export const LOW_STOCK_THRESHOLD = 3;
 

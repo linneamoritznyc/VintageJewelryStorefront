@@ -2,7 +2,7 @@ import type { Product } from "@/lib/shopify/types";
 import { ProductCard } from "@/components/product/ProductCard";
 
 /**
- * Horizontal, scroll-snapping carousel of products — mobile-first (swipe on
+ * Horizontal, scroll-snapping carousel of products, mobile-first (swipe on
  * touch, scrolls on desktop). Scales to any number of products.
  */
 export function ProductCarousel({ products }: { products: Product[] }) {

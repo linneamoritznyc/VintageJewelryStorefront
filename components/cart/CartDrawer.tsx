@@ -277,7 +277,7 @@ function CouponRow({
         <div className="text-sm">
           <span className="font-bold text-mint">✓ {appliedCode}</span>
           {appliedTitle && (
-            <span className="ml-1 text-plum-soft">— {appliedTitle}</span>
+            <span className="ml-1 text-plum-soft">,  {appliedTitle}</span>
           )}
         </div>
         <button

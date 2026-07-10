@@ -1,7 +1,7 @@
 import type { StockStatus } from "@/lib/utils/stock";
 
 /**
- * Scarcity/stock indicator. Only renders something when there's a message —
+ * Scarcity/stock indicator. Only renders something when there's a message , 
  * low stock ("Endast 1 kvar") or sold out. Playful, not stressful.
  */
 export function StockBadge({

@@ -21,7 +21,7 @@ import { findCoupon } from "@/lib/config/coupons";
 /**
  * Client-side cart state. Models the Storefront API Cart shape (lines,
  * subtotal, discount, total, checkoutUrl) so that swapping in real Shopify
- * cart mutations later is a change to the action implementations only — the
+ * cart mutations later is a change to the action implementations only, the
  * component-facing API (addLine, updateQuantity, removeLine, applyDiscount…)
  * stays the same.
  *
@@ -156,7 +156,7 @@ function computeCart(state: CartState): Cart {
     total: money(totalAmount),
     discount,
     totalQuantity,
-    // Stubbed until credentials exist — see checkout page. When live, this is
+    // Stubbed until credentials exist, see checkout page. When live, this is
     // Shopify's cart.checkoutUrl and the checkout button redirects to it.
     checkoutUrl: null,
   };
@@ -199,7 +199,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch {
-      // Corrupt storage — start fresh.
+      // Corrupt storage, start fresh.
     }
     setIsReady(true);
   }, []);
@@ -210,7 +210,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
-      // Storage full / unavailable — non-fatal.
+      // Storage full / unavailable, non-fatal.
     }
   }, [state, isReady]);
 

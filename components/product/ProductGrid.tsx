@@ -16,7 +16,7 @@ export function ProductGrid({
   if (products.length === 0) {
     return (
       <p className="py-16 text-center text-plum-soft">
-        Inga fynd här just nu — kika in i en annan kategori.
+        Inga fynd här just nu, kika in i en annan kategori.
       </p>
     );
   }

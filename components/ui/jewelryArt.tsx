@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 /**
  * Jewelry illustration library. Clean vector art for each product type, drawn
  * on a 0 0 200 200 canvas and centered around (100,100). Used as realistic
- * product imagery for the mock catalog — self-contained, instant-loading and
+ * product imagery for the mock catalog, self-contained, instant-loading and
  * on-brand. When the live Shopify store is connected, real product photos from
  * the Shopify CDN replace these with no component changes.
  *

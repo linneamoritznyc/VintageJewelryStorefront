@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * STOREFRONT DATA — THE SINGLE SWAP POINT
+ * STOREFRONT DATA, THE SINGLE SWAP POINT
  * ============================================================================
  *
  * Every component/page imports the `store` object from here and calls

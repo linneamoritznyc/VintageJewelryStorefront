@@ -6,7 +6,7 @@ import type { EmailPopupContent } from "@/lib/content/types";
 /**
  * Inline email-capture block for the homepage. Offers the same storewide code
  * as the popup and banner (single source in the content layer). Stubbed submit
- * — wire to the real list at the marked TODO.
+ *, wire to the real list at the marked TODO.
  */
 export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
   const [email, setEmail] = useState("");

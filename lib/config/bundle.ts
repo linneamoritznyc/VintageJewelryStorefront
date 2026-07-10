@@ -22,5 +22,5 @@ export const BUNDLE_CONFIG: BundleConfig = {
   currencyCode: "SEK",
   packageName: "Vintage-ask",
   packageBlurb:
-    "Ditt paket levereras i vår handplockade vintage-ask med silkespapper — redo att ge bort eller unna dig själv.",
+    "Ditt paket levereras i vår handplockade vintage-ask med silkespapper, redo att ge bort eller unna dig själv.",
 };

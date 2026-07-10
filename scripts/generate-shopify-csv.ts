@@ -4,7 +4,7 @@
  *
  *   node --experimental-strip-types scripts/generate-shopify-csv.ts
  *
- * Output: shopify/vintageskatten-products.csv
+ * Output: shopify/fyndladan-products.csv
  *
  * Import it in Shopify admin via Products → Import. This lets you populate a
  * (dev) store with the exact catalog the site was built against, so you can
@@ -17,7 +17,7 @@ import { MOCK_PRODUCTS } from "../lib/shopify/mock/products.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(HERE, "..", "shopify");
-const OUT_FILE = join(OUT_DIR, "vintageskatten-products.csv");
+const OUT_FILE = join(OUT_DIR, "fyndladan-products.csv");
 
 const CATEGORY_TITLES: Record<string, string> = {
   orhangen: "Örhängen",
@@ -82,7 +82,7 @@ for (const product of MOCK_PRODUCTS) {
       product.handle,
       isFirst ? product.title : "",
       isFirst ? bodyHtml(product.description, product.vintageBlurb) : "",
-      isFirst ? "Vintageskatten" : "",
+      isFirst ? "Fyndlådan" : "",
       isFirst ? type : "",
       isFirst ? tags : "",
       isFirst ? "TRUE" : "",

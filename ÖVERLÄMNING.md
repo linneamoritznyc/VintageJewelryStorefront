@@ -1,4 +1,4 @@
-# Överlämningsguide — Vintageskatten
+# Överlämningsguide, Fyndlådan
 
 Den här guiden är skriven för dig som **äger** butiken men **inte är utvecklare**.
 Den förklarar hur sajten hänger ihop, vad du kan ändra själv, vad som kräver en
@@ -33,7 +33,7 @@ utvecklare, och exakt hur du tar sajten live och tar över den.
 
 ---
 
-## 2. Teknikval — och varför
+## 2. Teknikval, och varför
 
 | Val | Vad vi använder | Varför |
 | --- | --- | --- |
@@ -46,13 +46,13 @@ utvecklare, och exakt hur du tar sajten live och tar över den.
 Det finns ett alternativ som heter **Hydrogen + Oxygen** (Shopifys eget ramverk
 och hosting). Fördelen är "allt under ett tak, en faktura". Vi valde Next.js +
 Vercel för att det är **lättare och billigare att hitta hjälp** när du behöver
-det — men bytet är möjligt senare om du vill.
+det, men bytet är möjligt senare om du vill.
 
 ---
 
 ## 3. Vad DU gör själv vs vad en UTVECKLARE gör
 
-### ✅ Du gör själv — i Shopify admin, utan kod
+### ✅ Du gör själv, i Shopify admin, utan kod
 
 - Lägga till / ta bort / ändra **produkter, bilder, beskrivningar**
 - Sätta och ändra **priser** och **ursprungspris** (det överstrukna priset)
@@ -85,13 +85,13 @@ Shopify metaobjects. Tills dess ändras det här (kräver utvecklare + publiceri
 - **Paketets storlek, pris och text:** `lib/config/bundle.ts`
 - **Startsidans texter (hero + varumärkeshistoria):** `lib/content/mock.ts`
 
-Allt detta läses genom **ett enda ställe** — `lib/content/index.ts` — som är
+Allt detta läses genom **ett enda ställe**, `lib/content/index.ts`, som är
 förberett för att i stället läsa från Shopify metaobjects. Efter steg 5 nedan
 ändrar **du** allt detta själv i Shopify.
 
 ---
 
-## 5. Gå live — checklista (för utvecklare)
+## 5. Gå live, checklista (för utvecklare)
 
 Sajten kör idag på **låtsasdata** så att den fungerar utan Shopify-konto. För
 att koppla på den riktiga butiken:
@@ -118,27 +118,27 @@ att koppla på den riktiga butiken:
 
 ---
 
-## 6. Överlämning — vad som ska föras över till dig
+## 6. Överlämning, vad som ska föras över till dig
 
 För att du ska äga allt behöver du få (och byta lösenord på):
 
 - [ ] **Shopify** admin-konto (ägarroll)
 - [ ] **GitHub**-repot (koden) överfört till ditt konto
-- [ ] **Vercel**-konto (hosting) — eller Oxygen om ni valde Hydrogen
+- [ ] **Vercel**-konto (hosting), eller Oxygen om ni valde Hydrogen
 - [ ] **Domänen** (där du köpte t.ex. `.se`-adressen)
 - [ ] **E-post/marknadsföringsverktyg** (Shopify Email eller Klaviyo)
 - [ ] Den här guiden + en kort inspelad genomgång (be utvecklaren om det)
 
 ---
 
-## 7. Shopify-appar — vad du faktiskt behöver
+## 7. Shopify-appar, vad du faktiskt behöver
 
-- **Rabattkoder:** ingen app behövs — Shopifys inbyggda **Rabatter**.
+- **Rabattkoder:** ingen app behövs, Shopifys inbyggda **Rabatter**.
 - **Paket/bundles:** Shopifys egen gratisapp **"Shopify Bundles"** (eller en
   fast-pris-produkt). Paketbyggaren på sajten kopplas mot den.
 - **E-postinsamling / popup:** **Shopify Forms + Shopify Email** (gratis) eller
   **Klaviyo** för mer avancerad marknadsföring.
-- **Nedräkning / kampanjkänsla:** ingen app — det är en inbyggd funktion i sajten.
+- **Nedräkning / kampanjkänsla:** ingen app, det är en inbyggd funktion i sajten.
 
 > ⚠️ **Viktigt om appar:** Väldigt många appar i Shopify App Store är byggda för
 > *vanliga Shopify-teman* och fungerar **inte automatiskt** på en headless-sajt
@@ -160,7 +160,7 @@ För att du ska äga allt behöver du få (och byta lösenord på):
 
 ## 9. Om något strular
 
-- **Produkter/priser/ordrar fel:** lös i **Shopify admin** — det är där datan bor.
+- **Produkter/priser/ordrar fel:** lös i **Shopify admin**, det är där datan bor.
 - **Sajten nere eller ser trasig ut:** kontakta din utvecklare / kolla Vercel.
 - **Rabattkod funkar inte:** kontrollera koden under **Rabatter** i Shopify.
 

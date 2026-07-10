@@ -20,7 +20,7 @@ export const EMAIL_POPUP = {
   discountPercentage: STOREWIDE_DISCOUNT_PERCENTAGE,
   code: STOREWIDE_DISCOUNT_CODE,
   heading: "Häng med på skattjakten",
-  subheading: `Skriv upp dig och få ${STOREWIDE_DISCOUNT_PERCENTAGE}% på din första beställning. Först till kvarn — lagret är begränsat.`,
+  subheading: `Skriv upp dig och få ${STOREWIDE_DISCOUNT_PERCENTAGE}% på din första beställning. Först till kvarn, lagret är begränsat.`,
 };
 
 /**

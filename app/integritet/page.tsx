@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Integritetspolicy",
-  description: "Så hanterar Vintageskatten dina personuppgifter.",
+  description: "Så hanterar Fyndlådan dina personuppgifter.",
 };
 
 export default function PrivacyPage() {
@@ -43,10 +43,10 @@ export default function PrivacyPage() {
             Du har rätt att begära utdrag, rättelse eller radering av dina
             uppgifter. Kontakta oss på{" "}
             <a
-              href="mailto:hej@vintageskatten.se"
+              href="mailto:hej@fyndladan.se"
               className="font-semibold text-fuchsia-brand underline"
             >
-              hej@vintageskatten.se
+              hej@fyndladan.se
             </a>
             .
           </p>

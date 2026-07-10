@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Vår historia",
   description:
-    "Historien bakom Vintageskatten — oanvända smycken räddade ur ett tömt lager efter en varumärkeskonkurs.",
+    "Historien bakom Fyndlådan, oanvända smycken räddade ur ett tömt lager efter en varumärkeskonkurs.",
 };
 
 export default function AboutPage() {
@@ -16,7 +16,7 @@ export default function AboutPage() {
       <div className="mt-6 space-y-5 leading-relaxed text-plum-soft">
         <p>
           Allt började med ett lager. När ett svenskt smyckesmärke gick i konkurs
-          blev hela deras osålda sortiment över — lådvis med örhängen, halsband,
+          blev hela deras osålda sortiment över, lådvis med örhängen, halsband,
           armband och små skatter som aldrig hann ut i butik.
         </p>
         <p>
@@ -25,7 +25,7 @@ export default function AboutPage() {
           oss för att rädda dem och ge dem ett nytt liv.
         </p>
         <p>
-          Det är därför du hittar riktig vintage här — till priser långt under
+          Det är därför du hittar riktig vintage här, till priser långt under
           vad de en gång kostade. Varje pjäs är unik i den meningen att när den
           är slut, är den slut. Lagret fylls inte på.
         </p>

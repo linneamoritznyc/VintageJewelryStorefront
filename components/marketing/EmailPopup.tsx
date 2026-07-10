@@ -5,7 +5,7 @@ import type { EmailPopupContent } from "@/lib/content/types";
 
 /**
  * Once-per-session email-capture popup offering the storewide discount (same
- * code as the announcement banner — kept consistent via the content layer).
+ * code as the announcement banner, kept consistent via the content layer).
  * Shows a few seconds after load, at most once per browser session.
  *
  * The submit is a stubbed capture: it just reveals the code. Wire this to a

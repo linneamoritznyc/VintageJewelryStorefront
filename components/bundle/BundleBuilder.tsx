@@ -28,7 +28,7 @@ function pickVariant(product: Product): ProductVariant | null {
 }
 
 /**
- * "Skapa ditt eget paket" — the flagship. Pick a fixed number of pieces across
+ * "Skapa ditt eget paket", the flagship. Pick a fixed number of pieces across
  * any categories, watch them collect in a visual tray alongside the physical
  * package, then drop the whole thing in the cart as one fixed-price bundle
  * line. Built to feel fast and fun, not like a form.
@@ -205,7 +205,7 @@ export function BundleBuilder({
                     <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-sand/50 text-xl">
                       ✧
                     </span>
-                    <span className="text-sm">Ledig plats — välj en pjäs</span>
+                    <span className="text-sm">Ledig plats, välj en pjäs</span>
                   </li>
                 );
               }
@@ -243,7 +243,7 @@ export function BundleBuilder({
             })}
           </ul>
 
-          {/* Physical package — a marketing asset, always shown */}
+          {/* Physical package, a marketing asset, always shown */}
           <div className="mt-3 flex items-center gap-3 rounded-2xl bg-gold-soft/25 px-3 py-2.5">
             <span aria-hidden className="text-2xl">
               🎁
@@ -285,7 +285,7 @@ export function BundleBuilder({
         </div>
       </aside>
 
-      {/* Sticky mobile action bar — keeps progress + CTA in reach while
+      {/* Sticky mobile action bar, keeps progress + CTA in reach while
           scrolling the picker on phones (the flagship should feel fast). */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-sand bg-cream/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex items-center gap-3">

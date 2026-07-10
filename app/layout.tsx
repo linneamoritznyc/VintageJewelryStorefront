@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Familjen_Grotesk } from "next/font/google";
 import "./globals.css";
+
+const grotesk = Familjen_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-grotesk",
+  display: "swap",
+});
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { CartProvider } from "@/lib/cart/CartContext";
@@ -11,13 +19,13 @@ import { EmailPopup } from "@/components/marketing/EmailPopup";
 
 export const metadata: Metadata = {
   title: {
-    default: "Vintageskatten — oanvända vintagesmycken till fyndpris",
-    template: "%s · Vintageskatten",
+    default: "Fyndlådan, oanvända vintagesmycken till fyndpris",
+    template: "%s · Fyndlådan",
   },
   description:
-    "Oanvända vintagesmycken från ett tömt lager. Aldrig burna, alltid långt under ursprungspris. Örhängen, halsband, armband och mer — fynd så länge lagret räcker.",
+    "Oanvända vintagesmycken från ett tömt lager. Aldrig burna, alltid långt under ursprungspris. Örhängen, halsband, armband och mer, fynd så länge lagret räcker.",
   openGraph: {
-    title: "Vintageskatten",
+    title: "Fyndlådan",
     description:
       "Oanvända vintagesmycken från ett tömt lager. Fynd så länge lagret räcker.",
     locale: "sv_SE",
@@ -43,7 +51,7 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang="sv">
+    <html lang="sv" className={grotesk.variable}>
       <body>
         <CartProvider>
           <AnnouncementBanner content={content.announcement} />
