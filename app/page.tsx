@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { getCollections, getLatestProducts } from "@/lib/shopify";
+import { getSiteContent } from "@/lib/content";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { EmailCaptureBlock } from "@/components/marketing/EmailCaptureBlock";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
-import { BUNDLE_CONFIG } from "@/lib/config/bundle";
-import { SALE_COUNTDOWN_ENDS_AT } from "@/lib/config/promotions";
 import { formatPrice } from "@/lib/utils/format";
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -15,10 +14,12 @@ const CATEGORY_EMOJI: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const [collections, latest] = await Promise.all([
+  const [collections, latest, content] = await Promise.all([
     getCollections(),
     getLatestProducts(10),
+    getSiteContent(),
   ]);
+  const { hero, brandStory, bundle } = content;
 
   return (
     <div className="flex flex-col gap-14 py-6 sm:gap-20 sm:py-10">
@@ -30,16 +31,13 @@ export default async function HomePage() {
           </div>
           <div className="relative max-w-xl">
             <span className="inline-flex items-center gap-1.5 rounded-pill bg-cream/15 px-3 py-1 text-xs font-bold uppercase tracking-wide">
-              <span aria-hidden>✦</span> Deadstock · aldrig burna
+              <span aria-hidden>✦</span> {hero.badge}
             </span>
             <h1 className="mt-4 font-display text-4xl font-extrabold leading-tight sm:text-6xl">
-              Skattjakt bland
-              <br />
-              vintagesmycken
+              {hero.heading}
             </h1>
             <p className="mt-4 max-w-md text-cream/85 sm:text-lg">
-              Oanvända smycken från ett tömt lager — räddade, aldrig burna och
-              långt under ursprungspris. När de är slut är de slut.
+              {hero.subheading}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
@@ -70,7 +68,7 @@ export default async function HomePage() {
               Extra fynd så länge lagret räcker — passa på innan tiden rinner ut.
             </p>
           </div>
-          <CountdownTimer endsAt={SALE_COUNTDOWN_ENDS_AT} />
+          <CountdownTimer endsAt={content.saleCountdownEndsAt} />
         </div>
       </section>
 
@@ -115,26 +113,16 @@ export default async function HomePage() {
         <div className="grid items-center gap-6 rounded-3xl bg-sand/60 p-6 sm:grid-cols-2 sm:p-10">
           <div>
             <span className="inline-flex rounded-pill bg-fuchsia-brand/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-fuchsia-deep">
-              Vår historia
+              {brandStory.eyebrow}
             </span>
             <h2 className="mt-3 font-display text-2xl font-bold text-ink sm:text-3xl">
-              Räddat ur ett tömt lager
+              {brandStory.heading}
             </h2>
             <div className="mt-4 space-y-3 text-plum-soft">
-              <p>
-                När ett svenskt smyckesmärke lade ner blev hela lagret över:
-                lådvis med smycken som aldrig hann ut i butik. Oanvända, oburna,
-                fortfarande i sina originalförpackningar.
-              </p>
-              <p>
-                Istället för att låta dem samla damm har vi räddat dem — och
-                säljer dem vidare långt under ursprungspris. Varje pjäs är ett
-                litet stycke vintage som väntar på sin första ägare.
-              </p>
-              <p className="font-semibold text-ink">
-                Lagret är begränsat. När ett fynd är borta kommer det inte
-                tillbaka.
-              </p>
+              {brandStory.paragraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+              <p className="font-semibold text-ink">{brandStory.closingLine}</p>
             </div>
             <Link
               href="/om-oss"
@@ -176,10 +164,10 @@ export default async function HomePage() {
                 Skapa ditt eget paket
               </h2>
               <p className="mt-2 max-w-md text-plum-soft">
-                Välj {BUNDLE_CONFIG.size} valfria pjäser från vilka kategorier
-                du vill, samla dem i din bricka och få allt i en fin{" "}
-                {BUNDLE_CONFIG.packageName.toLowerCase()} — för bara{" "}
-                {formatPrice(BUNDLE_CONFIG.pricePerBundle)}.
+                Välj {bundle.size} valfria pjäser från vilka kategorier du vill,
+                samla dem i din bricka och få allt i en{" "}
+                {bundle.packageName.toLowerCase()} — för bara{" "}
+                {formatPrice(bundle.pricePerBundle)}.
               </p>
               <Link
                 href="/paket"
@@ -196,7 +184,7 @@ export default async function HomePage() {
       </section>
 
       {/* Email capture */}
-      <EmailCaptureBlock />
+      <EmailCaptureBlock content={content.emailPopup} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getAllProducts, getCollections } from "@/lib/shopify";
+import { getSiteContent } from "@/lib/content";
 import { BundleBuilder } from "@/components/bundle/BundleBuilder";
-import { BUNDLE_CONFIG } from "@/lib/config/bundle";
 import { formatPrice } from "@/lib/utils/format";
 
 export const metadata: Metadata = {
@@ -11,10 +11,12 @@ export const metadata: Metadata = {
 };
 
 export default async function BundlePage() {
-  const [products, collections] = await Promise.all([
+  const [products, collections, content] = await Promise.all([
     getAllProducts(),
     getCollections(),
+    getSiteContent(),
   ]);
+  const { bundle } = content;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
@@ -26,17 +28,21 @@ export default async function BundlePage() {
           Skapa ditt eget paket
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-plum-soft">
-          Välj {BUNDLE_CONFIG.size} valfria pjäser från vilka kategorier du
-          vill. Vi packar allt fint i en {BUNDLE_CONFIG.packageName.toLowerCase()}{" "}
-          — för {formatPrice(BUNDLE_CONFIG.pricePerBundle)}. Perfekt att ge bort
-          eller unna dig själv.
+          Välj {bundle.size} valfria pjäser från vilka kategorier du vill. Vi
+          packar allt fint i en {bundle.packageName.toLowerCase()} — för{" "}
+          {formatPrice(bundle.pricePerBundle)}. Perfekt att ge bort eller unna
+          dig själv.
         </p>
       </header>
 
-      <BundleBuilder products={products} collections={collections} />
+      <BundleBuilder
+        products={products}
+        collections={collections}
+        bundle={bundle}
+      />
 
       <p className="mt-6 text-center text-sm text-plum-soft">
-        {BUNDLE_CONFIG.packageBlurb}
+        {bundle.packageBlurb}
       </p>
     </div>
   );

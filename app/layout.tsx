@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { getCollections } from "@/lib/shopify";
+import { getSiteContent } from "@/lib/content";
 import { CartProvider } from "@/lib/cart/CartContext";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { Header } from "@/components/layout/Header";
@@ -35,19 +36,22 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Categories drive nav + footer. Fetched once at the layout level.
-  const collections = await getCollections();
+  // Categories drive nav + footer; content drives the marketing surfaces.
+  const [collections, content] = await Promise.all([
+    getCollections(),
+    getSiteContent(),
+  ]);
 
   return (
     <html lang="sv">
       <body>
         <CartProvider>
-          <AnnouncementBanner />
+          <AnnouncementBanner content={content.announcement} />
           <Header collections={collections} />
           <main className="min-h-[60vh]">{children}</main>
           <Footer collections={collections} />
           <CartDrawer />
-          <EmailPopup />
+          <EmailPopup content={content.emailPopup} />
         </CartProvider>
       </body>
     </html>

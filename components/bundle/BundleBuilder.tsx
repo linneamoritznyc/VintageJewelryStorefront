@@ -10,7 +10,7 @@ import type {
 } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/CartContext";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { BUNDLE_CONFIG } from "@/lib/config/bundle";
+import type { BundleContent } from "@/lib/content/types";
 import { formatPrice } from "@/lib/utils/format";
 
 interface Pick {
@@ -36,12 +36,14 @@ function pickVariant(product: Product): ProductVariant | null {
 export function BundleBuilder({
   products,
   collections,
+  bundle,
 }: {
   products: Product[];
   collections: Collection[];
+  bundle: BundleContent;
 }) {
   const { addLine } = useCart();
-  const size = BUNDLE_CONFIG.size;
+  const size = bundle.size;
 
   const [picks, setPicks] = useState<Pick[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -83,11 +85,11 @@ export function BundleBuilder({
       variantId: `bundle:${Date.now()}`,
       productHandle: "paket",
       productTitle: `Vintage-paket (${size} delar)`,
-      variantTitle: BUNDLE_CONFIG.packageName,
+      variantTitle: bundle.packageName,
       selectedOptions: [],
       price: {
-        amount: BUNDLE_CONFIG.pricePerBundle.toFixed(2),
-        currencyCode: BUNDLE_CONFIG.currencyCode,
+        amount: bundle.pricePerBundle.toFixed(2),
+        currencyCode: bundle.currencyCode,
       },
       compareAtPrice: null,
       image: { url: "mock:bundle:290", altText: "Vintage-paket", width: 800, height: 800 },
@@ -248,7 +250,7 @@ export function BundleBuilder({
             </span>
             <div>
               <p className="text-sm font-bold text-plum">
-                + {BUNDLE_CONFIG.packageName}
+                + {bundle.packageName}
               </p>
               <p className="text-xs text-plum-soft">Ingår alltid i paketet</p>
             </div>
@@ -259,7 +261,7 @@ export function BundleBuilder({
             <div className="flex items-baseline justify-between">
               <span className="text-sm text-plum-soft">Paketpris</span>
               <span className="font-display text-2xl font-extrabold text-ink">
-                {formatPrice(BUNDLE_CONFIG.pricePerBundle)}
+                {formatPrice(bundle.pricePerBundle)}
               </span>
             </div>
             <button
@@ -297,7 +299,7 @@ export function BundleBuilder({
               </span>
             </div>
             <span className="text-xs font-semibold text-plum-soft">
-              {formatPrice(BUNDLE_CONFIG.pricePerBundle)}
+              {formatPrice(bundle.pricePerBundle)}
             </span>
           </div>
           <button

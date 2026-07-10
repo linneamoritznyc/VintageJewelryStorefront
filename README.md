@@ -51,11 +51,28 @@ lib/
     types.ts             Storefront API-shaped types (the only types components use)
     index.ts             Public data API — re-exports mock today, real client later
     mock/                Mock products/collections + query implementation
+  content/               OWNER CONTENT LAYER — the single swap point for
+                         marketing copy (banner, countdown, bundle price,
+                         homepage text). Mock today, Shopify metaobjects later.
   cart/CartContext.tsx   Client cart state (mirrors Storefront Cart shape) + localStorage
   checkout/index.ts      Single checkout handoff point (stubbed)
-  config/                coupons, bundle, promotions — editable data, no code changes
+  config/                coupons, bundle, promotions — code-level defaults read
+                         by the content layer
   utils/                 money formatting, stock/low-stock logic
 ```
+
+Two independent swap points, both isolated to `lib/`:
+
+- **`lib/shopify/index.ts`** — commerce data (products, collections, cart).
+- **`lib/content/index.ts`** — owner-editable marketing content. Once live this
+  reads **Shopify metaobjects**, so the non-technical owner edits banner text,
+  the sale end-date, the bundle price and homepage copy in Shopify admin with no
+  code and no redeploy. The exact metaobject field definitions are documented in
+  that file.
+
+**Handoff to a non-technical owner:** see **`ÖVERLÄMNING.md`** (Swedish) for the
+owner-vs-developer responsibility split, the go-live checklist, and what to
+transfer.
 
 ### Swapping in live Shopify data
 

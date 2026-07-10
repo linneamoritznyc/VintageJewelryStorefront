@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { EMAIL_POPUP } from "@/lib/config/promotions";
+import type { EmailPopupContent } from "@/lib/content/types";
 
 /**
  * Inline email-capture block for the homepage. Offers the same storewide code
- * as the popup and banner (single source in config/promotions). Stubbed submit
+ * as the popup and banner (single source in the content layer). Stubbed submit
  * — wire to the real list at the marked TODO.
  */
-export function EmailCaptureBlock() {
+export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,10 +31,10 @@ export function EmailCaptureBlock() {
           ✧
         </span>
         <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
-          {EMAIL_POPUP.heading}
+          {content.heading}
         </h2>
         <p className="mx-auto mt-2 max-w-md text-cream/80">
-          Få {EMAIL_POPUP.discountPercentage}% på din första beställning och var
+          Få {content.discountPercentage}% på din första beställning och var
           först när nya fynd släpps.
         </p>
 
@@ -43,7 +43,7 @@ export function EmailCaptureBlock() {
             <p className="text-cream/90">
               Tack! Din kod:{" "}
               <span className="rounded-pill bg-cream/20 px-3 py-1 font-bold tracking-wide">
-                {EMAIL_POPUP.code}
+                {content.code}
               </span>
             </p>
           </div>

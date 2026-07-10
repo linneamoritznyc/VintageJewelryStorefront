@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EMAIL_POPUP } from "@/lib/config/promotions";
+import type { EmailPopupContent } from "@/lib/content/types";
 
 /**
- * Once-per-session email-capture popup offering the storewide 10% (same code
- * as the announcement banner — kept consistent via config/promotions). Shows a
- * few seconds after load, at most once per browser session.
+ * Once-per-session email-capture popup offering the storewide discount (same
+ * code as the announcement banner — kept consistent via the content layer).
+ * Shows a few seconds after load, at most once per browser session.
  *
  * The submit is a stubbed capture: it just reveals the code. Wire this to a
  * real list (Shopify customer / Klaviyo / etc.) at the marked TODO.
@@ -14,18 +14,18 @@ import { EMAIL_POPUP } from "@/lib/config/promotions";
 const SESSION_KEY = "vjs-email-popup-seen";
 const SHOW_DELAY_MS = 6000;
 
-export function EmailPopup() {
+export function EmailPopup({ content }: { content: EmailPopupContent }) {
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!EMAIL_POPUP.enabled) return;
+    if (!content.enabled) return;
     if (window.sessionStorage.getItem(SESSION_KEY)) return;
     const id = window.setTimeout(() => setVisible(true), SHOW_DELAY_MS);
     return () => window.clearTimeout(id);
-  }, []);
+  }, [content.enabled]);
 
   const dismiss = () => {
     window.sessionStorage.setItem(SESSION_KEY, "1");
@@ -82,7 +82,7 @@ export function EmailPopup() {
             ✧
           </span>
           <p className="mt-1 text-4xl font-extrabold">
-            {EMAIL_POPUP.discountPercentage}%
+            {content.discountPercentage}%
           </p>
           <p className="text-sm font-semibold uppercase tracking-wide text-white/90">
             på din första beställning
@@ -96,10 +96,10 @@ export function EmailPopup() {
                 Välkommen till jakten! 🎉
               </h3>
               <p className="mt-2 text-sm text-plum-soft">
-                Använd koden i kassan för {EMAIL_POPUP.discountPercentage}% rabatt:
+                Använd koden i kassan för {content.discountPercentage}% rabatt:
               </p>
               <p className="mt-3 inline-block rounded-pill bg-gold-soft/60 px-5 py-2 text-lg font-extrabold tracking-wider text-plum">
-                {EMAIL_POPUP.code}
+                {content.code}
               </p>
               <button
                 type="button"
@@ -115,10 +115,10 @@ export function EmailPopup() {
                 id="email-popup-title"
                 className="text-center font-display text-xl font-bold text-ink"
               >
-                {EMAIL_POPUP.heading}
+                {content.heading}
               </h3>
               <p className="mt-2 text-center text-sm text-plum-soft">
-                {EMAIL_POPUP.subheading}
+                {content.subheading}
               </p>
               <form onSubmit={submit} noValidate className="mt-4">
                 <input

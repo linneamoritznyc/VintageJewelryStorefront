@@ -1,25 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ANNOUNCEMENT } from "@/lib/config/promotions";
+import type { AnnouncementContent } from "@/lib/content/types";
 
 /**
- * Persistent, dismissible storewide 10% banner. Dismissal is remembered in
- * localStorage so it stays hidden across visits until a new campaign. Shares
- * its code with the email popup (both defined in config/promotions).
+ * Persistent, dismissible storewide discount banner. Dismissal is remembered in
+ * localStorage (keyed by the active code) so it stays hidden until a new
+ * campaign changes the code. Content comes from the owner-editable content
+ * layer (`lib/content`), so text/code/on-off are editable in Shopify once live.
+ * Shares its code with the email popup.
  */
 const DISMISS_KEY = "vjs-announcement-dismissed";
 
-export function AnnouncementBanner() {
+export function AnnouncementBanner({
+  content,
+}: {
+  content: AnnouncementContent;
+}) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!ANNOUNCEMENT.enabled) return;
-    const dismissed = window.localStorage.getItem(DISMISS_KEY) === ANNOUNCEMENT.code;
+    if (!content.enabled) return;
+    const dismissed = window.localStorage.getItem(DISMISS_KEY) === content.code;
     setVisible(!dismissed);
-  }, []);
+  }, [content.enabled, content.code]);
 
-  if (!ANNOUNCEMENT.enabled || !visible) return null;
+  if (!content.enabled || !visible) return null;
 
   return (
     <div className="relative bg-gradient-to-r from-fuchsia-deep via-fuchsia-brand to-fuchsia-hot text-white">
@@ -28,9 +34,9 @@ export function AnnouncementBanner() {
           ✦
         </span>
         <span>
-          {ANNOUNCEMENT.message}{" "}
+          {content.message}{" "}
           <span className="rounded-pill bg-white/25 px-2 py-0.5 font-bold tracking-wide">
-            {ANNOUNCEMENT.code}
+            {content.code}
           </span>
         </span>
       </div>
@@ -38,7 +44,7 @@ export function AnnouncementBanner() {
         type="button"
         aria-label="Stäng meddelande"
         onClick={() => {
-          window.localStorage.setItem(DISMISS_KEY, ANNOUNCEMENT.code);
+          window.localStorage.setItem(DISMISS_KEY, content.code);
           setVisible(false);
         }}
         className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
