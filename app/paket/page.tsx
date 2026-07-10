@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAllProducts, getCollections } from "@/lib/shopify";
+import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { BundleBuilder } from "@/components/bundle/BundleBuilder";
 import { formatPrice } from "@/lib/utils/format";
@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 
 export default async function BundlePage() {
   const [products, collections, content] = await Promise.all([
-    getAllProducts(),
-    getCollections(),
+    store.getAllProducts(),
+    store.getCollections(),
     getSiteContent(),
   ]);
   const { bundle } = content;

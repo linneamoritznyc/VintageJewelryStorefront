@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getCollections, getLatestProducts } from "@/lib/shopify";
+import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { EmailCaptureBlock } from "@/components/marketing/EmailCaptureBlock";
@@ -15,8 +15,8 @@ const CATEGORY_EMOJI: Record<string, string> = {
 
 export default async function HomePage() {
   const [collections, latest, content] = await Promise.all([
-    getCollections(),
-    getLatestProducts(10),
+    store.getCollections(),
+    store.getLatestProducts(10),
     getSiteContent(),
   ]);
   const { hero, brandStory, bundle } = content;

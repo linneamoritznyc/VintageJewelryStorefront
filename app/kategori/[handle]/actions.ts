@@ -1,11 +1,11 @@
 "use server";
 
-import { getProducts, type ProductSortKey } from "@/lib/shopify";
+import { store, type ProductSortKey } from "@/lib/shopify";
 
 /**
  * Server action backing the category "Ladda fler" (load more) button. Keeping
  * data fetching on the server means the live Storefront API token never reaches
- * the client — the swap to real data stays a data-layer change.
+ * the client, and it goes through the same `store` swap point.
  */
 export async function loadMoreProductsAction(input: {
   collection: string;
@@ -15,7 +15,7 @@ export async function loadMoreProductsAction(input: {
   page: number;
   pageSize: number;
 }) {
-  const result = await getProducts(input);
+  const result = await store.getProducts(input);
   return {
     products: result.products,
     hasNextPage: result.hasNextPage,

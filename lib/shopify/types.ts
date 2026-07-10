@@ -75,13 +75,28 @@ export interface Product {
   /** Collection handles this product belongs to. */
   collections: string[];
   tags: string[];
-  /** ISO timestamp — used for "newest" sort and latest-finds carousel. */
+  /** ISO timestamp used for "newest" sort and latest-finds carousel. */
   createdAt: string;
+
+  /* --- custom metafields (flattened onto the product so components do not
+     need to know these come from metafields). In live Shopify these are
+     product metafields in namespace `custom`, each exposed to the Storefront
+     API. See lib/shopify/live/queries.ts. --- */
+
+  /** "Om denna vintage-pärla" copy. Metafield `custom.vintage_story`. */
+  vintageBlurb: string;
   /**
-   * Storefront content for the "Om denna vintage-pärla" section. In live
-   * Shopify this maps to a product metafield (namespace `story`, key `body`).
+   * Original retail price for honest "was/now" comparison. Metafield
+   * `custom.original_retail`. `null` when unknown, in which case NO original
+   * price is shown (honesty rule). Mirrors the standard compareAtPrice fields.
    */
-  vintageStory: string;
+  originalRetail: Money | null;
+  /** Dropshipped accessory (from Asia). Metafield `custom.is_dropship`. */
+  isDropship: boolean;
+  /** Customs note shown on dropship products. Metafield `custom.customs_note`. */
+  customsNote: string | null;
+  /** Optional source lot/parti the piece came from. Metafield `custom.source_lot`. */
+  sourceLot: string | null;
 }
 
 export interface Collection {

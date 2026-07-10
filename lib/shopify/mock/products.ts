@@ -95,6 +95,10 @@ interface SeedInput {
   tags?: string[];
   /** Optional metal-colour variants. Omit for single-variant products. */
   metals?: string[];
+  /** Dropshipped accessory (Asia). Shows the customs note. */
+  isDropship?: boolean;
+  customsNote?: string;
+  sourceLot?: string;
 }
 
 // Fixed reference instant so the mock catalog is deterministic across renders
@@ -174,7 +178,13 @@ function buildProduct(seed: SeedInput): Product {
     collections: [seed.category],
     tags: seed.tags ?? [],
     createdAt,
-    vintageStory: seed.vintageStory,
+    vintageBlurb: seed.vintageStory,
+    // originalRetail mirrors the compare-at (the known original price); null
+    // when unknown so nothing is claimed (honesty rule).
+    originalRetail: seed.compareAt ? money(seed.compareAt) : null,
+    isDropship: seed.isDropship ?? false,
+    customsNote: seed.customsNote ?? null,
+    sourceLot: seed.sourceLot ?? null,
   };
 }
 

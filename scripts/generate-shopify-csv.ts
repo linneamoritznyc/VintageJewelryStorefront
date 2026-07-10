@@ -81,7 +81,7 @@ for (const product of MOCK_PRODUCTS) {
     const row = [
       product.handle,
       isFirst ? product.title : "",
-      isFirst ? bodyHtml(product.description, product.vintageStory) : "",
+      isFirst ? bodyHtml(product.description, product.vintageBlurb) : "",
       isFirst ? "Vintageskatten" : "",
       isFirst ? type : "",
       isFirst ? tags : "",

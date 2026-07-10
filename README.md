@@ -49,8 +49,10 @@ components/               UI, product, cart, bundle, marketing, layout component
 lib/
   shopify/               DATA LAYER — the single swap point (see below)
     types.ts             Storefront API-shaped types (the only types components use)
-    index.ts             Public data API — re-exports mock today, real client later
-    mock/                Mock products/collections + query implementation
+    client.ts            StoreClient interface (the data contract)
+    index.ts             Exports `store` = mock or live, chosen by env flag
+    mock/                Fixtures (products/collections) + mock StoreClient
+    live/                Live StoreClient stub + GraphQL queries (2026-07)
   content/               OWNER CONTENT LAYER — the single swap point for
                          marketing copy (banner, countdown, bundle price,
                          homepage text). Mock today, Shopify metaobjects later.
@@ -63,7 +65,9 @@ lib/
 
 Two independent swap points, both isolated to `lib/`:
 
-- **`lib/shopify/index.ts`** — commerce data (products, collections, cart).
+- **`lib/shopify/index.ts`** — commerce data (products, collections, cart) via
+  the `store` object. Mock vs live is chosen by `NEXT_PUBLIC_USE_MOCK`; going
+  live means implementing `lib/shopify/live/client.ts` and flipping the flag.
 - **`lib/content/index.ts`** — owner-editable marketing content. Once live this
   reads **Shopify metaobjects**, so the non-technical owner edits banner text,
   the sale end-date, the bundle price and homepage copy in Shopify admin with no

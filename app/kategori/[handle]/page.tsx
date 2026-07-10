@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  getCollection,
-  getCollections,
-  getProducts,
-  type ProductSortKey,
-} from "@/lib/shopify";
+import { store, type ProductSortKey } from "@/lib/shopify";
 import { FilterBar } from "@/components/category/FilterBar";
 import { CategoryListing } from "@/components/category/CategoryListing";
 
@@ -15,7 +10,7 @@ const VALID_SORTS: ProductSortKey[] = ["NEWEST", "PRICE_ASC", "PRICE_DESC"];
 
 /** Pre-render a route for each category. New categories are picked up here. */
 export async function generateStaticParams() {
-  const collections = await getCollections();
+  const collections = await store.getCollections();
   return collections.map((c) => ({ handle: c.handle }));
 }
 
@@ -24,7 +19,7 @@ export async function generateMetadata({
 }: {
   params: { handle: string };
 }): Promise<Metadata> {
-  const collection = await getCollection(params.handle);
+  const collection = await store.getCollection(params.handle);
   if (!collection) return { title: "Kategori hittades inte" };
   return {
     title: collection.title,
@@ -45,7 +40,7 @@ export default async function CategoryPage({
   params: { handle: string };
   searchParams: { sort?: string; maxPrice?: string };
 }) {
-  const collection = await getCollection(params.handle);
+  const collection = await store.getCollection(params.handle);
   if (!collection) notFound();
 
   const sort = parseSort(searchParams.sort);
@@ -53,7 +48,7 @@ export default async function CategoryPage({
   const maxPrice =
     Number.isFinite(maxPriceRaw) && maxPriceRaw > 0 ? maxPriceRaw : undefined;
 
-  const { products, totalCount, hasNextPage } = await getProducts({
+  const { products, totalCount, hasNextPage } = await store.getProducts({
     collection: params.handle,
     sort,
     maxPrice,

@@ -1,47 +1,35 @@
 /**
  * ============================================================================
- * STOREFRONT DATA API — THE SINGLE SWAP POINT
+ * STOREFRONT DATA — THE SINGLE SWAP POINT
  * ============================================================================
  *
- * The entire app imports its commerce data from THIS module and nowhere else.
- * Today it re-exports the mock implementation. When live Shopify Storefront API
- * credentials exist, implement the same function signatures against the real
- * GraphQL API (in e.g. `./storefront-client.ts`) and change the re-export below
- * to point at it. Component code does not change.
+ * Every component/page imports the `store` object from here and calls
+ * `store.getProducts()`, `store.getProduct()`, etc. Nothing imports Shopify or
+ * the mock directly.
  *
- * Environment variables the live client will need (see `.env.example`):
- *   SHOPIFY_STORE_DOMAIN          e.g. your-store.myshopify.com
- *   SHOPIFY_STOREFRONT_API_TOKEN  Storefront API public access token
- *   SHOPIFY_STOREFRONT_API_VERSION e.g. 2025-01
+ * The implementation is chosen by an env flag:
+ *   NEXT_PUBLIC_USE_MOCK=true   → mock data (default; no credentials needed)
+ *   NEXT_PUBLIC_USE_MOCK=false  → live Storefront API (lib/shopify/live/client)
  *
- * Migration checklist:
- *   1. Implement getProducts/getProduct/getCollection(s)/getLatestProducts/
- *      getAllProducts/getProductsByHandles against the Storefront API, returning
- *      the types in `./types.ts`.
- *   2. Map the per-product vintage story from the `story.body` metafield.
- *   3. Wire real cart mutations (cartCreate / cartLinesAdd / cartLinesUpdate /
- *      cartLinesRemove / cartDiscountCodesUpdate) in `lib/cart/` — the cart
- *      context already models the Storefront Cart shape.
- *   4. Point `checkoutUrl` at the real `cart.checkoutUrl` from Shopify.
+ * Going live is therefore: implement `live/client.ts`, set the flag to false,
+ * and provide credentials in `.env` (SHOPIFY_STORE_DOMAIN,
+ * SHOPIFY_STOREFRONT_API_TOKEN, SHOPIFY_STOREFRONT_API_VERSION=2026-07).
+ * Component code does not change.
  * ============================================================================
  */
+import type { StoreClient } from "./client";
+import { mockClient } from "./mock/client";
+import { liveClient } from "./live/client";
+
+// Default to mock unless explicitly disabled, so a fresh checkout "just works".
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
+
+export const store: StoreClient = USE_MOCK ? mockClient : liveClient;
 
 export * from "./types";
 export type {
+  StoreClient,
   ProductSortKey,
   ProductQueryOptions,
   ProductConnection,
-} from "./mock";
-
-export {
-  getCollections,
-  getCollection,
-  getProducts,
-  getProduct,
-  getProductsByHandles,
-  getLatestProducts,
-  getAllProducts,
-} from "./mock";
-
-// When live, replace the line above with:
-// export { ... } from "./storefront-client";
+} from "./client";

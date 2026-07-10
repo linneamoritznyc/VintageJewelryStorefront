@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  getProduct,
-  getProducts,
-  getCollection,
-} from "@/lib/shopify";
+import { store } from "@/lib/shopify";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
@@ -15,7 +11,7 @@ export async function generateMetadata({
 }: {
   params: { handle: string };
 }): Promise<Metadata> {
-  const product = await getProduct(params.handle);
+  const product = await store.getProduct(params.handle);
   if (!product) return { title: "Produkt hittades inte" };
   return {
     title: product.title,
@@ -32,14 +28,14 @@ export default async function ProductPage({
 }: {
   params: { handle: string };
 }) {
-  const product = await getProduct(params.handle);
+  const product = await store.getProduct(params.handle);
   if (!product) notFound();
 
   const primaryCollection = product.collections[0];
   const [collection, related] = await Promise.all([
-    primaryCollection ? getCollection(primaryCollection) : Promise.resolve(null),
+    primaryCollection ? store.getCollection(primaryCollection) : Promise.resolve(null),
     primaryCollection
-      ? getProducts({ collection: primaryCollection, pageSize: 12 })
+      ? store.getProducts({ collection: primaryCollection, pageSize: 12 })
       : Promise.resolve(null),
   ]);
 
@@ -108,13 +104,13 @@ export default async function ProductPage({
           )}
 
           {/* Per-product vintage story */}
-          {product.vintageStory && (
+          {product.vintageBlurb && (
             <div className="rounded-2xl bg-gradient-to-br from-sand/70 to-cream p-5">
               <h2 className="flex items-center gap-2 font-display text-lg font-bold text-plum">
                 <span aria-hidden>✧</span> Om denna vintage-pärla
               </h2>
               <p className="mt-2 leading-relaxed text-ink/80">
-                {product.vintageStory}
+                {product.vintageBlurb}
               </p>
             </div>
           )}

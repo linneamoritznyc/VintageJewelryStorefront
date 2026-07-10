@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { getCollections } from "@/lib/shopify";
+import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { CartProvider } from "@/lib/cart/CartContext";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
@@ -38,7 +38,7 @@ export default async function RootLayout({
 }) {
   // Categories drive nav + footer; content drives the marketing surfaces.
   const [collections, content] = await Promise.all([
-    getCollections(),
+    store.getCollections(),
     getSiteContent(),
   ]);
 
