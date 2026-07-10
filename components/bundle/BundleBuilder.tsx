@@ -92,7 +92,7 @@ export function BundleBuilder({
         currencyCode: bundle.currencyCode,
       },
       compareAtPrice: null,
-      image: { url: "mock:bundle:290", altText: "Vintage-paket", width: 800, height: 800 },
+      image: { url: "mock:giftbox:290", altText: "Vintage-paket", width: 800, height: 800 },
       quantityAvailable: 99,
       isBundle: true,
       bundleContents: contents,

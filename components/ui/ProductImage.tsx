@@ -1,26 +1,19 @@
 import type { Image as ShopImage } from "@/lib/shopify/types";
+import { JewelryArt } from "./jewelryArt";
 
 /**
- * Renders a product image. During development, mock images use a `mock:seed:hue`
- * URL and are drawn as a deterministic gradient placeholder (no network needed,
- * stable between server and client render). When live, image URLs are real
- * Shopify CDN links and this component renders a normal <img> (swap to
- * next/image if desired).
+ * Renders a product image. During development, mock images use a `mock:art:hue`
+ * URL and are drawn as a jewelry illustration (see jewelryArt) on a tinted
+ * gradient — no network needed, stable between server and client render. When
+ * live, image URLs are real Shopify CDN links and this component renders a
+ * normal <img> (swap to next/image if desired).
  */
 
-function parseMock(url: string): { seed: string; hue: number } | null {
+function parseMock(url: string): { art: string; hue: number } | null {
   if (!url.startsWith("mock:")) return null;
-  const [, seed, hueStr] = url.split(":");
+  const [, art, hueStr] = url.split(":");
   const hue = Number(hueStr);
-  return { seed: seed ?? "x", hue: Number.isFinite(hue) ? hue : 320 };
-}
-
-/** Simple deterministic glyph pick so placeholders vary a little. */
-const GLYPHS = ["◈", "❀", "✶", "◍", "✦", "❋", "◆", "✿"];
-function glyphFor(seed: string): string {
-  let sum = 0;
-  for (let i = 0; i < seed.length; i += 1) sum += seed.charCodeAt(i);
-  return GLYPHS[sum % GLYPHS.length];
+  return { art: art ?? "ring-pearl", hue: Number.isFinite(hue) ? hue : 320 };
 }
 
 export function ProductImage({
@@ -37,28 +30,24 @@ export function ProductImage({
   const mock = parseMock(image.url);
 
   if (mock) {
-    const { hue, seed } = mock;
+    const { hue, art } = mock;
     const h2 = (hue + 40) % 360;
     return (
       <div
         className={`relative flex items-center justify-center overflow-hidden ${className}`}
         style={{
-          background: `linear-gradient(135deg, hsl(${hue} 62% 82%), hsl(${h2} 55% 72%))`,
+          background: `linear-gradient(135deg, hsl(${hue} 58% 90%), hsl(${h2} 48% 82%))`,
         }}
         role="img"
         aria-label={image.altText ?? "Produktbild"}
       >
+        <div className="h-[72%] w-[72%]">
+          <JewelryArt art={art} hue={hue} />
+        </div>
         <span
           aria-hidden
-          className="select-none text-6xl opacity-80 drop-shadow-sm"
-          style={{ color: `hsl(${hue} 45% 32%)` }}
-        >
-          {glyphFor(seed)}
-        </span>
-        <span
-          aria-hidden
-          className="absolute right-3 top-3 text-lg opacity-70"
-          style={{ color: `hsl(${h2} 45% 30%)` }}
+          className="absolute right-3 top-3 text-sm opacity-50"
+          style={{ color: `hsl(${h2} 45% 35%)` }}
         >
           ✧
         </span>

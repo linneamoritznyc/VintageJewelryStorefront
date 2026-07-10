@@ -18,13 +18,66 @@ function money(amount: number) {
   return { amount: amount.toFixed(2), currencyCode: CURRENCY };
 }
 
-function mockImage(seed: string, hue: number, title: string): Image {
+function mockImage(art: string, hue: number, title: string): Image {
   return {
-    url: `mock:${seed}:${hue}`,
+    url: `mock:${art}:${hue}`,
     altText: title,
     width: 1000,
     height: 1000,
   };
+}
+
+/**
+ * Which jewelry illustration (see components/ui/jewelryArt) represents each
+ * product. Keeps the visual matched to the piece. Unmapped handles fall back to
+ * a per-category default below.
+ */
+const ART_BY_HANDLE: Record<string, string> = {
+  "orhangen-parla-drop": "earring-drop",
+  "orhangen-guldhoops-liten": "earring-hoop",
+  "orhangen-stjarna-stud": "earring-star",
+  "orhangen-emalj-blomma": "earring-flower",
+  "orhangen-kristall-chandelier": "earring-chandelier",
+  "orhangen-geometrisk-triangel": "earring-triangle",
+  "orhangen-mane-halvmane": "earring-moon",
+  "orhangen-parla-cluster": "earring-cluster",
+  "orhangen-tofs-fringe": "earring-tassel",
+  "halsband-parla-choker": "necklace-pearl",
+  "halsband-guldkedja-fin": "necklace-chain",
+  "halsband-hjarta-locket": "necklace-heart",
+  "halsband-berlock-mane": "necklace-moonstar",
+  "halsband-fargad-sten": "necklace-stone",
+  "halsband-parla-langt": "necklace-pearl",
+  "halsband-tunn-satellit": "necklace-chain",
+  "halsband-emalj-flower-power": "necklace-flower",
+  "armband-parla-elastisk": "bracelet-pearl",
+  "armband-guldlank-chunky": "bracelet-link",
+  "armband-berlock-charm": "bracelet-charm",
+  "armband-tunn-bangle": "bracelet-bangle",
+  "armband-emalj-rand": "bracelet-bangle",
+  "armband-kristall-tennis": "bracelet-tennis",
+  "armband-flatat-lader": "bracelet-braid",
+  "armband-parla-dubbel": "bracelet-pearl",
+  "ovrigt-fotlank-parla": "anklet",
+  "ovrigt-fotlank-kedja": "anklet",
+  "ovrigt-brosch-blomma": "brooch-flower",
+  "ovrigt-ring-signet": "ring-signet",
+  "ovrigt-ring-parla": "ring-pearl",
+  "ovrigt-harspanne-parla": "hairclip",
+  "ovrigt-brosch-fjaril": "brooch-butterfly",
+  "ovrigt-smyckesask-mini": "keyring",
+  "ovrigt-slojd-solglasogonkedja": "glasses-chain",
+};
+
+const ART_BY_CATEGORY: Record<string, string> = {
+  orhangen: "earring-drop",
+  halsband: "necklace-chain",
+  armband: "bracelet-bangle",
+  ovrigt: "ring-pearl",
+};
+
+function artFor(seed: SeedInput): string {
+  return ART_BY_HANDLE[seed.handle] ?? ART_BY_CATEGORY[seed.category] ?? "ring-pearl";
 }
 
 interface SeedInput {
@@ -56,9 +109,10 @@ function buildProduct(seed: SeedInput): Product {
     REFERENCE_MS - seed.daysAgo * 24 * 60 * 60 * 1000,
   ).toISOString();
 
+  const art = artFor(seed);
   const images: Image[] = [
-    mockImage(`${seed.handle}-1`, seed.hue, seed.title),
-    mockImage(`${seed.handle}-2`, (seed.hue + 24) % 360, seed.title),
+    mockImage(art, seed.hue, seed.title),
+    mockImage(art, (seed.hue + 24) % 360, seed.title),
   ];
 
   const metals = seed.metals ?? [];
