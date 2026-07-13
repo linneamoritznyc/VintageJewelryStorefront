@@ -3,8 +3,8 @@ import { formatMoney, discountPercentage } from "@/lib/utils/format";
 
 /**
  * Price display with optional original (compare-at) price struck through, the
- * deadstock "original vs. current" credibility hook. Shows a saved-percentage
- * chip when there's a genuine discount.
+ * deadstock "original vs. current" credibility hook. The saving is shown in
+ * kronor (concrete beats percent), only when compare-at data is genuine.
  */
 export function PriceTag({
   price,
@@ -18,6 +18,10 @@ export function PriceTag({
   showSaving?: boolean;
 }) {
   const saving = discountPercentage(price, compareAtPrice ?? null);
+  const savedKr =
+    compareAtPrice && saving !== null
+      ? Math.round(parseFloat(compareAtPrice.amount) - parseFloat(price.amount))
+      : null;
 
   const priceSize =
     size === "lg" ? "text-2xl" : size === "sm" ? "text-sm" : "text-lg";
@@ -25,17 +29,17 @@ export function PriceTag({
 
   return (
     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-      <span className={`font-sans font-extrabold text-ink ${priceSize}`}>
+      <span className={`font-sans font-semibold text-ink ${priceSize}`}>
         {formatMoney(price)}
       </span>
-      {compareAtPrice && saving !== null && (
+      {compareAtPrice && savedKr !== null && savedKr > 0 && (
         <>
           <span className={`text-plum-soft/70 line-through ${wasSize}`}>
             {formatMoney(compareAtPrice)}
           </span>
           {showSaving && (
-            <span className="rounded-pill bg-fuchsia-brand px-2 py-0.5 text-[11px] font-bold text-white">
-              −{saving}%
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-fuchsia-deep">
+              Spara {savedKr} kr
             </span>
           )}
         </>

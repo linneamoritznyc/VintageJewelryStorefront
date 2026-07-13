@@ -17,12 +17,12 @@ export function ProductCard({
   return (
     <Link
       href={`/produkt/${product.handle}`}
-      className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-card transition-transform duration-200 hover:-translate-y-1 focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-brand"
+      className="group flex flex-col focus-visible:outline-none"
     >
-      <div className="relative aspect-square">
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-sand/50 ring-1 ring-ink/5 transition group-hover:ring-ink/15 group-focus-visible:ring-2 group-focus-visible:ring-fuchsia-brand">
         <ProductImage
           image={product.featuredImage}
-          className="h-full w-full transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           priority={priority}
         />
@@ -32,17 +32,15 @@ export function ProductCard({
           </div>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-3">
-        <h3 className="line-clamp-2 font-display text-base leading-tight text-ink">
+      <div className="flex flex-1 flex-col gap-1 pt-3">
+        <h3 className="line-clamp-2 text-sm font-medium leading-snug text-ink">
           {product.title}
         </h3>
-        <div className="mt-auto">
-          <PriceTag
-            price={product.priceRange.minVariantPrice}
-            compareAtPrice={product.compareAtPriceRange.minVariantPrice}
-            size="sm"
-          />
-        </div>
+        <PriceTag
+          price={product.priceRange.minVariantPrice}
+          compareAtPrice={product.compareAtPriceRange.minVariantPrice}
+          size="sm"
+        />
       </div>
     </Link>
   );

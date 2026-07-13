@@ -1,11 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Familjen_Grotesk } from "next/font/google";
+import { Familjen_Grotesk, Fraunces } from "next/font/google";
 import "./globals.css";
 
 const grotesk = Familjen_Grotesk({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-grotesk",
+  display: "swap",
+});
+
+/* Editorial display serif for headlines, paired with the grotesk body. */
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-fraunces",
   display: "swap",
 });
 import { store } from "@/lib/shopify";
@@ -76,7 +85,7 @@ export default async function RootLayout({
   const navCollections = allCollections.filter((c) => isNavCollectionHandle(c.handle));
 
   return (
-    <html lang="sv" className={grotesk.variable}>
+    <html lang="sv" className={`${grotesk.variable} ${fraunces.variable}`}>
       <body>
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <ConsentProvider>
