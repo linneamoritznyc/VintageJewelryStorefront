@@ -3,10 +3,11 @@
 @tailwind utilities;
 
 :root {
-  /* Familjen Grotesk for body/UI, Fraunces (editorial serif) for headlines.
-     Both loaded via next/font in layout. */
-  --font-sans: var(--font-grotesk), "Helvetica Neue", Arial, sans-serif;
+  /* Inter for body/UI, Fraunces (editorial serif) for headlines, JetBrains
+     Mono for the inventory voice. All loaded via next/font in layout. */
+  --font-sans: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
   --font-display: var(--font-fraunces), Georgia, serif;
+  --font-mono-stack: var(--font-mono), ui-monospace, monospace;
 }
 
 @layer base {
@@ -15,7 +16,7 @@
   }
 
   body {
-    @apply bg-cream text-ink antialiased;
+    @apply bg-paper text-ink antialiased;
     font-family: var(--font-sans);
   }
 
@@ -24,6 +25,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
+    font-weight: 400;
   }
 
   /* Respect reduced-motion preferences for all the playful animations. */
@@ -39,6 +41,16 @@
 }
 
 @layer utilities {
+  /* The inventory voice: mono, uppercase, tracked. Lot numbers, labels,
+     counts, SKUs, timestamps. */
+  .meta {
+    font-family: var(--font-mono-stack);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

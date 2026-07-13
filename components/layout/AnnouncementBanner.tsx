@@ -1,61 +1,45 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { AnnouncementContent } from "@/lib/content/types";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/config/shipping";
 
 /**
- * Dismissible storewide discount banner. Dismissal is remembered in
- * sessionStorage (keyed by the active code), so closing it hides it for the
- * rest of the browser session but it returns next session, same dismiss
- * semantics as the email popup. Content comes from the owner-editable content
- * layer (`lib/content`), so text/code/on-off are editable in Shopify once
- * live. Shares its code with the email popup.
+ * Top announcement bar in the inventory voice: ink ground, paper mono text.
+ * It states real facts only (no discount, no manufactured urgency) and rotates
+ * slowly between them. The 10% member offer lives in the dismissible member
+ * banner and the popup instead, keeping the two surfaces distinct.
  */
-const DISMISS_KEY = "vjs-announcement-dismissed";
+const FACTS = [
+  "Aldrig burna. Aldrig sålda.",
+  `Fri frakt över ${FREE_SHIPPING_THRESHOLD} kr`,
+  "14 dagars ångerrätt",
+  "Ett exemplar av varje",
+];
 
-export function AnnouncementBanner({
-  content,
-}: {
-  content: AnnouncementContent;
-}) {
-  const [visible, setVisible] = useState(false);
+const ROTATE_MS = 4000;
+
+export function AnnouncementBanner() {
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    if (!content.enabled) return;
-    const dismissed = window.sessionStorage.getItem(DISMISS_KEY) === content.code;
-    setVisible(!dismissed);
-  }, [content.enabled, content.code]);
-
-  if (!content.enabled || !visible) return null;
+    const id = window.setInterval(
+      () => setIndex((i) => (i + 1) % FACTS.length),
+      ROTATE_MS,
+    );
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
-    <div className="relative border-b border-ink/10 bg-sand/70 text-ink">
-      <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-10 py-2 text-center text-xs font-medium uppercase tracking-[0.14em]">
-        <span>
-          {content.message}{" "}
-          <span className="ml-1 border-b border-ink pb-px font-semibold">
-            {content.code}
-          </span>
+    <div className="bg-ink text-paper">
+      <div className="mx-auto flex max-w-[1280px] items-center justify-center px-4 py-2 text-center">
+        <span
+          key={index}
+          className="meta animate-fade-in text-paper/90"
+          aria-live="polite"
+        >
+          {FACTS[index]}
         </span>
       </div>
-      <button
-        type="button"
-        aria-label="Stäng meddelande"
-        onClick={() => {
-          window.sessionStorage.setItem(DISMISS_KEY, content.code);
-          setVisible(false);
-        }}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-ink/50 transition hover:bg-ink/10 hover:text-ink"
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-          <path
-            d="M4 4l8 8M12 4l-8 8"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </button>
     </div>
   );
 }

@@ -50,20 +50,14 @@ export function Countdown({
 
   return (
     <div className={`flex flex-wrap items-center gap-x-4 gap-y-2 ${className}`}>
-      {label && (
-        <span className="text-xs uppercase tracking-[0.18em] text-plum-soft">
-          {label}
-        </span>
-      )}
+      {label && <span className="meta text-ink-faint">{label}</span>}
       <div className="flex items-baseline gap-3">
         {units.map(([value, unit]) => (
           <span key={unit} className="flex items-baseline gap-1">
-            <span className="font-display text-xl tabular-nums text-ink sm:text-2xl">
+            <span className="font-mono text-xl font-medium tabular-nums text-signal sm:text-2xl">
               {String(value).padStart(2, "0")}
             </span>
-            <span className="text-[11px] uppercase tracking-wide text-plum-soft">
-              {unit}
-            </span>
+            <span className="meta text-ink-faint">{unit}</span>
           </span>
         ))}
       </div>

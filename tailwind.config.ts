@@ -1,12 +1,18 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Design system for the storefront.
+ * Design system: "Lagret" (the warehouse/archive).
  *
- * Brand direction: playful "treasure hunt" + "last chance", Gen-Z-aware,
- * mobile-first. Warm cream base, punchy fuchsia/magenta primary, deep plum
- * ink, and a soft gold accent that nods to the vintage-jewelry product without
- * tipping into quiet-luxury heritage territory.
+ * Visual language of stock records and catalogue typography: warm bone paper,
+ * near-black ink, hairline rules, and a single red signal reserved strictly
+ * for things that are factually scarce (real stock counts, a genuine deadline,
+ * the active bundle slot). Flat and matte: no shadows, no gradients, almost
+ * square corners (2px). Serif display + grotesque interface + mono inventory.
+ *
+ * The semantic tokens (paper/ink/rule/signal) are the source of truth. The
+ * legacy names (cream/sand/plum/fuchsia/gold/mint) are kept as aliases mapped
+ * onto the new palette so older markup adopts the system automatically; new
+ * code should use the semantic names.
  */
 const config: Config = {
   content: [
@@ -16,44 +22,59 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // Brand palette (Fyndlådan): warm, light, fyndjakt-coded. Token names are
-      // kept stable across the codebase; the VALUES map to the brand colours.
-      //   cream  = créme (light background)
-      //   sand   = warm neutral (sections)
-      //   ink    = espresso (text)
-      //   plum   = oliv (dark blocks / secondary text)
-      //   fuchsia= terrakotta (accent / CTA / sale price)
-      //   gold   = restrained warm metallic accent
-      //   mint   = muted olive (success)
       colors: {
-        cream: "#FCFAF5",
-        sand: "#F4ECDF",
-        ink: "#2B2320",
-        plum: {
-          DEFAULT: "#3E4328",
-          soft: "#6E7355",
+        // Surfaces
+        paper: {
+          DEFAULT: "#F4F1EA",
+          raised: "#FFFFFF",
+          sunk: "#E4DFD2",
         },
-        fuchsia: {
-          brand: "#B4573A",
-          hot: "#C56A4B",
-          deep: "#8F4026",
+        // Ink
+        ink: {
+          DEFAULT: "#1A1A18",
+          muted: "#5C584E",
+          faint: "#8A8577",
         },
-        gold: {
-          DEFAULT: "#B98C4A",
-          soft: "#E7D3B0",
-        },
-        mint: "#5F7A52",
+        // Structure
+        rule: "#C4BDAB",
+        // Signal: the only accent. Real scarcity only.
+        signal: "#D93A1F",
+
+        // --- Legacy aliases mapped onto the new palette ---
+        cream: "#F4F1EA",
+        sand: "#E4DFD2",
+        plum: { DEFAULT: "#5C584E", soft: "#5C584E" },
+        // The old terracotta accent is neutralised to ink: buttons/links must
+        // never be red (signal is reserved for scarcity).
+        fuchsia: { brand: "#1A1A18", hot: "#1A1A18", deep: "#1A1A18" },
+        gold: { DEFAULT: "#8A8577", soft: "#E4DFD2" },
+        mint: "#5C584E",
       },
       fontFamily: {
-        display: ["var(--font-display)", "Georgia", "serif"],
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-fraunces)", "Georgia", "serif"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+      letterSpacing: {
+        meta: "0.08em",
       },
       borderRadius: {
-        pill: "999px",
+        // Almost square everywhere. Catalogued, not friendly.
+        none: "0",
+        sm: "2px",
+        DEFAULT: "2px",
+        md: "2px",
+        lg: "2px",
+        xl: "2px",
+        "2xl": "2px",
+        "3xl": "2px",
+        pill: "2px",
+        full: "9999px",
       },
       boxShadow: {
-        card: "0 6px 24px -12px rgba(43, 35, 32, 0.30)",
-        pop: "0 12px 40px -12px rgba(180, 87, 58, 0.40)",
+        // No shadows. Ever. Separation comes from rules and the paper stack.
+        card: "none",
+        pop: "none",
       },
       keyframes: {
         "slide-in-right": {
@@ -64,25 +85,16 @@ const config: Config = {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
-        "pop-in": {
-          "0%": { opacity: "0", transform: "translateY(12px) scale(0.98)" },
-          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
-        },
-        marquee: {
-          "0%": { transform: "translateX(0)" },
-          "100%": { transform: "translateX(-50%)" },
-        },
-        sparkle: {
-          "0%, 100%": { opacity: "1", transform: "scale(1)" },
-          "50%": { opacity: "0.4", transform: "scale(0.85)" },
+        "slot-in": {
+          "0%": { opacity: "0", transform: "scale(0.8)" },
+          "70%": { transform: "scale(1.06)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
         },
       },
       animation: {
         "slide-in-right": "slide-in-right 0.28s ease-out",
-        "fade-in": "fade-in 0.2s ease-out",
-        "pop-in": "pop-in 0.25s ease-out",
-        marquee: "marquee 22s linear infinite",
-        sparkle: "sparkle 1.6s ease-in-out infinite",
+        "fade-in": "fade-in 0.15s ease-out",
+        "slot-in": "slot-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
     },
   },
