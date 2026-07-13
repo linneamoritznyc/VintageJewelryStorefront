@@ -190,6 +190,9 @@ export default function CheckoutPage() {
               <span aria-hidden>🔒</span> Betalning, frakt och moms hanteras
               säkert av Shopify.
             </p>
+            <p className="mt-1 text-center text-[11px] text-plum-soft/70">
+              Betalning sker via Swish. Testnummer: 123123123 (platshållare)
+            </p>
           </div>
 
           <Link

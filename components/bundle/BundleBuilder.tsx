@@ -11,6 +11,7 @@ import { useCart } from "@/lib/cart/CartContext";
 import { ProductImage } from "@/components/ui/ProductImage";
 import type { BundleContent } from "@/lib/content/types";
 import { formatPrice } from "@/lib/utils/format";
+import { primaryCategoryHandle } from "@/lib/config/navigation";
 
 interface Pick {
   product: Product;
@@ -59,7 +60,12 @@ export function BundleBuilder({
   // categories are already in the tray so we can block a second pick from the
   // same one and gate the CTA.
   const pickedCategories = useMemo(
-    () => new Set(picks.map((p) => p.product.collections[0]).filter(Boolean)),
+    () =>
+      new Set(
+        picks
+          .map((p) => primaryCategoryHandle(p.product.collections))
+          .filter((c): c is string => !!c),
+      ),
     [picks],
   );
 
@@ -69,7 +75,7 @@ export function BundleBuilder({
 
   function addPick(product: Product) {
     if (isFull) return;
-    const category = product.collections[0];
+    const category = primaryCategoryHandle(product.collections);
     if (category && pickedCategories.has(category)) {
       setNotice(
         `Välj ${size} olika kategorier. Du har redan en pjäs från den här kategorin.`,
@@ -161,9 +167,8 @@ export function BundleBuilder({
             const pickedCount = picks.filter(
               (p) => p.product.handle === product.handle,
             ).length;
-            const categoryTaken =
-              !!product.collections[0] &&
-              pickedCategories.has(product.collections[0]);
+            const productCategory = primaryCategoryHandle(product.collections);
+            const categoryTaken = !!productCategory && pickedCategories.has(productCategory);
             return (
               <button
                 key={product.id}

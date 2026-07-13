@@ -25,6 +25,33 @@ function img(file: string, alt: string): Image {
   return { url: `${CDN_BASE}${file}`, altText: alt, width: 800, height: 800 };
 }
 
+/**
+ * Handles curated into the two marketing collections in Shopify (not
+ * rule-based, so pulled 1:1 from the real store rather than guessed).
+ * "under-100-kr" isn't listed here, it's a real Shopify rule-based collection
+ * (price < 100), computed the same way below instead of hand-maintained.
+ */
+const PERFEKTA_PRESENTER_HANDLES = new Set([
+  "parlhalsband-aurora",
+  "parlstuds-luna",
+  "jadearmband-serene",
+  "glittrande-hjartan",
+  "rosenkvartshalsband-love",
+  "filigransorhangen-lace",
+  "samtschoker-velvet",
+  "berlockarmband-tassel",
+]);
+const MANADENS_FYND_HANDLES = new Set([
+  "diamantring-sparkle",
+  "filigransorhangen-lace",
+  "parlhalsband-aurora",
+  "safirhangen-royal",
+  "jadearmband-serene",
+  "samtschoker-velvet",
+  "topasring-ocean",
+  "guldringar-classic",
+]);
+
 type Category = "orhangen" | "halsband" | "armband" | "ovrigt";
 
 interface RealSeed {
@@ -63,6 +90,11 @@ function buildProduct(seed: RealSeed): Product {
 
   const descriptionHtml = `<p>${seed.intro}</p><p><em>Om denna vintage-pärla:</em> ${seed.vintageBlurb}</p><p>14 dagars lagstadgad ångerrätt gäller.</p>`;
 
+  const collections: string[] = [seed.category];
+  if (seed.price < 100) collections.push("under-100-kr");
+  if (PERFEKTA_PRESENTER_HANDLES.has(seed.handle)) collections.push("perfekta-presenter");
+  if (MANADENS_FYND_HANDLES.has(seed.handle)) collections.push("manadens-fynd");
+
   return {
     id: `gid://shopify/Product/${seed.productId}`,
     handle: seed.handle,
@@ -82,7 +114,7 @@ function buildProduct(seed: RealSeed): Product {
       minVariantPrice: null,
       maxVariantPrice: null,
     },
-    collections: [seed.category],
+    collections,
     tags: seed.tags,
     createdAt: seed.createdAt,
     vintageBlurb: seed.vintageBlurb,

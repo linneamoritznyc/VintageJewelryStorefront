@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import type { AnnouncementContent } from "@/lib/content/types";
 
 /**
- * Persistent, dismissible storewide discount banner. Dismissal is remembered in
- * localStorage (keyed by the active code) so it stays hidden until a new
- * campaign changes the code. Content comes from the owner-editable content
- * layer (`lib/content`), so text/code/on-off are editable in Shopify once live.
- * Shares its code with the email popup.
+ * Dismissible storewide discount banner. Dismissal is remembered in
+ * sessionStorage (keyed by the active code), so closing it hides it for the
+ * rest of the browser session but it returns next session, same dismiss
+ * semantics as the email popup. Content comes from the owner-editable content
+ * layer (`lib/content`), so text/code/on-off are editable in Shopify once
+ * live. Shares its code with the email popup.
  */
 const DISMISS_KEY = "vjs-announcement-dismissed";
 
@@ -21,7 +22,7 @@ export function AnnouncementBanner({
 
   useEffect(() => {
     if (!content.enabled) return;
-    const dismissed = window.localStorage.getItem(DISMISS_KEY) === content.code;
+    const dismissed = window.sessionStorage.getItem(DISMISS_KEY) === content.code;
     setVisible(!dismissed);
   }, [content.enabled, content.code]);
 
@@ -44,7 +45,7 @@ export function AnnouncementBanner({
         type="button"
         aria-label="Stäng meddelande"
         onClick={() => {
-          window.localStorage.setItem(DISMISS_KEY, content.code);
+          window.sessionStorage.setItem(DISMISS_KEY, content.code);
           setVisible(false);
         }}
         className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"

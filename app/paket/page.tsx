@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
+import { isNavCollectionHandle } from "@/lib/config/navigation";
 import { BundleBuilder } from "@/components/bundle/BundleBuilder";
 
 export const metadata: Metadata = {
@@ -10,11 +11,12 @@ export const metadata: Metadata = {
 };
 
 export default async function BundlePage() {
-  const [products, collections, content] = await Promise.all([
+  const [products, allCollections, content] = await Promise.all([
     store.getAllProducts(),
     store.getCollections(),
     getSiteContent(),
   ]);
+  const collections = allCollections.filter((c) => isNavCollectionHandle(c.handle));
   const { bundle } = content;
 
   return (

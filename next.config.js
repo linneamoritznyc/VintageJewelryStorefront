@@ -13,9 +13,6 @@ const nextConfig = {
       // Canonical routes now match the real Shopify page handles.
       { source: "/villkor", destination: "/kopvillkor", permanent: true },
       { source: "/integritet", destination: "/integritetspolicy", permanent: true },
-      // The Shopify content page for the bundle builder; the interactive
-      // tool itself lives at /paket.
-      { source: "/skapa-ditt-eget-paket", destination: "/paket", permanent: false },
     ];
   },
 };

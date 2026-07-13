@@ -22,10 +22,3 @@ export const EMAIL_POPUP = {
   heading: "Häng med på skattjakten",
   subheading: `Skriv upp dig och få ${STOREWIDE_DISCOUNT_PERCENTAGE}% på din första beställning. Först till kvarn, lagret är begränsat.`,
 };
-
-/**
- * Default end-time for the homepage limited-time-sale countdown.
- * Edit this ISO timestamp to schedule the next drop. The countdown component
- * accepts any end-time, so per-page timers can override it.
- */
-export const SALE_COUNTDOWN_ENDS_AT = "2026-07-31T21:59:59.000Z";

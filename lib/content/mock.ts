@@ -1,5 +1,5 @@
 import type { SiteContent } from "./types";
-import { ANNOUNCEMENT, EMAIL_POPUP, SALE_COUNTDOWN_ENDS_AT } from "@/lib/config/promotions";
+import { ANNOUNCEMENT, EMAIL_POPUP } from "@/lib/config/promotions";
 import { BUNDLE_CONFIG } from "@/lib/config/bundle";
 import { ANGERRATT_NOTICE } from "@/lib/config/legal";
 
@@ -23,7 +23,6 @@ export function getMockSiteContent(): SiteContent {
       code: EMAIL_POPUP.code,
       discountPercentage: EMAIL_POPUP.discountPercentage,
     },
-    saleCountdownEndsAt: SALE_COUNTDOWN_ENDS_AT,
     hero: {
       badge: "Deadstock · aldrig burna",
       heading: "Skattjakt bland vintagesmycken",

@@ -152,6 +152,9 @@ export function CartDrawer() {
               <p className="mt-2 text-center text-xs text-plum-soft">
                 Frakt och betalning beräknas i nästa steg.
               </p>
+              <p className="mt-1 text-center text-[11px] text-plum-soft/70">
+                Betalning sker via Swish. Testnummer: 123123123 (platshållare)
+              </p>
             </div>
           </>
         )}

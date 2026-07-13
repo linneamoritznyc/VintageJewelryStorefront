@@ -10,6 +10,7 @@ const grotesk = Familjen_Grotesk({
 });
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
+import { isNavCollectionHandle } from "@/lib/config/navigation";
 import { CartProvider } from "@/lib/cart/CartContext";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { Header } from "@/components/layout/Header";
@@ -45,19 +46,23 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Categories drive nav + footer; content drives the marketing surfaces.
-  const [collections, content] = await Promise.all([
+  // store.getCollections() returns every Shopify collection (including
+  // system/curated ones not meant for primary nav), filter to the four
+  // jewelry categories, see lib/config/navigation.ts.
+  const [allCollections, content] = await Promise.all([
     store.getCollections(),
     getSiteContent(),
   ]);
+  const navCollections = allCollections.filter((c) => isNavCollectionHandle(c.handle));
 
   return (
     <html lang="sv" className={grotesk.variable}>
       <body>
         <CartProvider>
           <AnnouncementBanner content={content.announcement} />
-          <Header collections={collections} />
+          <Header collections={navCollections} />
           <main className="min-h-[60vh]">{children}</main>
-          <Footer collections={collections} />
+          <Footer collections={navCollections} />
           <CartDrawer />
           <EmailPopup content={content.emailPopup} />
         </CartProvider>

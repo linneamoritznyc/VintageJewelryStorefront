@@ -50,8 +50,6 @@ export interface BundleContent {
 export interface SiteContent {
   announcement: AnnouncementContent;
   emailPopup: EmailPopupContent;
-  /** ISO end-time for the homepage limited-time-sale countdown. */
-  saleCountdownEndsAt: string;
   hero: HeroContent;
   brandStory: BrandStoryContent;
   bundle: BundleContent;
