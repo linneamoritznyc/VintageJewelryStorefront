@@ -182,6 +182,7 @@ function mapProduct(p: RawProduct): Product {
     isDropship: metafieldValue(p.isDropship) === "true",
     customsNote: metafieldValue(p.customsNote),
     sourceLot: metafieldValue(p.sourceLot),
+    angerratt: metafieldValue(p.angerratt),
   };
 }
 
@@ -470,6 +471,7 @@ interface RawProduct {
   isDropship: { value: string } | null;
   customsNote: { value: string } | null;
   sourceLot: { value: string } | null;
+  angerratt: { value: string } | null;
 }
 interface RawProductConnection {
   nodes: RawProduct[];

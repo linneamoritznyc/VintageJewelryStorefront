@@ -48,6 +48,7 @@ export function BundleBuilder({
   const [picks, setPicks] = useState<Pick[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [justAdded, setJustAdded] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const inStock = products.filter((p) => p.availableForSale);
@@ -55,13 +56,30 @@ export function BundleBuilder({
     return inStock.filter((p) => p.collections.includes(activeCategory));
   }, [products, activeCategory]);
 
+  // The bundle discount requires pieces from DIFFERENT categories. Track which
+  // categories are already in the tray so we can block a second pick from the
+  // same one and gate the CTA.
+  const pickedCategories = useMemo(
+    () => new Set(picks.map((p) => p.product.collections[0]).filter(Boolean)),
+    [picks],
+  );
+
   const isFull = picks.length >= size;
   const remaining = size - picks.length;
 
   function addPick(product: Product) {
     if (isFull) return;
+    const category = product.collections[0];
+    if (category && pickedCategories.has(category)) {
+      setNotice(
+        `Välj ${size} olika kategorier. Du har redan en pjäs från den här kategorin.`,
+      );
+      window.setTimeout(() => setNotice(null), 2600);
+      return;
+    }
     const variant = pickVariant(product);
     if (!variant) return;
+    setNotice(null);
     setPicks((prev) => [...prev, { product, variant }]);
   }
 
@@ -131,17 +149,34 @@ export function BundleBuilder({
           ))}
         </div>
 
+        {/* Rule hint + inline notice when a category is already taken */}
+        <p className="mb-3 text-sm text-plum-soft">
+          Regel: {size} pjäser från {size} olika kategorier.
+        </p>
+        {notice && (
+          <div
+            role="status"
+            className="mb-3 rounded-2xl border border-fuchsia-brand/30 bg-fuchsia-brand/10 px-4 py-2.5 text-sm font-semibold text-fuchsia-deep"
+          >
+            {notice}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {filtered.map((product) => {
             const pickedCount = picks.filter(
               (p) => p.product.handle === product.handle,
             ).length;
+            const categoryTaken =
+              !!product.collections[0] &&
+              pickedCategories.has(product.collections[0]);
             return (
               <button
                 key={product.id}
                 type="button"
                 onClick={() => addPick(product)}
-                disabled={isFull}
+                disabled={isFull || categoryTaken}
+                aria-disabled={isFull || categoryTaken}
                 className="group relative flex flex-col overflow-hidden rounded-2xl bg-white text-left shadow-card transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <div className="relative aspect-square">

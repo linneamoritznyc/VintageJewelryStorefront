@@ -29,8 +29,17 @@ export default function ShippingPage() {
         <section>
           <h2 className="font-display text-lg font-bold text-ink">Retur &amp; ångerrätt</h2>
           <p className="mt-2 leading-relaxed">
-            Du har 14 dagars ångerrätt enligt distansavtalslagen. Kontakta oss så
-            hjälper vi dig med din retur. Varan ska returneras i oanvänt skick.
+            Du har 14 dagars ångerrätt enligt distansavtalslagen. Varan ska
+            returneras i oanvänt skick. Logga in på ditt konto för att se dina
+            ordrar och starta en retur, eller kontakta oss så hjälper vi dig.
+          </p>
+          <p className="mt-3">
+            <a
+              href="https://shopify.com/102317621595/account"
+              className="font-semibold text-fuchsia-brand underline"
+            >
+              Till mitt konto
+            </a>
           </p>
         </section>
         <p className="text-sm">
