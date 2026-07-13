@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
+import { isNavCollectionHandle } from "@/lib/config/navigation";
 import { BundleBuilder } from "@/components/bundle/BundleBuilder";
-import { formatPrice } from "@/lib/utils/format";
 
 export const metadata: Metadata = {
   title: "Skapa ditt eget paket",
   description:
-    "Välj dina favoritpjäser, samla dem i din bricka och få allt i en fin vintage-ask till ett fast paketpris.",
+    "Välj dina favoritpjäser, samla dem i din bricka och få allt i en fin vintage-ask, med automatisk pakträtt.",
 };
 
 export default async function BundlePage() {
-  const [products, collections, content] = await Promise.all([
+  const [products, allCollections, content] = await Promise.all([
     store.getAllProducts(),
     store.getCollections(),
     getSiteContent(),
   ]);
+  const collections = allCollections.filter((c) => isNavCollectionHandle(c.handle));
   const { bundle } = content;
 
   return (
@@ -28,10 +29,10 @@ export default async function BundlePage() {
           Skapa ditt eget paket
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-plum-soft">
-          Välj {bundle.size} valfria pjäser från vilka kategorier du vill. Vi
-          packar allt fint i en {bundle.packageName.toLowerCase()}, för{" "}
-          {formatPrice(bundle.pricePerBundle)}. Perfekt att ge bort eller unna
-          dig själv.
+          Välj {bundle.size} pjäser från {bundle.size} olika kategorier. Vi
+          packar allt fint i en {bundle.packageName.toLowerCase()}, och du får
+          automatiskt {bundle.discountPercentage}% pakträtt i kassan. Perfekt
+          att ge bort eller unna dig själv.
         </p>
       </header>
 

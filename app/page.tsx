@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
+import { isNavCollectionHandle } from "@/lib/config/navigation";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { EmailCaptureBlock } from "@/components/marketing/EmailCaptureBlock";
-import { CountdownTimer } from "@/components/ui/CountdownTimer";
-import { formatPrice } from "@/lib/utils/format";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   orhangen: "💎",
@@ -13,12 +12,16 @@ const CATEGORY_EMOJI: Record<string, string> = {
   ovrigt: "✨",
 };
 
+/** Curated collection the homepage carousel pulls from. */
+const FEATURED_COLLECTION = "manadens-fynd";
+
 export default async function HomePage() {
-  const [collections, latest, content] = await Promise.all([
+  const [allCollections, featured, content] = await Promise.all([
     store.getCollections(),
-    store.getLatestProducts(10),
+    store.getProducts({ collection: FEATURED_COLLECTION, pageSize: 10 }),
     getSiteContent(),
   ]);
+  const collections = allCollections.filter((c) => isNavCollectionHandle(c.handle));
   const { hero, brandStory, bundle } = content;
 
   return (
@@ -57,32 +60,17 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Limited-time sale countdown */}
-      <section className="mx-auto w-full max-w-6xl px-4">
-        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-gold-soft bg-white px-6 py-5 sm:flex-row">
-          <div className="text-center sm:text-left">
-            <p className="font-display text-lg font-bold text-ink">
-              ⏳ Fyndkväll pågår
-            </p>
-            <p className="text-sm text-plum-soft">
-              Extra fynd så länge lagret räcker, passa på innan tiden rinner ut.
-            </p>
-          </div>
-          <CountdownTimer endsAt={content.saleCountdownEndsAt} />
-        </div>
-      </section>
-
-      {/* Latest finds carousel */}
+      {/* Featured finds carousel, sourced from the "Månadens fynd" collection */}
       <section className="mx-auto w-full max-w-6xl px-4">
         <div className="mb-4 flex items-end justify-between">
           <div>
             <h2 className="font-display text-2xl font-bold text-ink sm:text-3xl">
-              Senaste fynden
+              Månadens fynd
             </h2>
-            <p className="text-sm text-plum-soft">Nyss framgrävt ur lagret.</p>
+            <p className="text-sm text-plum-soft">Handplockat ur lagret just nu.</p>
           </div>
         </div>
-        <ProductCarousel products={latest} />
+        <ProductCarousel products={featured.products} />
       </section>
 
       {/* Category navigation */}
@@ -164,10 +152,10 @@ export default async function HomePage() {
                 Skapa ditt eget paket
               </h2>
               <p className="mt-2 max-w-md text-plum-soft">
-                Välj {bundle.size} valfria pjäser från vilka kategorier du vill,
+                Välj {bundle.size} pjäser från {bundle.size} olika kategorier,
                 samla dem i din bricka och få allt i en{" "}
-                {bundle.packageName.toLowerCase()}, för bara{" "}
-                {formatPrice(bundle.pricePerBundle)}.
+                {bundle.packageName.toLowerCase()}, med automatiskt{" "}
+                {bundle.discountPercentage}% pakträtt i kassan.
               </p>
               <Link
                 href="/paket"

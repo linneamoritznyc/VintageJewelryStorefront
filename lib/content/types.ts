@@ -40,7 +40,8 @@ export interface BrandStoryContent {
 export interface BundleContent {
   /** Number of pieces to complete a bundle. */
   size: number;
-  pricePerBundle: number;
+  /** The real automatic Shopify discount's percentage off. */
+  discountPercentage: number;
   currencyCode: string;
   packageName: string;
   packageBlurb: string;
@@ -49,9 +50,13 @@ export interface BundleContent {
 export interface SiteContent {
   announcement: AnnouncementContent;
   emailPopup: EmailPopupContent;
-  /** ISO end-time for the homepage limited-time-sale countdown. */
-  saleCountdownEndsAt: string;
   hero: HeroContent;
   brandStory: BrandStoryContent;
   bundle: BundleContent;
+  /**
+   * Shop-wide ångerrätt notice, shown as a visible badge on every product
+   * page BEFORE the buy button (legal requirement, never hidden in the
+   * description). Shop-level metafield `custom.angerratt_notice`.
+   */
+  angerrattNotice: string;
 }

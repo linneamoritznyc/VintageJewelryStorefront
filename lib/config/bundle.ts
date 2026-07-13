@@ -1,24 +1,29 @@
 /**
  * "Skapa ditt eget paket" (create-your-own-bundle) configuration.
  *
- * All bundle rules are data here so the flagship feature can be re-tuned
- * without code changes. Once live, `pricePerBundle` should reconcile with a
- * Shopify bundle product / discount so checkout charges the bundle price.
+ * The discount is a real Shopify AUTOMATIC discount ("Paketrabatt: 15 % på 3
+ * eller fler smycken", verified live 2026-07-13), not a fixed bundle price
+ * and not a code. It applies to any cart with `size` or more items, however
+ * they got there, the "3 different categories" rule below is our own UI
+ * curation for the bundle-builder page, not a condition of the discount
+ * itself. Keeping the real percentage/size here (rather than a fabricated
+ * flat price) means the number shown in the UI always matches what Shopify
+ * actually charges once live.
  */
 export interface BundleConfig {
-  /** Exact number of pieces the customer collects to complete a bundle. */
+  /** Minimum items in the cart for the automatic discount to apply. */
   size: number;
-  /** Flat price for a completed bundle, in the store currency. */
-  pricePerBundle: number;
+  /** The real automatic discount's percentage off. */
+  discountPercentage: number;
   currencyCode: string;
-  /** Copy for the included physical package (a marketing asset). */
+  /** Copy for the included physical package (a marketing asset, not billed separately). */
   packageName: string;
   packageBlurb: string;
 }
 
 export const BUNDLE_CONFIG: BundleConfig = {
   size: 3,
-  pricePerBundle: 199,
+  discountPercentage: 15,
   currencyCode: "SEK",
   packageName: "Vintage-ask",
   packageBlurb:

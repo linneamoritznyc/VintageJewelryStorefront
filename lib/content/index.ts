@@ -45,6 +45,10 @@ import { getMockSiteContent } from "./mock";
  *     package_name             single line text
  *     package_blurb            multi line text
  *
+ *   Shop-level metafield (not a metaobject, set on the Shop itself under
+ *   Settings → Custom data → Shop metafields):
+ *     custom.angerratt_notice   single line text   (maps to `angerrattNotice`)
+ *
  * Then implement `getShopifySiteContent()` to query these and map to
  * `SiteContent`, and swap the return below. Component code does not change.
  * The `code` field must match a real Shopify discount code (see coupons).

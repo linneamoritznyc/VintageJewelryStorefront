@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { store } from "@/lib/shopify";
+import { getSiteContent } from "@/lib/content";
+import { primaryCategoryHandle } from "@/lib/config/navigation";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
@@ -31,12 +33,13 @@ export default async function ProductPage({
   const product = await store.getProduct(params.handle);
   if (!product) notFound();
 
-  const primaryCollection = product.collections[0];
-  const [collection, related] = await Promise.all([
+  const primaryCollection = primaryCategoryHandle(product.collections);
+  const [collection, related, content] = await Promise.all([
     primaryCollection ? store.getCollection(primaryCollection) : Promise.resolve(null),
     primaryCollection
       ? store.getProducts({ collection: primaryCollection, pageSize: 12 })
       : Promise.resolve(null),
+    getSiteContent(),
   ]);
 
   const relatedProducts =
@@ -90,6 +93,14 @@ export default async function ProductPage({
             )}
           </div>
 
+          {/* Ångerrätt-badge, synlig FÖRE köpknappen (aldrig gömd i texten) */}
+          <div className="flex items-start gap-2 rounded-2xl border border-plum-soft/25 bg-white px-4 py-3 text-sm text-plum">
+            <span aria-hidden className="mt-0.5 text-base">
+              ↩
+            </span>
+            <p className="font-medium leading-snug">{content.angerrattNotice}</p>
+          </div>
+
           <ProductPurchasePanel product={product} />
 
           {product.description && (
@@ -103,17 +114,21 @@ export default async function ProductPage({
             </div>
           )}
 
-          {/* Per-product vintage story */}
-          {product.vintageBlurb && (
-            <div className="rounded-2xl bg-gradient-to-br from-sand/70 to-cream p-5">
-              <h2 className="flex items-center gap-2 font-display text-lg font-bold text-plum">
-                <span aria-hidden>✧</span> Om denna vintage-pärla
-              </h2>
-              <p className="mt-2 leading-relaxed text-ink/80">
-                {product.vintageBlurb}
-              </p>
-            </div>
-          )}
+          {/* Per-product vintage story. Falls back to the description when the
+              vintage_blurb metafield isn't set, so this section is never empty. */}
+          <div className="rounded-2xl bg-gradient-to-br from-sand/70 to-cream p-5">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold text-plum">
+              <span aria-hidden>✧</span> Om denna vintage-pärla
+            </h2>
+            {product.vintageBlurb ? (
+              <p className="mt-2 leading-relaxed text-ink/80">{product.vintageBlurb}</p>
+            ) : (
+              <div
+                className="mt-2 space-y-2 leading-relaxed text-ink/80"
+                dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+              />
+            )}
+          </div>
         </div>
       </div>
 

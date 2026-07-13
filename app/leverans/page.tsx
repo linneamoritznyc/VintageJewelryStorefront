@@ -1,48 +1,36 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { store } from "@/lib/shopify";
+import { RichContent } from "@/components/content/RichContent";
 
 export const metadata: Metadata = {
-  title: "Leverans & retur",
-  description: "Information om frakt, leveranstid och returer hos Fyndlådan.",
+  title: "Leverans",
+  description: "Frakt, leveranstid och fraktkostnad hos Fyndlådan.",
 };
 
-export default function ShippingPage() {
+export default async function ShippingPage() {
+  const page = await store.getPage("leverans");
+  if (!page) notFound();
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
-      <h1 className="font-display text-3xl font-extrabold text-ink sm:text-4xl">
-        Leverans &amp; retur
-      </h1>
-      <div className="mt-6 space-y-6 text-plum-soft">
-        <section>
-          <h2 className="font-display text-lg font-bold text-ink">Frakt</h2>
-          <p className="mt-2 leading-relaxed">
-            Vi skickar med spårbar leverans inom Sverige. Fraktkostnad och
-            leveransalternativ visas i kassan, som hanteras säkert via Shopify.
-          </p>
-        </section>
-        <section>
-          <h2 className="font-display text-lg font-bold text-ink">Leveranstid</h2>
-          <p className="mt-2 leading-relaxed">
-            Beställningar packas normalt inom 1–3 arbetsdagar. Därefter tillkommer
-            postens leveranstid.
-          </p>
-        </section>
-        <section>
-          <h2 className="font-display text-lg font-bold text-ink">Retur &amp; ångerrätt</h2>
-          <p className="mt-2 leading-relaxed">
-            Du har 14 dagars ångerrätt enligt distansavtalslagen. Kontakta oss så
-            hjälper vi dig med din retur. Varan ska returneras i oanvänt skick.
-          </p>
-        </section>
-        <p className="text-sm">
-          Har du frågor? Mejla oss på{" "}
-          <a
-            href="mailto:hej@fyndladan.se"
-            className="font-semibold text-fuchsia-brand underline"
-          >
-            hej@fyndladan.se
-          </a>
-          .
+      <h1 className="font-display text-3xl font-extrabold text-ink sm:text-4xl">{page.title}</h1>
+      <RichContent html={page.bodyHtml} className="mt-6" />
+      <div className="mt-6 rounded-2xl border border-plum-soft/25 bg-white px-5 py-4">
+        <p className="text-sm text-plum-soft">
+          Fundera på en retur? Läs om vår{" "}
+          <Link href="/angerratt" className="font-semibold text-fuchsia-brand underline">
+            14 dagars ångerrätt
+          </Link>
+          , eller starta den direkt:
         </p>
+        <a
+          href="https://shopify.com/102317621595/account"
+          className="mt-3 inline-block rounded-pill bg-fuchsia-brand px-5 py-2.5 font-bold text-white transition hover:bg-fuchsia-deep"
+        >
+          Ångra ditt köp
+        </a>
       </div>
     </div>
   );

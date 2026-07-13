@@ -1,695 +1,786 @@
 import type { Product, ProductVariant, Image } from "../types";
 
 /**
- * Mock catalog. Mirrors the Storefront API `Product` shape so the UI runs
- * realistically before live credentials exist. The catalog is fully
- * data-driven: nothing in the app hardcodes product counts or per-category
- * assumptions, so adding product #500 is a single new entry here (or, later, a
- * new product in Shopify admin).
+ * Mock catalog. This is a 1:1 snapshot of the real 36 products in the
+ * connected Shopify store (vintagejewelrystorefront.myshopify.com): same
+ * handles, titles, SKUs, prices, inventory, images, and vintage-blurb copy.
+ * Pulled directly via the Shopify Admin GraphQL API so the storefront never
+ * shows invented products or fabricated numbers before Oscar's live handoff.
  *
- * Image URLs use a `mock:` scheme consumed by <ProductImage>, which renders a
- * deterministic gradient placeholder. When live, these become Shopify CDN URLs
- * and the same component renders them via next/image, no component changes.
+ * `compareAtPrice`/`originalRetail` are `null` on every product: the store has
+ * no verified historical prices yet. Do NOT invent one, showing a fake
+ * "before" price is a Prisinformationslagen / EU Omnibus violation. Once real
+ * original prices are confirmed they go in the `custom.original_retail`
+ * metafield in Shopify, this file does not need to change.
  */
 
 const CURRENCY = "SEK";
+const CDN_BASE = "https://cdn.shopify.com/s/files/1/1023/1762/1595/files/";
 
 function money(amount: number) {
   return { amount: amount.toFixed(2), currencyCode: CURRENCY };
 }
 
-function mockImage(art: string, hue: number, title: string): Image {
-  return {
-    url: `mock:${art}:${hue}`,
-    altText: title,
-    width: 1000,
-    height: 1000,
-  };
+function img(file: string, alt: string): Image {
+  return { url: `${CDN_BASE}${file}`, altText: alt, width: 800, height: 800 };
 }
 
 /**
- * Which jewelry illustration (see components/ui/jewelryArt) represents each
- * product. Keeps the visual matched to the piece. Unmapped handles fall back to
- * a per-category default below.
+ * Handles curated into the two marketing collections in Shopify (not
+ * rule-based, so pulled 1:1 from the real store rather than guessed).
+ * "under-100-kr" isn't listed here, it's a real Shopify rule-based collection
+ * (price < 100), computed the same way below instead of hand-maintained.
  */
-const ART_BY_HANDLE: Record<string, string> = {
-  "orhangen-parla-drop": "earring-drop",
-  "orhangen-guldhoops-liten": "earring-hoop",
-  "orhangen-stjarna-stud": "earring-star",
-  "orhangen-emalj-blomma": "earring-flower",
-  "orhangen-kristall-chandelier": "earring-chandelier",
-  "orhangen-geometrisk-triangel": "earring-triangle",
-  "orhangen-mane-halvmane": "earring-moon",
-  "orhangen-parla-cluster": "earring-cluster",
-  "orhangen-tofs-fringe": "earring-tassel",
-  "halsband-parla-choker": "necklace-pearl",
-  "halsband-guldkedja-fin": "necklace-chain",
-  "halsband-hjarta-locket": "necklace-heart",
-  "halsband-berlock-mane": "necklace-moonstar",
-  "halsband-fargad-sten": "necklace-stone",
-  "halsband-parla-langt": "necklace-pearl",
-  "halsband-tunn-satellit": "necklace-chain",
-  "halsband-emalj-flower-power": "necklace-flower",
-  "armband-parla-elastisk": "bracelet-pearl",
-  "armband-guldlank-chunky": "bracelet-link",
-  "armband-berlock-charm": "bracelet-charm",
-  "armband-tunn-bangle": "bracelet-bangle",
-  "armband-emalj-rand": "bracelet-bangle",
-  "armband-kristall-tennis": "bracelet-tennis",
-  "armband-flatat-lader": "bracelet-braid",
-  "armband-parla-dubbel": "bracelet-pearl",
-  "ovrigt-fotlank-parla": "anklet",
-  "ovrigt-fotlank-kedja": "anklet",
-  "ovrigt-brosch-blomma": "brooch-flower",
-  "ovrigt-ring-signet": "ring-signet",
-  "ovrigt-ring-parla": "ring-pearl",
-  "ovrigt-harspanne-parla": "hairclip",
-  "ovrigt-brosch-fjaril": "brooch-butterfly",
-  "ovrigt-smyckesask-mini": "keyring",
-  "ovrigt-slojd-solglasogonkedja": "glasses-chain",
-};
+const PERFEKTA_PRESENTER_HANDLES = new Set([
+  "parlhalsband-aurora",
+  "parlstuds-luna",
+  "jadearmband-serene",
+  "glittrande-hjartan",
+  "rosenkvartshalsband-love",
+  "filigransorhangen-lace",
+  "samtschoker-velvet",
+  "berlockarmband-tassel",
+]);
+const MANADENS_FYND_HANDLES = new Set([
+  "diamantring-sparkle",
+  "filigransorhangen-lace",
+  "parlhalsband-aurora",
+  "safirhangen-royal",
+  "jadearmband-serene",
+  "samtschoker-velvet",
+  "topasring-ocean",
+  "guldringar-classic",
+]);
 
-const ART_BY_CATEGORY: Record<string, string> = {
-  orhangen: "earring-drop",
-  halsband: "necklace-chain",
-  armband: "bracelet-bangle",
-  ovrigt: "ring-pearl",
-};
+type Category = "orhangen" | "halsband" | "armband" | "ovrigt";
 
-function artFor(seed: SeedInput): string {
-  return ART_BY_HANDLE[seed.handle] ?? ART_BY_CATEGORY[seed.category] ?? "ring-pearl";
-}
-
-interface SeedInput {
+interface RealSeed {
+  productId: string;
+  variantId: string;
   handle: string;
   title: string;
-  category: string; // collection handle
+  category: Category;
+  sku: string;
   price: number;
-  /** Original retail before liquidation, if known. */
-  compareAt?: number;
   stock: number;
-  hue: number; // gradient hue for placeholder image
-  daysAgo: number; // recency, drives "newest" ordering
-  description: string;
-  vintageStory: string;
-  tags?: string[];
-  /** Optional metal-colour variants. Omit for single-variant products. */
-  metals?: string[];
-  /** Dropshipped accessory (Asia). Shows the customs note. */
-  isDropship?: boolean;
-  customsNote?: string;
-  sourceLot?: string;
+  createdAt: string;
+  tags: string[];
+  /** The "Om denna vintage-pärla" line, mirrors metafield `custom.vintage_blurb`. */
+  vintageBlurb: string;
+  /** The product's intro sentence (plain text, before the vintage-blurb paragraph). */
+  intro: string;
+  images: [{ file: string; alt: string }, { file: string; alt: string }];
 }
 
-// Fixed reference instant so the mock catalog is deterministic across renders
-// (server/client) and does not depend on the current clock. Represents
-// "roughly now" for the purpose of ordering by recency.
-const REFERENCE_ISO = "2026-07-01T09:00:00.000Z";
-const REFERENCE_MS = Date.parse(REFERENCE_ISO);
+function buildProduct(seed: RealSeed): Product {
+  const image1 = img(seed.images[0].file, seed.images[0].alt);
+  const image2 = img(seed.images[1].file, seed.images[1].alt);
+  const images = [image1, image2];
 
-function buildProduct(seed: SeedInput): Product {
-  const id = `gid://shopify/Product/${seed.handle}`;
-  const createdAt = new Date(
-    REFERENCE_MS - seed.daysAgo * 24 * 60 * 60 * 1000,
-  ).toISOString();
+  const variant: ProductVariant = {
+    id: `gid://shopify/ProductVariant/${seed.variantId}`,
+    title: "Default Title",
+    availableForSale: seed.stock > 0,
+    quantityAvailable: seed.stock,
+    selectedOptions: [{ name: "Title", value: "Default Title" }],
+    price: money(seed.price),
+    compareAtPrice: null,
+    image: image1,
+  };
 
-  const art = artFor(seed);
-  const images: Image[] = [
-    mockImage(art, seed.hue, seed.title),
-    mockImage(art, (seed.hue + 24) % 360, seed.title),
-  ];
+  const descriptionHtml = `<p>${seed.intro}</p><p><em>Om denna vintage-pärla:</em> ${seed.vintageBlurb}</p><p>14 dagars lagstadgad ångerrätt gäller.</p>`;
 
-  const metals = seed.metals ?? [];
-  const variants: ProductVariant[] = [];
-
-  if (metals.length > 0) {
-    // Spread the stock across variants so per-variant inventory is realistic.
-    const per = Math.max(1, Math.floor(seed.stock / metals.length));
-    metals.forEach((metal, i) => {
-      const remainder = i === metals.length - 1 ? seed.stock - per * (metals.length - 1) : per;
-      variants.push({
-        id: `gid://shopify/ProductVariant/${seed.handle}-${i}`,
-        title: metal,
-        availableForSale: remainder > 0,
-        quantityAvailable: Math.max(0, remainder),
-        selectedOptions: [{ name: "Metall", value: metal }],
-        price: money(seed.price),
-        compareAtPrice: seed.compareAt ? money(seed.compareAt) : null,
-        image: images[0],
-      });
-    });
-  } else {
-    variants.push({
-      id: `gid://shopify/ProductVariant/${seed.handle}-0`,
-      title: "Default Title",
-      availableForSale: seed.stock > 0,
-      quantityAvailable: seed.stock,
-      selectedOptions: [{ name: "Title", value: "Default Title" }],
-      price: money(seed.price),
-      compareAtPrice: seed.compareAt ? money(seed.compareAt) : null,
-      image: images[0],
-    });
-  }
-
-  const availableForSale = variants.some((v) => v.availableForSale);
+  const collections: string[] = [seed.category];
+  if (seed.price < 100) collections.push("under-100-kr");
+  if (PERFEKTA_PRESENTER_HANDLES.has(seed.handle)) collections.push("perfekta-presenter");
+  if (MANADENS_FYND_HANDLES.has(seed.handle)) collections.push("manadens-fynd");
 
   return {
-    id,
+    id: `gid://shopify/Product/${seed.productId}`,
     handle: seed.handle,
     title: seed.title,
-    description: seed.description,
-    descriptionHtml: `<p>${seed.description}</p>`,
-    availableForSale,
-    featuredImage: images[0],
+    description: seed.intro,
+    descriptionHtml,
+    availableForSale: variant.availableForSale,
+    featuredImage: image1,
     images,
-    options:
-      metals.length > 0
-        ? [{ id: `${seed.handle}-opt-metall`, name: "Metall", values: metals }]
-        : [],
-    variants,
+    options: [],
+    variants: [variant],
     priceRange: {
       minVariantPrice: money(seed.price),
       maxVariantPrice: money(seed.price),
     },
     compareAtPriceRange: {
-      minVariantPrice: seed.compareAt ? money(seed.compareAt) : null,
-      maxVariantPrice: seed.compareAt ? money(seed.compareAt) : null,
+      minVariantPrice: null,
+      maxVariantPrice: null,
     },
-    collections: [seed.category],
-    tags: seed.tags ?? [],
-    createdAt,
-    vintageBlurb: seed.vintageStory,
-    // originalRetail mirrors the compare-at (the known original price); null
-    // when unknown so nothing is claimed (honesty rule).
-    originalRetail: seed.compareAt ? money(seed.compareAt) : null,
-    isDropship: seed.isDropship ?? false,
-    customsNote: seed.customsNote ?? null,
-    sourceLot: seed.sourceLot ?? null,
+    collections,
+    tags: seed.tags,
+    createdAt: seed.createdAt,
+    vintageBlurb: seed.vintageBlurb,
+    originalRetail: null,
+    isDropship: false,
+    customsNote: null,
+    sourceLot: null,
   };
 }
 
-const SEEDS: SeedInput[] = [
+const SEEDS: RealSeed[] = [
   /* ---------------------------- ÖRHÄNGEN ---------------------------- */
   {
-    handle: "orhangen-parla-drop",
-    title: "Pärlörhängen 'Droppe'",
+    productId: "10590854185307",
+    variantId: "53578292855131",
+    handle: "stjarnorhangen-twinkle",
+    title: 'Stjärnörhängen "Twinkle"',
     category: "orhangen",
+    sku: "ORH-001",
     price: 89,
-    compareAt: 249,
-    stock: 1,
-    hue: 330,
-    daysAgo: 2,
-    description:
-      "Klassiska droppformade örhängen med en liten sötvattenspärla. Diskreta nog för vardag, fina nog för fest.",
-    vintageStory:
-      "En kvarglömd klassiker från lagret, aldrig burna, aldrig sålda. Tidlösa pärlor som stått och väntat på sin första ägare sedan varumärket lade ner.",
-    tags: ["pärla", "klassiker"],
-  },
-  {
-    handle: "orhangen-guldhoops-liten",
-    title: "Guldhoops 'Mini'",
-    category: "orhangen",
-    price: 95,
-    compareAt: 199,
     stock: 6,
-    hue: 45,
-    daysAgo: 5,
-    description:
-      "Små ringörhängen i guldton. Den där lagom-storleken som passar till precis allt.",
-    vintageStory:
-      "Deadstock i sin originalpåse. Små hoops som aldrig hann ut i butik innan lagret tömdes, nu får de äntligen ett öra att sitta på.",
-    tags: ["hoops", "guld", "vardag"],
-    metals: ["Guld", "Silver"],
+    createdAt: "2026-07-11T22:02:30Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Ett vackert och tidlöst smycke från ett oanvänt lager. Perfekt skick, aldrig buret.",
+    vintageBlurb:
+      "Räddat ur ett tömt svenskt varuhuslager. Äkta deadstock i originalskick.",
+    images: [
+      { file: "png.png?v=1783807353", alt: "Silverfärgade stjärnformade örhängen mot vit bakgrund (platshållarbild)" },
+      { file: "png_4d14a165-bc60-4162-b9f7-eecb05f697d2.png?v=1783875443", alt: "Stjärnörhängen Twinkle detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "orhangen-stjarna-stud",
-    title: "Stjärnörhängen 'Twinkle'",
+    productId: "10590854414683",
+    variantId: "53578293084507",
+    handle: "guldringar-classic",
+    title: 'Guldringar "Classic"',
     category: "orhangen",
+    sku: "ORH-002",
+    price: 99,
+    stock: 8,
+    createdAt: "2026-07-11T22:02:39Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Tidlösa hoops i guldplätering. Ett måste i smyckesskrinet.",
+    vintageBlurb: "Genuint lagerfynd i nyskick.",
+    images: [
+      { file: "png_dc353e1d-f386-42be-b742-0de44b7ad0ab.png?v=1783807364", alt: "Guldpläterade hoop-örhängen på vit bakgrund (platshållarbild)" },
+      { file: "png_8c66fa93-1932-44f8-acca-e79f4f4cf204.png?v=1783875443", alt: "Guldringar Classic detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590854742363",
+    variantId: "53578294722907",
+    handle: "silverdroppar-dew",
+    title: 'Silverdroppar "Dew"',
+    category: "orhangen",
+    sku: "ORH-003",
     price: 79,
-    compareAt: 169,
     stock: 12,
-    hue: 275,
-    daysAgo: 1,
-    description: "Pyttesmå stjärnor i studs-modell. Blänker till precis lagom.",
-    vintageStory:
-      "Ett fynd ur konkurslagret, små stjärnor som legat orörda i sina fack. Aldrig burna, redo att glittra för första gången.",
-    tags: ["studs", "stjärna"],
+    createdAt: "2026-07-11T22:02:56Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Vackra droppformade örhängen i äkta vintage-utförande.",
+    vintageBlurb: "Oanvänt fynd från svenskt konkurslager.",
+    images: [
+      { file: "png_886d5bf9-b3d6-4bba-aee4-353bd5ee6ac0.png?v=1783807384", alt: "Silverfärgade droppörhängen mot vit bakgrund (platshållarbild)" },
+      { file: "png_5ebfb385-70d9-4cfe-bad0-ce033a0875fd.png?v=1783875444", alt: "Silverdroppar Dew detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "orhangen-emalj-blomma",
-    title: "Emaljörhängen 'Blom'",
+    productId: "10590854906203",
+    variantId: "53578294886747",
+    handle: "retro-clips-disco",
+    title: 'Retro Clips "Disco"',
     category: "orhangen",
-    price: 98,
-    compareAt: 229,
-    stock: 3,
-    hue: 12,
-    daysAgo: 8,
-    description:
-      "Handmålad emaljblomma i varma toner. Retro-vibbar rakt av.",
-    vintageStory:
-      "Färgstarka emaljblommor som andas 90-tal. Osålt lager från varumärkets sista kollektion, helt oanvända.",
-    tags: ["emalj", "retro", "färg"],
+    sku: "ORH-004",
+    price: 69,
+    stock: 10,
+    createdAt: "2026-07-11T22:03:03Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Festliga clipsörhängen med skön 80-talskänsla.",
+    vintageBlurb: "Aldrig buret, perfekt skick.",
+    images: [
+      { file: "png_7c2b2afc-c57d-41fd-a660-18435cb8cc4b.png?v=1783807397", alt: "Retro clipsörhängen i guldton mot vit bakgrund (platshållarbild)" },
+      { file: "png_06c6de37-adac-44cd-a83e-f79019c92ba5.png?v=1783875444", alt: "Retro Clips Disco detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "orhangen-kristall-chandelier",
-    title: "Kristallörhängen 'Chandelier'",
+    productId: "10590855037275",
+    variantId: "53578295443803",
+    handle: "parlstuds-luna",
+    title: 'Pärlstuds "Luna"',
     category: "orhangen",
-    price: 110,
-    compareAt: 299,
-    stock: 2,
-    hue: 200,
-    daysAgo: 14,
-    description:
-      "Hängande kristaller som fångar ljuset. Festörhängena du inte visste att du behövde.",
-    vintageStory:
-      "De mest dramatiska i lagret. Kristaller som aldrig fått dansa på ett golv, deadstock som väntar på sin premiär.",
-    tags: ["kristall", "fest"],
-  },
-  {
-    handle: "orhangen-geometrisk-triangel",
-    title: "Örhängen 'Triangel'",
-    category: "orhangen",
-    price: 85,
+    sku: "ORH-005",
+    price: 89,
     stock: 9,
-    hue: 155,
-    daysAgo: 3,
-    description: "Rena geometriska trianglar. Minimalistiskt och grafiskt.",
-    vintageStory:
-      "Grafisk formgivning från en svunnen kollektion. Oanvänt lager som känns förvånansvärt nutida.",
-    tags: ["geometrisk", "minimal"],
-    metals: ["Guld", "Silver"],
+    createdAt: "2026-07-11T22:03:09Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Klassiska pärlor för en sofistikerad men lekfull stil.",
+    vintageBlurb: "Genuint svenskt lagerfynd.",
+    images: [
+      { file: "png_3992295f-c8d6-40fa-a850-8f0138524ebd.png?v=1783807398", alt: "Vita pärlstuds-örhängen mot vit bakgrund (platshållarbild)" },
+      { file: "png_5d3dd181-c417-43aa-8203-56233f9f5e9b.png?v=1783875444", alt: "Pärlstuds Luna detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "orhangen-mane-halvmane",
-    title: "Halvmåneörhängen 'Luna'",
+    productId: "10590855201115",
+    variantId: "53578295607643",
+    handle: "glittrande-hjartan",
+    title: "Glittrande Hjärtan",
     category: "orhangen",
-    price: 92,
-    compareAt: 189,
+    sku: "ORH-006",
+    price: 79,
     stock: 7,
-    hue: 250,
-    daysAgo: 6,
-    description: "Böjda halvmånar med matt finish. Lite mystiska, väldigt fina.",
-    vintageStory:
-      "Månar som legat i mörkret på ett lager i åratal. Aldrig burna, nu redo att lysa upp.",
-    tags: ["måne", "matt"],
+    createdAt: "2026-07-11T22:03:16Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Söta och glittrande örhängen formade som hjärtan.",
+    vintageBlurb: "Räddat från ett tömt varuhuslager.",
+    images: [
+      { file: "png_d0ef234b-9623-405f-9607-ed9e158776d2.png?v=1783807398", alt: "Glittrande hjärtformade örhängen mot vit bakgrund (platshållarbild)" },
+      { file: "png_bc1b8922-4c75-4ab2-a4de-c9c1047fe817.png?v=1783875444", alt: "Glittrande Hjärtan detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "orhangen-parla-cluster",
-    title: "Pärlörhängen 'Kluster'",
+    productId: "10590855364955",
+    variantId: "53578295771483",
+    handle: "safirhangen-royal",
+    title: 'Safirhängen "Royal"',
     category: "orhangen",
-    price: 105,
-    compareAt: 259,
-    stock: 4,
-    hue: 20,
-    daysAgo: 10,
-    description:
-      "Ett litet kluster av pärlor i olika storlekar. Romantiskt utan att bli sött.",
-    vintageStory:
-      "Romantik ur ett konkursbo. Pärlkluster som aldrig hann bli någons favorit, förrän nu.",
-    tags: ["pärla", "romantisk"],
+    sku: "ORH-007",
+    price: 89,
+    stock: 2,
+    createdAt: "2026-07-11T22:03:23Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Djupblå stenar infattade i en tidlös design. Oanvänd vintage.",
+    vintageBlurb: "Genuin deadstock i originalskick.",
+    images: [
+      { file: "png_90431dbd-f7e0-4032-92ee-bce9eef7ef1a.png?v=1783807406", alt: "Blå safirfärgade hängörhängen mot vit bakgrund (platshållarbild)" },
+      { file: "png_4ad0aa0d-76b4-4373-945f-1fcb2fdb3446.png?v=1783875444", alt: "Safirhängen Royal detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "orhangen-tofs-fringe",
-    title: "Tofsörhängen 'Fringe'",
+    productId: "10590855496027",
+    variantId: "53578295902555",
+    handle: "kristallorhangen-shine",
+    title: 'Kristallörhängen "Shine"',
     category: "orhangen",
-    price: 88,
-    compareAt: 179,
-    stock: 5,
-    hue: 300,
-    daysAgo: 12,
-    description: "Rörliga tofsar som svänger när du går. Fest i öronen.",
-    vintageStory:
-      "Deadstock med rörelse. Tofsar som stått stilla i ett lager alldeles för länge, dags att få dem att svaja.",
-    tags: ["tofs", "fest"],
+    sku: "ORH-008",
+    price: 89,
+    stock: 11,
+    createdAt: "2026-07-11T22:03:30Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Gnistrande örhängen som lyser upp tillvaron.",
+    vintageBlurb: "Oanvänt fynd i perfekt skick.",
+    images: [
+      { file: "png_591ff703-8974-4498-b1d9-770dede0d38f.png?v=1783807413", alt: "Gnistrande kristallörhängen mot vit bakgrund (platshållarbild)" },
+      { file: "png_31e100cf-f167-4b0a-930c-49efe9e93b41.png?v=1783875444", alt: "Kristallörhängen Shine detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590855627099",
+    variantId: "53578296459611",
+    handle: "filigransorhangen-lace",
+    title: 'Filigransörhängen "Lace"',
+    category: "orhangen",
+    sku: "ORH-009",
+    price: 89,
+    stock: 1,
+    createdAt: "2026-07-11T22:03:37Z",
+    tags: ["deadstock", "vintage", "örhängen"],
+    intro: "Örhängen med intrikata och detaljrika spetsmönster.",
+    vintageBlurb: "Aldrig buret, perfekt originalskick.",
+    images: [
+      { file: "png_321adbb5-3a2d-41ff-a019-91090e6104fc.png?v=1783807421", alt: "Filigransörhängen med detaljrikt mönster mot vit bakgrund (platshållarbild)" },
+      { file: "png_92361068-de5c-49d0-af1d-e2cff42661be.png?v=1783875444", alt: "Filigransörhängen Lace detaljvy (platshållarbild)" },
+    ],
   },
 
   /* ---------------------------- HALSBAND ---------------------------- */
   {
-    handle: "halsband-parla-choker",
-    title: "Pärlchoker 'Nacre'",
+    productId: "10590855889243",
+    variantId: "53578297573723",
+    handle: "parlhalsband-aurora",
+    title: 'Pärlhalsband "Aurora"',
     category: "halsband",
-    price: 120,
-    compareAt: 329,
-    stock: 2,
-    hue: 25,
-    daysAgo: 2,
-    description:
-      "Kort pärlchoker som sitter fint mot halsen. Den nya klassikern.",
-    vintageStory:
-      "En choker ur konkurslagret som aldrig fick möta en hals. Oanvänd, i originalskick, redo för comeback.",
-    tags: ["pärla", "choker"],
+    sku: "HAL-001",
+    price: 119,
+    stock: 5,
+    createdAt: "2026-07-11T22:03:46Z",
+    tags: ["deadstock", "halsband", "vintage"],
+    intro: "Ett sagolikt pärlhalsband som lyfter varje outfit.",
+    vintageBlurb: "Äkta deadstock från konkurslager.",
+    images: [
+      { file: "png_afbc0bf0-464a-48d6-a460-b16f985e4ec2.png?v=1783807428", alt: "Vitt pärlhalsband mot vit bakgrund (platshållarbild)" },
+      { file: "png_05e90fbf-5f81-4033-8558-5ede28725740.png?v=1783875444", alt: "Pärlhalsband Aurora detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "halsband-guldkedja-fin",
-    title: "Guldkedja 'Fin'",
+    productId: "10590856053083",
+    variantId: "53578299441499",
+    handle: "guldmedaljong-vintage",
+    title: 'Guldmedaljong "Vintage"',
     category: "halsband",
+    sku: "HAL-002",
     price: 99,
-    compareAt: 219,
-    stock: 8,
-    hue: 48,
-    daysAgo: 4,
-    description: "Tunn guldkedja för lagning. Bär ensam eller trassla ihop.",
-    vintageStory:
-      "Basplagget alla vill ha. Tunna kedjor från ett tömt lager, aldrig burna, alltid rätt.",
-    tags: ["guld", "kedja", "layering"],
-    metals: ["Guld", "Silver"],
-  },
-  {
-    handle: "halsband-hjarta-locket",
-    title: "Hjärtmedaljong 'Secret'",
-    category: "halsband",
-    price: 115,
-    compareAt: 279,
-    stock: 3,
-    hue: 340,
-    daysAgo: 7,
-    description:
-      "Öppningsbar medaljong i hjärtform. Gömställe för ett litet minne.",
-    vintageStory:
-      "En medaljong utan bild i, ännu. Deadstock som väntar på att få bära ditt hemlighet.",
-    tags: ["medaljong", "hjärta", "romantisk"],
-  },
-  {
-    handle: "halsband-berlock-mane",
-    title: "Berlockhalsband 'Måne & Stjärna'",
-    category: "halsband",
-    price: 108,
-    compareAt: 239,
-    stock: 6,
-    hue: 260,
-    daysAgo: 5,
-    description: "Kedja med måne- och stjärnberlocker. Himlen runt halsen.",
-    vintageStory:
-      "Små himlakroppar ur ett konkursbo. Aldrig burna berlocker som legat och drömt på ett lager.",
-    tags: ["berlock", "måne", "stjärna"],
-  },
-  {
-    handle: "halsband-fargad-sten",
-    title: "Halsband 'Färgad sten'",
-    category: "halsband",
-    price: 125,
-    compareAt: 289,
-    stock: 1,
-    hue: 190,
-    daysAgo: 9,
-    description:
-      "En enda färgad sten på tunn kedja. Enkelt statement i turkos.",
-    vintageStory:
-      "Den sista i sitt slag på lagret. En färgsten som aldrig fått fångas av dagsljus, tills nu.",
-    tags: ["sten", "statement", "färg"],
-  },
-  {
-    handle: "halsband-parla-langt",
-    title: "Långt pärlhalsband 'Flapper'",
-    category: "halsband",
-    price: 135,
-    compareAt: 349,
     stock: 4,
-    hue: 30,
-    daysAgo: 11,
-    description:
-      "Extra långt pärlband att snurra dubbelt. 20-talsenergi hela vägen.",
-    vintageStory:
-      "Flapper-drömmar från ett tömt lager. Långa pärlrader som aldrig fått en fest att gå på.",
-    tags: ["pärla", "långt", "retro"],
+    createdAt: "2026-07-11T22:03:53Z",
+    tags: ["deadstock", "halsband", "vintage"],
+    intro: "Klassisk medaljong med vackra detaljer. Öppningsbar design.",
+    vintageBlurb: "Oanvänt äldre lagerfynd.",
+    images: [
+      { file: "png_6a5bdd17-d3e8-47b3-9726-6ff49fe58e72.png?v=1783807435", alt: "Guldfärgad medaljong på kedja mot vit bakgrund (platshållarbild)" },
+      { file: "png_9a81dec3-fdf2-4be4-a0ed-97e4da5a1d40.png?v=1783875445", alt: "Guldmedaljong Vintage detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "halsband-tunn-satellit",
-    title: "Satellitkedja 'Prickig'",
+    productId: "10590856216923",
+    variantId: "53578300031323",
+    handle: "silverkedja-classic",
+    title: 'Silverkedja "Classic"',
     category: "halsband",
-    price: 102,
-    stock: 10,
-    hue: 50,
-    daysAgo: 3,
-    description:
-      "Fin kedja med små kulor jämnt fördelade. Diskret men detaljrik.",
-    vintageStory:
-      "Detaljen som gör skillnad. Satellitkedjor ur deadstock, oanvända och oemotståndliga.",
-    tags: ["kedja", "layering"],
-    metals: ["Guld", "Silver"],
-  },
-  {
-    handle: "halsband-emalj-flower-power",
-    title: "Halsband 'Flower Power'",
-    category: "halsband",
-    price: 118,
-    compareAt: 249,
-    stock: 5,
-    hue: 15,
-    daysAgo: 13,
-    description: "Emaljblomma i glada färger på kort kedja. Ren dopaminstyling.",
-    vintageStory:
-      "Färgexplosion ur ett konkurslager. En blomma som aldrig fått blomma, förrän på din hals.",
-    tags: ["emalj", "blomma", "färg"],
-  },
-
-  /* ---------------------------- ARMBAND ----------------------------- */
-  {
-    handle: "armband-parla-elastisk",
-    title: "Pärlarmband 'Stretch'",
-    category: "armband",
-    price: 79,
-    compareAt: 159,
-    stock: 9,
-    hue: 28,
-    daysAgo: 2,
-    description: "Elastiskt pärlarmband som passar de flesta handleder.",
-    vintageStory:
-      "Enkelt och älskbart. Elastiska pärlarmband ur deadstock, aldrig burna, alltid redo.",
-    tags: ["pärla", "vardag"],
-  },
-  {
-    handle: "armband-guldlank-chunky",
-    title: "Länkarmband 'Chunky'",
-    category: "armband",
-    price: 110,
-    compareAt: 259,
-    stock: 3,
-    hue: 46,
-    daysAgo: 4,
-    description: "Grovt länkarmband i guldton. Ett statement helt själv.",
-    vintageStory:
-      "Tungt i uttryck, lätt i vikt. Ett länkarmband ur konkurslagret som aldrig hann bli någons signatur.",
-    tags: ["länk", "guld", "statement"],
-    metals: ["Guld", "Silver"],
-  },
-  {
-    handle: "armband-berlock-charm",
-    title: "Berlockarmband 'Charm'",
-    category: "armband",
-    price: 105,
-    compareAt: 239,
-    stock: 4,
-    hue: 320,
-    daysAgo: 6,
-    description:
-      "Armband med små berlocker: hjärta, nyckel och stjärna. Fyll på med minnen.",
-    vintageStory:
-      "Ett armband som vill samla på minnen. Deadstock med berlocker som aldrig fått en historia, börja din.",
-    tags: ["berlock", "charm"],
-  },
-  {
-    handle: "armband-tunn-bangle",
-    title: "Tunn bangle 'Enkel'",
-    category: "armband",
-    price: 72,
-    stock: 14,
-    hue: 52,
-    daysAgo: 1,
-    description: "Slät, tunn bangle att stapla flera av. Enkelheten själv.",
-    vintageStory:
-      "Byggstenen i varje stack. Tunna banglar ur ett tömt lager, oanvända och oändligt kombinerbara.",
-    tags: ["bangle", "stapla"],
-    metals: ["Guld", "Silver"],
-  },
-  {
-    handle: "armband-emalj-rand",
-    title: "Emaljarmband 'Randigt'",
-    category: "armband",
-    price: 88,
-    compareAt: 189,
-    stock: 5,
-    hue: 8,
-    daysAgo: 8,
-    description: "Randig emalj i glada kulörer. Sommar året runt.",
-    vintageStory:
-      "Solsken på burk. Randiga emaljarmband ur konkurslagret, aldrig burna, alltid glada.",
-    tags: ["emalj", "färg", "sommar"],
-  },
-  {
-    handle: "armband-kristall-tennis",
-    title: "Kristallarmband 'Tennis'",
-    category: "armband",
-    price: 129,
-    compareAt: 319,
-    stock: 2,
-    hue: 205,
-    daysAgo: 10,
-    description:
-      "Rad av glittrande kristaller hela vägen runt. Diskret lyx-känsla.",
-    vintageStory:
-      "Glitter ur ett konkursbo. Ett tennisarmband som aldrig fått blänka på en handled, dags att ändra på det.",
-    tags: ["kristall", "glitter", "fest"],
-  },
-  {
-    handle: "armband-flatat-lader",
-    title: "Läderarmband 'Flätat'",
-    category: "armband",
+    sku: "HAL-003",
     price: 69,
-    compareAt: 149,
-    stock: 11,
-    hue: 18,
-    daysAgo: 3,
-    description: "Flätat läder med liten gulddetalj. Ledig och lite tuff.",
-    vintageStory:
-      "Råare i tonen. Flätade läderarmband ur deadstock, oanvända, redo för vardagsslitage.",
-    tags: ["läder", "ledig"],
+    stock: 15,
+    createdAt: "2026-07-11T22:03:59Z",
+    tags: ["deadstock", "halsband", "vintage"],
+    intro: "Stilren och robust silverkedja i tidlös design.",
+    vintageBlurb: "Från ett tömt svenskt lager.",
+    images: [
+      { file: "png_78fda330-6aa8-4a88-bc48-81f9298e1b4d.png?v=1783807442", alt: "Silverfärgad kedja mot vit bakgrund (platshållarbild)" },
+      { file: "png_7dafd28b-4c0b-4425-a26f-bed4d5406516.png?v=1783875445", alt: "Silverkedja Classic detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "armband-parla-dubbel",
-    title: "Pärlarmband 'Dubbelt'",
-    category: "armband",
-    price: 94,
-    compareAt: 199,
+    productId: "10590856315227",
+    variantId: "53578300129627",
+    handle: "kristallhange-royal",
+    title: 'Kristallhänge "Royal"',
+    category: "halsband",
+    sku: "HAL-004",
+    price: 99,
+    stock: 3,
+    createdAt: "2026-07-11T22:04:06Z",
+    tags: ["deadstock", "halsband", "vintage"],
+    intro: "Ett gnistrande vackert kristallhänge för festliga tillfällen.",
+    vintageBlurb: "Genuin deadstock i originalskick.",
+    images: [
+      { file: "png_703b0391-1863-444a-b16d-b96224748502.png?v=1783807448", alt: "Kristallhänge på kedja mot vit bakgrund (platshållarbild)" },
+      { file: "png_53f198c9-ba4a-4bb6-a23a-85796386df2e.png?v=1783875445", alt: "Kristallhänge Royal detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590856479067",
+    variantId: "53578301145435",
+    handle: "kedjehalsband-bold",
+    title: 'Kedjehalsband "Bold"',
+    category: "halsband",
+    sku: "HAL-005",
+    price: 99,
+    stock: 9,
+    createdAt: "2026-07-11T22:04:12Z",
+    tags: ["deadstock", "halsband", "vintage"],
+    intro: "Kraftigt kedjehalsband för en statement-look.",
+    vintageBlurb: "Räddat från ett tömt varuhuslager.",
+    images: [
+      { file: "png_21cfd88d-e5bb-4b8d-8b25-ff76b86c8d72.png?v=1783807454", alt: "Kraftig kedja i guldton mot vit bakgrund (platshållarbild)" },
+      { file: "png_714d1449-d0a5-4833-8b85-a37f33eaff83.png?v=1783875445", alt: "Kedjehalsband Bold detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590856642907",
+    variantId: "53578301735259",
+    handle: "guldhalsband-minimal",
+    title: 'Guldhalsband "Minimal"',
+    category: "halsband",
+    sku: "HAL-006",
+    price: 99,
+    stock: 5,
+    createdAt: "2026-07-11T22:04:19Z",
+    tags: ["deadstock", "halsband", "vintage"],
+    intro: "Fint och minimalistiskt guldkedja för vardagsbruk.",
+    vintageBlurb: "Äkta vintage deadstock.",
+    images: [
+      { file: "png_b3536abc-3d6e-408b-978a-807ac0ee7d42.png?v=1783807461", alt: "Tunn guldkedja mot vit bakgrund (platshållarbild)" },
+      { file: "png_2e5ba334-89f1-4921-aff3-e9afafcfe801.png?v=1783875445", alt: "Guldhalsband Minimal detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590856806747",
+    variantId: "53578302325083",
+    handle: "rosenkvartshalsband-love",
+    title: 'Rosenkvartshalsband "Love"',
+    category: "halsband",
+    sku: "HAL-007",
+    price: 99,
+    stock: 4,
+    createdAt: "2026-07-11T22:04:25Z",
+    tags: ["deadstock", "halsband", "vintage"],
+    intro: "Vackert halsband med en len rosenkvartssten.",
+    vintageBlurb: "Räddat ur ett tömt svenskt lager.",
+    images: [
+      { file: "png_a1ef1e77-ab50-4f24-803a-3f86dd8b1449.png?v=1783807467", alt: "Halsband med rosa kvartssten mot vit bakgrund (platshållarbild)" },
+      { file: "png_9d9cb942-226b-4543-b9cf-41d5fbf4e0ce.png?v=1783875446", alt: "Rosenkvartshalsband Love detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590856970587",
+    variantId: "53578302488923",
+    handle: "vintage-mynthalsband",
+    title: "Vintage Mynthalsband",
+    category: "halsband",
+    sku: "HAL-008",
+    price: 89,
+    stock: 5,
+    createdAt: "2026-07-11T22:04:31Z",
+    tags: ["deadstock", "halsband", "vintage"],
+    intro: "Karaktärsfullt mynthalsband för den perfekta stilen.",
+    vintageBlurb: "Från ett oanvänt äldre varuhuslager.",
+    images: [
+      { file: "png_66a1ad14-a9ab-4488-be7a-ac3fd28e5f0f.png?v=1783807474", alt: "Halsband med myntformad detalj mot vit bakgrund (platshållarbild)" },
+      { file: "png_16b2606b-a420-4dac-b393-0f98f8cc45fe.png?v=1783875445", alt: "Vintage Mynthalsband detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590857167195",
+    variantId: "53578302685531",
+    handle: "samtschoker-velvet",
+    title: 'Samtschoker "Velvet"',
+    category: "halsband",
+    sku: "HAL-009",
+    price: 79,
     stock: 6,
-    hue: 32,
-    daysAgo: 12,
-    description: "Två rader pärlor för lite extra. Klassiskt med volym.",
-    vintageStory:
-      "Dubbelt upp ur lagret. Pärlarmband i två rader som aldrig fått pryda en arm, förrän din.",
-    tags: ["pärla", "klassiker"],
+    createdAt: "2026-07-11T22:04:39Z",
+    tags: ["choker", "deadstock", "halsband"],
+    intro: "En elegant och tätpassande choker med en vacker vintagedetalj.",
+    vintageBlurb: "Aldrig använd, hittad i originalförpackning från konkurslager.",
+    images: [
+      { file: "png_d7294b5b-3009-4dc6-8250-0a2fdfdfebdb.png?v=1783807481", alt: "Svart samtschoker med detalj mot vit bakgrund (platshållarbild)" },
+      { file: "png_5ae54ea1-0c92-4e7c-be4e-4600ed37a4d4.png?v=1783875446", alt: "Samtschoker Velvet detaljvy (platshållarbild)" },
+    ],
   },
 
-  /* ----------------------------- ÖVRIGT ----------------------------- */
+  /* ---------------------------- ARMBAND ---------------------------- */
   {
-    handle: "ovrigt-fotlank-parla",
-    title: "Fotlänk 'Sommarpärla'",
-    category: "ovrigt",
-    price: 75,
-    compareAt: 159,
-    stock: 7,
-    hue: 175,
-    daysAgo: 2,
-    description: "Fin fotlänk med små pärlor. Sandaler och sommar väntar.",
-    vintageStory:
-      "Semesterkänsla ur deadstock. Fotlänkar som aldrig fått känna varm asfalt, nu är det dags.",
-    tags: ["fotlänk", "sommar"],
-  },
-  {
-    handle: "ovrigt-fotlank-kedja",
-    title: "Fotlänk 'Guldkedja'",
-    category: "ovrigt",
-    price: 82,
-    compareAt: 169,
-    stock: 5,
-    hue: 47,
-    daysAgo: 5,
-    description: "Tunn guldkedja för foten. Diskret glitter vid varje steg.",
-    vintageStory:
-      "Ett litet lyft för fotleden. Guldfotlänkar ur konkurslagret, oanvända och sommarredo.",
-    tags: ["fotlänk", "guld"],
-    metals: ["Guld", "Silver"],
-  },
-  {
-    handle: "ovrigt-brosch-blomma",
-    title: "Brosch 'Blomsteräng'",
-    category: "ovrigt",
-    price: 98,
-    compareAt: 229,
-    stock: 3,
-    hue: 300,
-    daysAgo: 7,
-    description: "Emaljbrosch i form av en blomma. Sätt på kavajen och lys upp.",
-    vintageStory:
-      "En riktig vintage-skatt. Broscher ur ett tömt lager som aldrig fått pryda en rockslag.",
-    tags: ["brosch", "emalj", "retro"],
-  },
-  {
-    handle: "ovrigt-ring-signet",
-    title: "Ring 'Signet'",
-    category: "ovrigt",
-    price: 90,
-    compareAt: 199,
-    stock: 8,
-    hue: 44,
-    daysAgo: 3,
-    description: "Slät signetring med matt yta. Cool ensam eller i sällskap.",
-    vintageStory:
-      "Tidlös form ur deadstock. Signetringar som aldrig fått ett finger att sitta på, än.",
-    tags: ["ring", "minimal"],
-    metals: ["Guld", "Silver"],
-  },
-  {
-    handle: "ovrigt-ring-parla",
-    title: "Ring 'Pärla'",
-    category: "ovrigt",
-    price: 85,
-    compareAt: 179,
+    productId: "10590857331035",
+    variantId: "53578303275355",
+    handle: "guldarmband-luxe",
+    title: 'Guldarmband "Luxe"',
+    category: "armband",
+    sku: "ARM-001",
+    price: 99,
     stock: 4,
-    hue: 26,
-    daysAgo: 9,
-    description: "Enkel ring med en enda pärla. Söt och lätt att bära.",
-    vintageStory:
-      "En pärla för fingret. Ringar ur konkurslagret som legat orörda i sina askar.",
-    tags: ["ring", "pärla"],
+    createdAt: "2026-07-11T22:04:46Z",
+    tags: ["armband", "deadstock", "vintage"],
+    intro: "Ett elegant vintagearmband i guldton. Oanvänt lagerfynd i nyskick.",
+    vintageBlurb: "Räddat ur ett svenskt konkurslager.",
+    images: [
+      { file: "png_ca49cf6b-fdd2-4e24-9660-a14fb1ebc101.png?v=1783807488", alt: "Guldfärgat armband mot vit bakgrund (platshållarbild)" },
+      { file: "png_dace4aae-a07b-49ba-be76-c1b3d6a2c125.png?v=1783875473", alt: "Guldarmband Luxe detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "ovrigt-harspanne-parla",
-    title: "Hårspänne 'Pärlrad'",
-    category: "ovrigt",
-    price: 68,
-    compareAt: 139,
+    productId: "10590857494875",
+    variantId: "53578303439195",
+    handle: "silverbangle-retro",
+    title: 'Silverbangle "Retro"',
+    category: "armband",
+    sku: "ARM-002",
+    price: 89,
+    stock: 7,
+    createdAt: "2026-07-11T22:04:53Z",
+    tags: ["armband", "deadstock", "vintage"],
+    intro: "Stelt armband i silverton med snygg retro-karaktär.",
+    vintageBlurb: "Aldrig buret, perfekt skick. Fortfarande i skyddsplast.",
+    images: [
+      { file: "png_e06a7d00-c9b8-40f8-881c-b50653f49280.png?v=1783807496", alt: "Silverfärgad stel bangle mot vit bakgrund (platshållarbild)" },
+      { file: "png_8ddcf5ef-bffd-4903-a152-861425d27551.png?v=1783875473", alt: "Silverbangle Retro detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590857658715",
+    variantId: "53578303603035",
+    handle: "parlarmband-elegance",
+    title: 'Pärlarmband "Elegance"',
+    category: "armband",
+    sku: "ARM-003",
+    price: 99,
+    stock: 4,
+    createdAt: "2026-07-11T22:05:00Z",
+    tags: ["armband", "deadstock", "vintage"],
+    intro: "Vackert pärlarmband med stretch. Enkelt att matcha.",
+    vintageBlurb: "Räddat från ett tömt varuhuslager.",
+    images: [
+      { file: "png_f28738eb-78e4-49e4-b874-1ee791e18a33.png?v=1783807503", alt: "Vitt pärlarmband mot vit bakgrund (platshållarbild)" },
+      { file: "png_48eb620c-970d-41e2-ab23-c7739f969093.png?v=1783875473", alt: "Pärlarmband Elegance detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590857789787",
+    variantId: "53578303734107",
+    handle: "silverarmband-chunky",
+    title: 'Silverarmband "Chunky"',
+    category: "armband",
+    sku: "ARM-004",
+    price: 99,
+    stock: 5,
+    createdAt: "2026-07-11T22:05:07Z",
+    tags: ["armband", "deadstock", "vintage"],
+    intro: "Kraftigt silverarmband för en modern och stilren look.",
+    vintageBlurb: "Oanvänt äldre lager.",
+    images: [
+      { file: "png_e3d81d3e-26c0-4c98-837c-9791e1dc40de.png?v=1783807509", alt: "Kraftig silverlänk-armband mot vit bakgrund (platshållarbild)" },
+      { file: "png_9790898f-1b76-431f-b1b9-70222f816399.png?v=1783875473", alt: "Silverarmband Chunky detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590857953627",
+    variantId: "53578303897947",
+    handle: "laderarmband-heritage",
+    title: 'Läderarmband "Heritage"',
+    category: "armband",
+    sku: "ARM-005",
+    price: 69,
     stock: 10,
-    hue: 22,
-    daysAgo: 4,
-    description: "Hårspänne dekorerat med pärlor. Snabb uppgradering av frisyren.",
-    vintageStory:
-      "Detaljen håret väntat på. Pärlspännen ur deadstock, aldrig använda, alltid redo för en dålig hårdag.",
-    tags: ["hår", "pärla"],
+    createdAt: "2026-07-11T22:05:13Z",
+    tags: ["armband", "deadstock", "vintage"],
+    intro: "Klassiskt flätat läderarmband med ett robust spänne.",
+    vintageBlurb: "Oanvänt lagerfynd.",
+    images: [
+      { file: "png_09165240-7567-47a7-a7d2-f1f11f0aef3c.png?v=1783807516", alt: "Flätat läderarmband mot vit bakgrund (platshållarbild)" },
+      { file: "png_605264d7-b076-469f-923e-9bbd811b605f.png?v=1783875473", alt: "Läderarmband Heritage detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "ovrigt-brosch-fjaril",
-    title: "Brosch 'Fjäril'",
-    category: "ovrigt",
-    price: 95,
-    compareAt: 209,
-    stock: 2,
-    hue: 210,
-    daysAgo: 11,
-    description: "Glittrig fjärilsbrosch. Y2K-nostalgi i högsta grad.",
-    vintageStory:
-      "Rakt ur tidskapseln. Fjärilsbroscher ur ett konkursbo som aldrig fått flyga, dags att släppa loss dem.",
-    tags: ["brosch", "y2k", "glitter"],
+    productId: "10590858084699",
+    variantId: "53578304029019",
+    handle: "jadearmband-serene",
+    title: 'Jadearmband "Serene"',
+    category: "armband",
+    sku: "ARM-006",
+    price: 129,
+    stock: 3,
+    createdAt: "2026-07-11T22:05:20Z",
+    tags: ["armband", "deadstock", "vintage"],
+    intro: "Ett harmoniskt armband sammansatt av vackra jadestenar.",
+    vintageBlurb: "Räddat från konkurslager.",
+    images: [
+      { file: "png_d896e13b-4c77-4053-9caa-96d346e2d710.png?v=1783807522", alt: "Armband med gröna jadestenar mot vit bakgrund (platshållarbild)" },
+      { file: "png_05ba1242-e12d-4bd2-bef7-9fc12f294d8b.png?v=1783875473", alt: "Jadearmband Serene detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "ovrigt-smyckesask-mini",
-    title: "Nyckelring 'Charm'",
-    category: "ovrigt",
-    price: 65,
-    compareAt: 129,
-    stock: 9,
-    hue: 320,
-    daysAgo: 6,
-    description:
-      "Nyckelring med små berlocker. Lite smycke även på nyckelknippan.",
-    vintageStory:
-      "Smycke för nycklarna. Berlock-nyckelringar ur deadstock, oanvända och redo att skramla.",
-    tags: ["nyckelring", "charm"],
+    productId: "10590858281307",
+    variantId: "53578305175899",
+    handle: "berlockarmband-tassel",
+    title: 'Berlockarmband "Tassel"',
+    category: "armband",
+    sku: "ARM-007",
+    price: 89,
+    stock: 8,
+    createdAt: "2026-07-11T22:05:26Z",
+    tags: ["armband", "deadstock"],
+    intro: "Lekfullt armband med hängande vintage-berlocker.",
+    vintageBlurb: "Hittat orört i ett gammalt centrallager.",
+    images: [
+      { file: "png_0362d30c-1090-41b4-bdaf-20f0337ca66a.png?v=1783807529", alt: "Armband med hängande berlocker mot vit bakgrund (platshållarbild)" },
+      { file: "png_0f8a3048-3909-4f67-a499-dc7d3b6af917.png?v=1783875474", alt: "Berlockarmband Tassel detaljvy (platshållarbild)" },
+    ],
   },
   {
-    handle: "ovrigt-slojd-solglasogonkedja",
-    title: "Glasögonkedja 'Pärla'",
-    category: "ovrigt",
-    price: 78,
-    compareAt: 169,
+    productId: "10590858445147",
+    variantId: "53578305339739",
+    handle: "stel-guldcuff-minimalist",
+    title: 'Stel Guldcuff "Minimalist"',
+    category: "armband",
+    sku: "ARM-008",
+    price: 79,
     stock: 6,
-    hue: 200,
-    daysAgo: 8,
-    description:
-      "Pärlkedja för solglasögonen. Praktiskt och snyggt på samma gång.",
-    vintageStory:
-      "Sommarens smartaste accessoar ur ett tömt lager. Glasögonkedjor som aldrig fått hänga runt en hals.",
-    tags: ["kedja", "sommar", "praktisk"],
+    createdAt: "2026-07-11T22:05:34Z",
+    tags: ["armband", "deadstock"],
+    intro: "Stilren, öppen cuff i guldton som enkelt formas runt handleden.",
+    vintageBlurb: "Oanvänd deadstock från varuhusavveckling.",
+    images: [
+      { file: "png_92bf5b7a-faa3-44d6-98e9-6710075ece78.png?v=1783807536", alt: "Öppen guldfärgad cuff mot vit bakgrund (platshållarbild)" },
+      { file: "png_b1142672-0df8-4d18-aba5-b5aaace19cab.png?v=1783875474", alt: "Guldcuff Minimalist detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590858608987",
+    variantId: "53578305503579",
+    handle: "kristallarmband-glam",
+    title: 'Kristallarmband "Glam"',
+    category: "armband",
+    sku: "ARM-009",
+    price: 119,
+    stock: 4,
+    createdAt: "2026-07-11T22:05:40Z",
+    tags: ["armband", "deadstock"],
+    intro: "Ett gnistrande armband fullmatat med vackra mock-kristaller.",
+    vintageBlurb: "Räddad parti från konkursbo.",
+    images: [
+      { file: "png_83f07859-2dc8-4267-ba49-6c51f8706665.png?v=1783807543", alt: "Gnistrande kristallarmband mot vit bakgrund (platshållarbild)" },
+      { file: "png_4eb55c49-1fb8-4752-b6e0-6dfe9d570969.png?v=1783875474", alt: "Kristallarmband Glam detaljvy (platshållarbild)" },
+    ],
+  },
+
+  /* ---------------------------- ÖVRIGT ---------------------------- */
+  {
+    productId: "10590858772827",
+    variantId: "53578305667419",
+    handle: "diamantring-sparkle",
+    title: 'Diamantring "Sparkle"',
+    category: "ovrigt",
+    sku: "OVR-001",
+    price: 129,
+    stock: 1,
+    createdAt: "2026-07-11T22:05:48Z",
+    tags: ["deadstock", "ringar", "vintage"],
+    intro: "En gnistrande vintage-ring som fångar ljuset perfekt.",
+    vintageBlurb: "Äkta oanvänd deadstock.",
+    images: [
+      { file: "png_af22fada-eb30-4def-beef-b0559df370cf.png?v=1783807550", alt: "Gnistrande ring mot vit bakgrund (platshållarbild)" },
+      { file: "png_8ff941a6-c3e0-410f-8a96-6b4a3d14e950.png?v=1783875474", alt: "Diamantring Sparkle detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590858936667",
+    variantId: "53578305831259",
+    handle: "silverring-classic",
+    title: 'Silverring "Classic"',
+    category: "ovrigt",
+    sku: "OVR-002",
+    price: 79,
+    stock: 14,
+    createdAt: "2026-07-11T22:05:54Z",
+    tags: ["deadstock", "ringar", "vintage"],
+    intro: "Klassisk stilren ring från äldre svenskt varuhuslager.",
+    vintageBlurb: "Fynd från en klassisk varuhuskonkurs.",
+    images: [
+      { file: "png_bb7f40ba-6d64-4bf6-9d77-c6263b095c62.png?v=1783807557", alt: "Stilren silverring mot vit bakgrund (platshållarbild)" },
+      { file: "png_c3e48d39-6fc5-451f-b433-dd43ffc0402b.png?v=1783875474", alt: "Silverring Classic detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590859133275",
+    variantId: "53578306060635",
+    handle: "cocktailring-retro",
+    title: 'Cocktailring "Retro"',
+    category: "ovrigt",
+    sku: "OVR-003",
+    price: 119,
+    stock: 3,
+    createdAt: "2026-07-11T22:06:01Z",
+    tags: ["deadstock", "ringar", "vintage"],
+    intro: "En dramatisk cocktailring med härlig 70-talsvibe.",
+    vintageBlurb: "Helt oanvänt skick från äldre lager.",
+    images: [
+      { file: "png_37d109d9-4606-4adf-a690-40b226957381.png?v=1783807563", alt: "Dramatisk cocktailring mot vit bakgrund (platshållarbild)" },
+      { file: "png_fd533e34-8181-4503-8ef5-e3f02ed5f07d.png?v=1783875474", alt: "Cocktailring Retro detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590859264347",
+    variantId: "53578306191707",
+    handle: "barstensbrosch-amber",
+    title: 'Bärstensbrosch "Amber"',
+    category: "ovrigt",
+    sku: "OVR-004",
+    price: 99,
+    stock: 2,
+    createdAt: "2026-07-11T22:06:07Z",
+    tags: ["broscher", "deadstock", "vintage"],
+    intro: "Vacker brosch med äkta bärnstens-look.",
+    vintageBlurb: "Från ett oanvänt äldre lager.",
+    images: [
+      { file: "png_87e82bfd-7f96-491b-9003-dfc35ee5ef5f.png?v=1783807571", alt: "Bärnstensfärgad brosch mot vit bakgrund (platshållarbild)" },
+      { file: "png_03aee9e5-5306-47b3-bd45-fa3ed0ec2447.png?v=1783875475", alt: "Bärstensbrosch Amber detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590859395419",
+    variantId: "53578306322779",
+    handle: "emaljbrosch-flower",
+    title: 'Emaljbrosch "Flower"',
+    category: "ovrigt",
+    sku: "OVR-005",
+    price: 89,
+    stock: 6,
+    createdAt: "2026-07-11T22:06:13Z",
+    tags: ["broscher", "deadstock", "vintage"],
+    intro: "Färgglad och unik brosch med emaljdetaljer.",
+    vintageBlurb: "Räddat ur ett tömt svenskt lager.",
+    images: [
+      { file: "png_4424d2d4-56c9-436e-b339-495bf6ae5874.png?v=1783807577", alt: "Färgglad emaljbrosch mot vit bakgrund (platshållarbild)" },
+      { file: "png_98de5afa-971b-4a50-8f7b-cbb00e04cd55.png?v=1783875474", alt: "Emaljbrosch Flower detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590859559259",
+    variantId: "53578306486619",
+    handle: "manschettknappar-vintage",
+    title: 'Manschettknappar "Vintage"',
+    category: "ovrigt",
+    sku: "OVR-006",
+    price: 89,
+    stock: 3,
+    createdAt: "2026-07-11T22:06:20Z",
+    tags: ["deadstock", "tillbehör", "vintage"],
+    intro: "Klassiska manschettknappar med vacker patina.",
+    vintageBlurb: "Genuint svenskt lagerfynd.",
+    images: [
+      { file: "png_59abd674-4361-407c-ad41-5b19c7edddd1.png?v=1783807584", alt: "Manschettknappar med patina mot vit bakgrund (platshållarbild)" },
+      { file: "png_d316a82e-9040-493b-b4a8-feb50fd98ff2.png?v=1783875475", alt: "Manschettknappar Vintage detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590859723099",
+    variantId: "53578306683227",
+    handle: "ametistring-violet",
+    title: 'Ametistring "Violet"',
+    category: "ovrigt",
+    sku: "OVR-007",
+    price: 129,
+    stock: 2,
+    createdAt: "2026-07-11T22:06:26Z",
+    tags: ["deadstock", "ringar", "vintage"],
+    intro: "En ring med en vacker, djupt lila sten.",
+    vintageBlurb: "Räddat ur ett svenskt konkurslager.",
+    images: [
+      { file: "png_bfd93fb6-fc6a-4a3b-82c1-47c897cb994c.png?v=1783807588", alt: "Ring med lila sten mot vit bakgrund (platshållarbild)" },
+      { file: "png_1e340598-422c-439e-9569-86e501231a4f.png?v=1783875475", alt: "Ametistring Violet detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590859854171",
+    variantId: "53578306814299",
+    handle: "onyxring-noir",
+    title: 'Onyxring "Noir"',
+    category: "ovrigt",
+    sku: "OVR-008",
+    price: 119,
+    stock: 4,
+    createdAt: "2026-07-11T22:06:32Z",
+    tags: ["deadstock", "ringar", "vintage"],
+    intro: "En kraftfull ring med en nattsvart sten.",
+    vintageBlurb: "Genuint varuhuslager från förr.",
+    images: [
+      { file: "png_3a6dd9cf-876c-4650-8af4-9350f9a8a3f9.png?v=1783807594", alt: "Ring med svart sten mot vit bakgrund (platshållarbild)" },
+      { file: "png_13bf27eb-8a66-4441-a54e-1653b6f63fbe.png?v=1783875475", alt: "Onyxring Noir detaljvy (platshållarbild)" },
+    ],
+  },
+  {
+    productId: "10590860050779",
+    variantId: "53578307633499",
+    handle: "topasring-ocean",
+    title: 'Topasring "Ocean"',
+    category: "ovrigt",
+    sku: "OVR-009",
+    price: 139,
+    stock: 2,
+    createdAt: "2026-07-11T22:06:39Z",
+    tags: ["deadstock", "ringar", "vintage"],
+    intro: "En ring med en gnistrande havsblå sten.",
+    vintageBlurb: "Äkta deadstock från konkursbo.",
+    images: [
+      { file: "png_ea7fb159-19f7-4083-8a18-14100c5262d1.png?v=1783807601", alt: "Ring med blå sten mot vit bakgrund (platshållarbild)" },
+      { file: "png_d8f63e6c-8bf3-4cef-8f2f-952eb93f0c29.png?v=1783875475", alt: "Topasring Ocean detaljvy (platshållarbild)" },
+    ],
   },
 ];
 

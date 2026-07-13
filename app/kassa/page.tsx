@@ -65,10 +65,7 @@ export default function CheckoutPage() {
         <ul className="divide-y divide-sand rounded-2xl bg-white p-4 shadow-card">
           {cart.lines.map((line) => {
             const m = line.merchandise;
-            const hasVariant =
-              m.variantTitle &&
-              m.variantTitle !== "Default Title" &&
-              !m.isBundle;
+            const hasVariant = m.variantTitle && m.variantTitle !== "Default Title";
             return (
               <li key={line.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
                 {m.image && (
@@ -81,12 +78,10 @@ export default function CheckoutPage() {
                   {hasVariant && (
                     <p className="text-xs text-plum-soft">{m.variantTitle}</p>
                   )}
-                  {m.isBundle && m.bundleContents && (
-                    <ul className="mt-1 space-y-0.5 text-xs text-plum-soft">
-                      {m.bundleContents.map((item, i) => (
-                        <li key={i}>• {item.productTitle}</li>
-                      ))}
-                    </ul>
+                  {m.bundleId && (
+                    <span className="mt-1 inline-block w-fit rounded-pill bg-gold-soft/40 px-2 py-0.5 text-[11px] font-semibold text-plum">
+                      🎁 Del av ditt paket
+                    </span>
                   )}
                   <div className="mt-auto flex items-center justify-between pt-2">
                     <div className="flex items-center rounded-pill border border-sand">
@@ -104,10 +99,7 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(line.id, line.quantity + 1)}
-                        disabled={
-                          !m.isBundle &&
-                          line.quantity >= Math.max(1, m.quantityAvailable)
-                        }
+                        disabled={line.quantity >= Math.max(1, m.quantityAvailable)}
                         aria-label="Öka antal"
                         className="px-2.5 py-1 text-ink transition hover:text-fuchsia-brand disabled:opacity-30"
                       >
@@ -159,7 +151,7 @@ export default function CheckoutPage() {
               </div>
               {cart.discount && (
                 <div className="flex justify-between font-semibold text-fuchsia-deep">
-                  <dt>Rabatt ({cart.discount.code})</dt>
+                  <dt>Rabatt ({cart.discount.code || cart.discount.title})</dt>
                   <dd>
                     −
                     {formatMoney({
@@ -197,6 +189,9 @@ export default function CheckoutPage() {
             <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-plum-soft">
               <span aria-hidden>🔒</span> Betalning, frakt och moms hanteras
               säkert av Shopify.
+            </p>
+            <p className="mt-1 text-center text-[11px] text-plum-soft/70">
+              Betalning sker via Swish. Testnummer: 123123123 (platshållare)
             </p>
           </div>
 

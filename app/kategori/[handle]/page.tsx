@@ -2,16 +2,20 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { store, type ProductSortKey } from "@/lib/shopify";
+import { SYSTEM_COLLECTION_HANDLES } from "@/lib/config/navigation";
 import { FilterBar } from "@/components/category/FilterBar";
 import { CategoryListing } from "@/components/category/CategoryListing";
 
 const PAGE_SIZE = 12;
 const VALID_SORTS: ProductSortKey[] = ["NEWEST", "PRICE_ASC", "PRICE_DESC"];
 
-/** Pre-render a route for each category. New categories are picked up here. */
+/** Pre-render a route for each real collection. New categories are picked up
+ * here automatically; Shopify's internal "frontpage" collection is excluded. */
 export async function generateStaticParams() {
   const collections = await store.getCollections();
-  return collections.map((c) => ({ handle: c.handle }));
+  return collections
+    .filter((c) => !(SYSTEM_COLLECTION_HANDLES as readonly string[]).includes(c.handle))
+    .map((c) => ({ handle: c.handle }));
 }
 
 export async function generateMetadata({

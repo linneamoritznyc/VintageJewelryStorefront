@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { formatMoney } from "@/lib/utils/format";
-import type { CartLine } from "@/lib/shopify/types";
+import type { AppliedDiscount, CartLine } from "@/lib/shopify/types";
 
 export function CartDrawer() {
   const {
@@ -112,6 +112,7 @@ export function CartDrawer() {
               <CouponRow
                 appliedCode={cart.discount?.code ?? null}
                 appliedTitle={cart.discount?.title ?? null}
+                automaticDiscount={cart.discount?.isAutomatic ? cart.discount : null}
                 onApply={applyDiscount}
                 onRemove={removeDiscount}
               />
@@ -151,6 +152,9 @@ export function CartDrawer() {
               <p className="mt-2 text-center text-xs text-plum-soft">
                 Frakt och betalning beräknas i nästa steg.
               </p>
+              <p className="mt-1 text-center text-[11px] text-plum-soft/70">
+                Betalning sker via Swish. Testnummer: 123123123 (platshållare)
+              </p>
             </div>
           </>
         )}
@@ -169,8 +173,7 @@ function CartLineRow({
   onRemove: (id: string) => void;
 }) {
   const m = line.merchandise;
-  const hasVariant =
-    m.variantTitle && m.variantTitle !== "Default Title" && !m.isBundle;
+  const hasVariant = m.variantTitle && m.variantTitle !== "Default Title";
 
   return (
     <li className="flex gap-3 border-b border-sand/70 py-3 last:border-b-0">
@@ -182,25 +185,19 @@ function CartLineRow({
       <div className="flex flex-1 flex-col">
         <div className="flex justify-between gap-2">
           <div>
-            {m.isBundle ? (
-              <p className="font-semibold text-ink">{m.productTitle}</p>
-            ) : (
-              <Link
-                href={`/produkt/${m.productHandle}`}
-                className="font-semibold text-ink transition hover:text-fuchsia-brand"
-              >
-                {m.productTitle}
-              </Link>
-            )}
+            <Link
+              href={`/produkt/${m.productHandle}`}
+              className="font-semibold text-ink transition hover:text-fuchsia-brand"
+            >
+              {m.productTitle}
+            </Link>
             {hasVariant && (
               <p className="text-xs text-plum-soft">{m.variantTitle}</p>
             )}
-            {m.isBundle && m.bundleContents && (
-              <ul className="mt-1 space-y-0.5 text-xs text-plum-soft">
-                {m.bundleContents.map((item, i) => (
-                  <li key={i}>• {item.productTitle}</li>
-                ))}
-              </ul>
+            {m.bundleId && (
+              <span className="mt-1 inline-block rounded-pill bg-gold-soft/40 px-2 py-0.5 text-[11px] font-semibold text-plum">
+                🎁 Del av ditt paket
+              </span>
             )}
           </div>
           <button
@@ -236,9 +233,7 @@ function CartLineRow({
             <button
               type="button"
               onClick={() => onUpdate(line.id, line.quantity + 1)}
-              disabled={
-                !m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)
-              }
+              disabled={line.quantity >= Math.max(1, m.quantityAvailable)}
               aria-label="Öka antal"
               className="px-2.5 py-1 text-ink transition hover:text-fuchsia-brand disabled:opacity-30"
             >
@@ -260,11 +255,13 @@ function CartLineRow({
 function CouponRow({
   appliedCode,
   appliedTitle,
+  automaticDiscount,
   onApply,
   onRemove,
 }: {
   appliedCode: string | null;
   appliedTitle: string | null;
+  automaticDiscount: AppliedDiscount | null;
   onApply: (code: string) => boolean;
   onRemove: () => void;
 }) {
@@ -304,6 +301,11 @@ function CouponRow({
 
   return (
     <form onSubmit={submit} noValidate>
+      {automaticDiscount && (
+        <p className="mb-2 text-xs font-semibold text-mint">
+          ✓ {automaticDiscount.title} tillämpad automatiskt (−{automaticDiscount.percentage}%)
+        </p>
+      )}
       <label htmlFor="coupon" className="text-xs font-semibold text-plum-soft">
         Rabattkod
       </label>
@@ -316,7 +318,7 @@ function CouponRow({
             setValue(e.target.value);
             setError(null);
           }}
-          placeholder="T.ex. VINTAGE10"
+          placeholder="T.ex. FYND10"
           autoCapitalize="characters"
           className="min-w-0 flex-1 rounded-pill border border-sand bg-white px-4 py-2 text-sm uppercase tracking-wide text-ink placeholder:normal-case placeholder:tracking-normal placeholder:text-plum-soft/60 focus:border-fuchsia-brand focus:outline-none"
         />

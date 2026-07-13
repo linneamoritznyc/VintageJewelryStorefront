@@ -6,12 +6,12 @@ import type {
   Collection,
   ProductVariant,
   CartLineMerchandise,
-  BundleContentItem,
 } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/CartContext";
 import { ProductImage } from "@/components/ui/ProductImage";
 import type { BundleContent } from "@/lib/content/types";
 import { formatPrice } from "@/lib/utils/format";
+import { primaryCategoryHandle } from "@/lib/config/navigation";
 
 interface Pick {
   product: Product;
@@ -48,6 +48,7 @@ export function BundleBuilder({
   const [picks, setPicks] = useState<Pick[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [justAdded, setJustAdded] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const inStock = products.filter((p) => p.availableForSale);
@@ -55,13 +56,36 @@ export function BundleBuilder({
     return inStock.filter((p) => p.collections.includes(activeCategory));
   }, [products, activeCategory]);
 
+  // The bundle discount requires pieces from DIFFERENT categories. Track which
+  // categories are already in the tray so we can block a second pick from the
+  // same one and gate the CTA.
+  const pickedCategories = useMemo(
+    () =>
+      new Set(
+        picks
+          .map((p) => primaryCategoryHandle(p.product.collections))
+          .filter((c): c is string => !!c),
+      ),
+    [picks],
+  );
+
   const isFull = picks.length >= size;
   const remaining = size - picks.length;
+  const picksSubtotal = picks.reduce((sum, p) => sum + Number(p.variant.price.amount), 0);
 
   function addPick(product: Product) {
     if (isFull) return;
+    const category = primaryCategoryHandle(product.collections);
+    if (category && pickedCategories.has(category)) {
+      setNotice(
+        `Välj ${size} olika kategorier. Du har redan en pjäs från den här kategorin.`,
+      );
+      window.setTimeout(() => setNotice(null), 2600);
+      return;
+    }
     const variant = pickVariant(product);
     if (!variant) return;
+    setNotice(null);
     setPicks((prev) => [...prev, { product, variant }]);
   }
 
@@ -72,33 +96,27 @@ export function BundleBuilder({
   function addBundleToCart() {
     if (!isFull) return;
 
-    const contents: BundleContentItem[] = picks.map((p) => ({
-      productHandle: p.product.handle,
-      productTitle: p.product.title,
-      variantTitle: p.variant.title,
-      image: p.variant.image ?? p.product.featuredImage,
-    }));
+    // Each piece is added as its own REAL product line (real variant, real
+    // price, real stock), tagged with a shared bundleId so the cart can show
+    // them grouped. This is what actually triggers Shopify's real automatic
+    // discount at checkout, a synthetic fixed-price line would not.
+    const bundleId = `bundle-${Date.now()}`;
+    for (const pick of picks) {
+      const merchandise: CartLineMerchandise = {
+        variantId: pick.variant.id,
+        productHandle: pick.product.handle,
+        productTitle: pick.product.title,
+        variantTitle: pick.variant.title,
+        selectedOptions: pick.variant.selectedOptions,
+        price: pick.variant.price,
+        compareAtPrice: pick.variant.compareAtPrice,
+        image: pick.variant.image ?? pick.product.featuredImage,
+        quantityAvailable: pick.variant.quantityAvailable,
+        bundleId,
+      };
+      addLine(merchandise, 1);
+    }
 
-    const merchandise: CartLineMerchandise = {
-      // Unique per built bundle. Maps to a Shopify bundle variant + line
-      // attributes once live.
-      variantId: `bundle:${Date.now()}`,
-      productHandle: "paket",
-      productTitle: `Vintage-paket (${size} delar)`,
-      variantTitle: bundle.packageName,
-      selectedOptions: [],
-      price: {
-        amount: bundle.pricePerBundle.toFixed(2),
-        currencyCode: bundle.currencyCode,
-      },
-      compareAtPrice: null,
-      image: { url: "mock:giftbox:290", altText: "Vintage-paket", width: 800, height: 800 },
-      quantityAvailable: 99,
-      isBundle: true,
-      bundleContents: contents,
-    };
-
-    addLine(merchandise, 1);
     setPicks([]);
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 2500);
@@ -131,17 +149,33 @@ export function BundleBuilder({
           ))}
         </div>
 
+        {/* Rule hint + inline notice when a category is already taken */}
+        <p className="mb-3 text-sm text-plum-soft">
+          Regel: {size} pjäser från {size} olika kategorier.
+        </p>
+        {notice && (
+          <div
+            role="status"
+            className="mb-3 rounded-2xl border border-fuchsia-brand/30 bg-fuchsia-brand/10 px-4 py-2.5 text-sm font-semibold text-fuchsia-deep"
+          >
+            {notice}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {filtered.map((product) => {
             const pickedCount = picks.filter(
               (p) => p.product.handle === product.handle,
             ).length;
+            const productCategory = primaryCategoryHandle(product.collections);
+            const categoryTaken = !!productCategory && pickedCategories.has(productCategory);
             return (
               <button
                 key={product.id}
                 type="button"
                 onClick={() => addPick(product)}
-                disabled={isFull}
+                disabled={isFull || categoryTaken}
+                aria-disabled={isFull || categoryTaken}
                 className="group relative flex flex-col overflow-hidden rounded-2xl bg-white text-left shadow-card transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <div className="relative aspect-square">
@@ -259,11 +293,15 @@ export function BundleBuilder({
           {/* Price + CTA */}
           <div className="mt-5 border-t border-sand pt-4">
             <div className="flex items-baseline justify-between">
-              <span className="text-sm text-plum-soft">Paketpris</span>
+              <span className="text-sm text-plum-soft">Delsumma ({picks.length} delar)</span>
               <span className="font-display text-2xl font-extrabold text-ink">
-                {formatPrice(bundle.pricePerBundle)}
+                {formatPrice(picksSubtotal)}
               </span>
             </div>
+            <p className="mt-1 text-xs font-semibold text-fuchsia-deep">
+              −{bundle.discountPercentage}% pakträtt tillämpas automatiskt i kassan
+              vid {size}+ delar
+            </p>
             <button
               type="button"
               onClick={addBundleToCart}
@@ -299,7 +337,7 @@ export function BundleBuilder({
               </span>
             </div>
             <span className="text-xs font-semibold text-plum-soft">
-              {formatPrice(bundle.pricePerBundle)}
+              {formatPrice(picksSubtotal)} · −{bundle.discountPercentage}%
             </span>
           </div>
           <button

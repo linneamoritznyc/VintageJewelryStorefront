@@ -5,6 +5,7 @@ import type {
   ProductSortKey,
 } from "../client";
 import type {
+  BlogArticle,
   Cart,
   CartLine,
   Collection,
@@ -12,12 +13,15 @@ import type {
   Money,
   Product,
   ProductVariant,
+  StorePage,
 } from "../types";
 import {
   PRODUCTS_QUERY,
   PRODUCT_BY_HANDLE_QUERY,
   COLLECTIONS_QUERY,
   COLLECTION_PRODUCTS_QUERY,
+  PAGE_BY_HANDLE_QUERY,
+  BLOG_ARTICLES_QUERY,
   CART_CREATE,
   CART_QUERY,
   CART_LINES_ADD,
@@ -26,18 +30,35 @@ import {
   CART_DISCOUNT_CODES_UPDATE,
 } from "./queries";
 
+/** The store's single blog handle (see lib/shopify/README.md). */
+const BLOG_HANDLE = "news";
+
 /**
  * ============================================================================
  * LIVE Storefront API client
  * ============================================================================
- * Selected when NEXT_PUBLIC_USE_MOCK=false. Runs SERVER-SIDE only (the token is
- * a non-public env var), so import `store` from lib/shopify only in server
- * components / server actions.
+ * Selected when NEXT_PUBLIC_USE_MOCK=false. This module must stay
+ * SERVER-ONLY: `store` is imported only from Server Components, Server
+ * Actions, and generateMetadata/generateStaticParams, never from a "use
+ * client" file. Do not import it (as a value, not just a type) from a client
+ * component, doing so would bundle this file's env reads into client-side
+ * JS and ship the token to every visitor's browser.
  *
- * Env:
- *   SHOPIFY_STORE_DOMAIN            your-store.myshopify.com
- *   SHOPIFY_STOREFRONT_API_TOKEN    Storefront API public access token
- *   SHOPIFY_STOREFRONT_API_VERSION  defaults to 2026-07
+ * Env (both names read for compatibility; either works):
+ *   NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN / SHOPIFY_STORE_DOMAIN
+ *     your-store.myshopify.com
+ *   NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN / SHOPIFY_STOREFRONT_API_TOKEN
+ *     Storefront API public access token
+ *   SHOPIFY_STOREFRONT_API_VERSION
+ *     defaults to 2026-07
+ *
+ * Note on the NEXT_PUBLIC_ names: despite the prefix, the token never reaches
+ * the browser AS LONG AS this file is only ever imported server-side (see
+ * above), Next.js only inlines NEXT_PUBLIC_ vars into bundles that actually
+ * reference them, and none of the client components in this app do. Using
+ * SHOPIFY_STOREFRONT_API_TOKEN (no prefix) instead removes any doubt and is
+ * recommended if you're setting this up fresh; both are supported here so
+ * either Vercel configuration works without code changes.
  *
  * Field names follow the 2026-07 Storefront schema (see ./queries). If Shopify
  * renames a field in a future version, adjust it there + the mappers below;
@@ -47,24 +68,27 @@ import {
 
 const API_VERSION = process.env.SHOPIFY_STOREFRONT_API_VERSION || "2026-07";
 
+const STORE_DOMAIN =
+  process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || process.env.SHOPIFY_STORE_DOMAIN;
+const STOREFRONT_TOKEN =
+  process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN || process.env.SHOPIFY_STOREFRONT_API_TOKEN;
+
 function endpoint(): string {
-  const domain = process.env.SHOPIFY_STORE_DOMAIN;
-  if (!domain) {
+  if (!STORE_DOMAIN) {
     throw new Error(
-      "SHOPIFY_STORE_DOMAIN is not set. Set it (and SHOPIFY_STOREFRONT_API_TOKEN) or use NEXT_PUBLIC_USE_MOCK=true.",
+      "No Shopify store domain set. Set NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN (or SHOPIFY_STORE_DOMAIN) or use NEXT_PUBLIC_USE_MOCK=true.",
     );
   }
-  return `https://${domain}/api/${API_VERSION}/graphql.json`;
+  return `https://${STORE_DOMAIN}/api/${API_VERSION}/graphql.json`;
 }
 
 async function storefront<T>(
   query: string,
   variables: Record<string, unknown> = {},
 ): Promise<T> {
-  const token = process.env.SHOPIFY_STOREFRONT_API_TOKEN;
-  if (!token) {
+  if (!STOREFRONT_TOKEN) {
     throw new Error(
-      "SHOPIFY_STOREFRONT_API_TOKEN is not set. Add it to your environment or use NEXT_PUBLIC_USE_MOCK=true.",
+      "No Shopify Storefront token set. Set NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN (or SHOPIFY_STOREFRONT_API_TOKEN) or use NEXT_PUBLIC_USE_MOCK=true.",
     );
   }
 
@@ -72,7 +96,7 @@ async function storefront<T>(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": token,
+      "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
     },
     body: JSON.stringify({ query, variables }),
     // Cache product/collection reads briefly; cart mutations pass no-store.
@@ -164,7 +188,14 @@ function mapProduct(p: RawProduct): Product {
     availableForSale: p.availableForSale,
     featuredImage,
     images: images.length > 0 ? images : [featuredImage],
-    options: (p.options ?? []).map((o) => ({ id: o.id, name: o.name, values: o.values })),
+    // Shopify represents a single-variant product with one synthetic option
+    // named "Title" whose only value is "Default Title". Drop it so those
+    // products render with no option selector (matching the mock catalog),
+    // rather than a pointless "Title: Default Title" picker. `values` is
+    // deprecated on ProductOption, so read the values off `optionValues`.
+    options: (p.options ?? [])
+      .map((o) => ({ id: o.id, name: o.name, values: o.optionValues.map((v) => v.name) }))
+      .filter((o) => !(o.values.length === 1 && o.values[0] === "Default Title")),
     variants: (p.variants?.nodes ?? []).map(mapVariant),
     priceRange: {
       minVariantPrice: requireMoney(p.priceRange.minVariantPrice),
@@ -182,6 +213,20 @@ function mapProduct(p: RawProduct): Product {
     isDropship: metafieldValue(p.isDropship) === "true",
     customsNote: metafieldValue(p.customsNote),
     sourceLot: metafieldValue(p.sourceLot),
+  };
+}
+
+function mapPage(p: RawPage): StorePage {
+  return { handle: p.handle, title: p.title, bodyHtml: p.body };
+}
+
+function mapArticle(a: RawArticle): BlogArticle {
+  return {
+    handle: a.handle,
+    title: a.title,
+    bodyHtml: a.contentHtml,
+    summaryHtml: a.excerptHtml ?? "",
+    publishedAt: a.publishedAt,
   };
 }
 
@@ -382,6 +427,26 @@ export const liveClient: StoreClient = {
     return all;
   },
 
+  /* --- static content: pages + blog --- */
+
+  async getPage(handle: string): Promise<StorePage | null> {
+    const data = await storefront<{ page: RawPage | null }>(PAGE_BY_HANDLE_QUERY, { handle });
+    return data.page ? mapPage(data.page) : null;
+  },
+
+  async getBlogArticles(): Promise<BlogArticle[]> {
+    const data = await storefront<{ blog: { articles: { nodes: RawArticle[] } } | null }>(
+      BLOG_ARTICLES_QUERY,
+      { handle: BLOG_HANDLE, first: 50 },
+    );
+    return (data.blog?.articles.nodes ?? []).map(mapArticle);
+  },
+
+  async getBlogArticle(handle: string): Promise<BlogArticle | null> {
+    const all = await this.getBlogArticles();
+    return all.find((a) => a.handle === handle) ?? null;
+  },
+
   /* --- cart --- */
 
   async createCart(): Promise<Cart> {
@@ -460,7 +525,7 @@ interface RawProduct {
   tags: string[];
   featuredImage: RawImage | null;
   images: { nodes: RawImage[] } | null;
-  options: { id: string; name: string; values: string[] }[];
+  options: { id: string; name: string; optionValues: { name: string }[] }[];
   priceRange: { minVariantPrice: RawMoney; maxVariantPrice: RawMoney };
   compareAtPriceRange: { minVariantPrice: RawMoney | null; maxVariantPrice: RawMoney | null } | null;
   collections: { nodes: { handle: string }[] } | null;
@@ -470,6 +535,18 @@ interface RawProduct {
   isDropship: { value: string } | null;
   customsNote: { value: string } | null;
   sourceLot: { value: string } | null;
+}
+interface RawPage {
+  handle: string;
+  title: string;
+  body: string;
+}
+interface RawArticle {
+  handle: string;
+  title: string;
+  contentHtml: string;
+  excerptHtml: string | null;
+  publishedAt: string;
 }
 interface RawProductConnection {
   nodes: RawProduct[];
