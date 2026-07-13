@@ -17,6 +17,7 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     id
     handle
     title
+    vendor
     description
     descriptionHtml
     availableForSale
@@ -31,6 +32,7 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     variants(first: 50) {
       nodes {
         id
+        sku
         title
         availableForSale
         quantityAvailable

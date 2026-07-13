@@ -5,6 +5,8 @@ import { getSiteContent } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Mina beställningar",
   description: "Se dina beställningar och ångra ditt köp direkt online.",
+  alternates: { canonical: "/mina-bestallningar" },
+  robots: { index: false, follow: true },
 };
 
 const ACCOUNT_URL = "https://shopify.com/102317621595/account";

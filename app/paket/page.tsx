@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Skapa ditt eget paket",
   description:
     "Välj dina favoritpjäser, samla dem i din bricka och få allt i en fin vintage-ask, med automatisk pakträtt.",
+  alternates: { canonical: "/paket" },
 };
 
 export default async function BundlePage() {

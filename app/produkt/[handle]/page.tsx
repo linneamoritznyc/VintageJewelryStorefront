@@ -4,6 +4,8 @@ import Link from "next/link";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { primaryCategoryHandle } from "@/lib/config/navigation";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { productSchema, breadcrumbSchema } from "@/lib/seo/structured-data";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
@@ -15,12 +17,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const product = await store.getProduct(params.handle);
   if (!product) return { title: "Produkt hittades inte" };
+  const canonical = `/produkt/${product.handle}`;
+  const ogImage = product.images.find((i) => /^https?:\/\//.test(i.url))?.url;
+  const description =
+    product.description ||
+    `${product.title}, oanvänt vintage-smycke från ${product.priceRange.minVariantPrice.amount} kr. 14 dagars ångerrätt.`;
   return {
     title: product.title,
-    description: product.description,
+    description,
+    alternates: { canonical },
     openGraph: {
+      type: "website",
       title: product.title,
-      description: product.description,
+      description,
+      url: canonical,
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
   };
 }
@@ -46,8 +57,20 @@ export default async function ProductPage({
     related?.products.filter((p) => p.handle !== product.handle).slice(0, 8) ??
     [];
 
+  const breadcrumbs = [
+    { name: "Hem", path: "/" },
+    ...(collection ? [{ name: collection.title, path: `/kategori/${collection.handle}` }] : []),
+    { name: product.title, path: `/produkt/${product.handle}` },
+  ];
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+      <JsonLd
+        data={[
+          productSchema(product, collection?.title),
+          breadcrumbSchema(breadcrumbs),
+        ]}
+      />
       <nav className="mb-4 text-sm text-plum-soft" aria-label="Brödsmulor">
         <Link href="/" className="transition hover:text-fuchsia-brand">
           Hem

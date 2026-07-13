@@ -7,6 +7,7 @@ import { RichContent } from "@/components/content/RichContent";
 export const metadata: Metadata = {
   title: "Skapa ditt eget paket",
   description: "Så funkar Fyndlådans paketbyggare, och varför du ska prova den.",
+  alternates: { canonical: "/skapa-ditt-eget-paket" },
 };
 
 export default async function SkapaDittEgetPaketPage() {

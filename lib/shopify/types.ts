@@ -40,6 +40,8 @@ export interface ProductOption {
 
 export interface ProductVariant {
   id: string;
+  /** Stock-keeping unit, e.g. "ORH-001". Used in Product structured data. */
+  sku: string;
   title: string;
   availableForSale: boolean;
   /** Storefront API `quantityAvailable`. Drives the low-stock indicator. */
@@ -55,6 +57,8 @@ export interface Product {
   id: string;
   handle: string;
   title: string;
+  /** Brand / Shopify vendor, e.g. "Vintage Fynd". Used in structured data. */
+  vendor: string;
   /** Plain-text description. */
   description: string;
   /** HTML description as returned by the Storefront API. */

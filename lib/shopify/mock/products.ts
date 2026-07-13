@@ -79,6 +79,7 @@ function buildProduct(seed: RealSeed): Product {
 
   const variant: ProductVariant = {
     id: `gid://shopify/ProductVariant/${seed.variantId}`,
+    sku: seed.sku,
     title: "Default Title",
     availableForSale: seed.stock > 0,
     quantityAvailable: seed.stock,
@@ -99,6 +100,7 @@ function buildProduct(seed: RealSeed): Product {
     id: `gid://shopify/Product/${seed.productId}`,
     handle: seed.handle,
     title: seed.title,
+    vendor: "Vintage Fynd",
     description: seed.intro,
     descriptionHtml,
     availableForSale: variant.availableForSale,

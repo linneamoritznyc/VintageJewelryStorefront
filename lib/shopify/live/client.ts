@@ -155,6 +155,7 @@ function metafieldValue(mf: { value: string } | null | undefined): string | null
 function mapVariant(v: RawVariant): ProductVariant {
   return {
     id: v.id,
+    sku: v.sku ?? "",
     title: v.title,
     availableForSale: v.availableForSale,
     quantityAvailable: v.quantityAvailable ?? 0,
@@ -183,6 +184,7 @@ function mapProduct(p: RawProduct): Product {
     id: p.id,
     handle: p.handle,
     title: p.title,
+    vendor: p.vendor ?? "Vintage Fynd",
     description: p.description ?? "",
     descriptionHtml: p.descriptionHtml ?? "",
     availableForSale: p.availableForSale,
@@ -506,6 +508,7 @@ interface RawMoney {
 }
 interface RawVariant {
   id: string;
+  sku: string | null;
   title: string;
   availableForSale: boolean;
   quantityAvailable: number | null;
@@ -518,6 +521,7 @@ interface RawProduct {
   id: string;
   handle: string;
   title: string;
+  vendor: string | null;
   description: string | null;
   descriptionHtml: string | null;
   availableForSale: boolean;
