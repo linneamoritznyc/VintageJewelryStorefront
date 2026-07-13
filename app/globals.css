@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  /* Familjen Grotesk (loaded via next/font in layout as --font-grotesk).
-     One clean grotesk family for both body and headings. */
+  /* Familjen Grotesk for body/UI, Fraunces (editorial serif) for headlines.
+     Both loaded via next/font in layout. */
   --font-sans: var(--font-grotesk), "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-grotesk), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
 }
 
 @layer base {

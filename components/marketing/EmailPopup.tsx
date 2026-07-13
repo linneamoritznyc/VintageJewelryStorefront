@@ -1,23 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { EmailPopupContent } from "@/lib/content/types";
 
 /**
  * Once-per-session email-capture popup offering the storewide discount (same
  * code as the announcement banner, kept consistent via the content layer).
- * Shows a few seconds after load, at most once per browser session.
  *
- * Submits to the shared /api/subscribe endpoint (which forwards to the
- * marketing provider when one is configured), then reveals the code.
+ * GDPR: explicit consent checkbox, unchecked by default; the exact consent
+ * wording lives in CONSENT_TEXT and is sent with the submission so the
+ * system of record (Shopify) stores what was agreed to. A hidden honeypot
+ * field filters bots server-side.
  */
 const SESSION_KEY = "vjs-email-popup-seen";
 const SHOW_DELAY_MS = 6000;
+
+export const CONSENT_TEXT =
+  "Jag vill få nyhetsbrev med erbjudanden och nya fynd från Fyndlådan. Jag kan avregistrera mig när som helst.";
 
 export function EmailPopup({ content }: { content: EmailPopupContent }) {
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,11 +46,21 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
       setError("Ange en giltig e-postadress.");
       return;
     }
+    if (!consent) {
+      setError("Kryssa i rutan för att prenumerera.");
+      return;
+    }
     try {
       await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({
+          email: email.trim(),
+          consent: true,
+          consentText: CONSENT_TEXT,
+          source: "popup",
+          website: honeypot,
+        }),
       });
     } catch {
       // Non-fatal: still reveal the code so the visitor gets their discount.
@@ -64,102 +81,125 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
       <button
         type="button"
         aria-label="Stäng"
-        className="absolute inset-0 animate-fade-in bg-ink/50"
+        className="absolute inset-0 animate-fade-in bg-ink/40"
         onClick={dismiss}
       />
 
-      <div className="relative w-full max-w-md animate-pop-in overflow-hidden rounded-3xl bg-cream shadow-pop">
+      <div className="relative w-full max-w-md animate-pop-in bg-white px-6 py-10 shadow-pop sm:px-10">
         <button
           type="button"
           onClick={dismiss}
           aria-label="Stäng"
-          className="absolute right-3 top-3 z-10 rounded-full bg-white/70 p-1.5 text-ink/70 transition hover:bg-white hover:text-ink"
+          className="absolute right-3 top-3 z-10 p-2 text-ink/50 transition hover:text-ink"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
             <path
               d="M4.5 4.5l9 9M13.5 4.5l-9 9"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="1.5"
               strokeLinecap="round"
             />
           </svg>
         </button>
 
-        <div className="bg-gradient-to-br from-fuchsia-brand to-plum px-6 py-8 text-center text-white">
-          <span aria-hidden className="text-4xl">
-            ✧
-          </span>
-          <p className="mt-1 text-4xl font-extrabold">
-            {content.discountPercentage}%
-          </p>
-          <p className="text-sm font-semibold uppercase tracking-wide text-white/90">
-            på din första beställning
-          </p>
-        </div>
-
-        <div className="px-6 py-6">
-          {submitted ? (
-            <div className="text-center">
-              <h3 className="font-display text-xl font-bold text-ink">
-                Välkommen till jakten! 🎉
-              </h3>
-              <p className="mt-2 text-sm text-plum-soft">
-                Använd koden i kassan för {content.discountPercentage}% rabatt:
-              </p>
-              <p className="mt-3 inline-block rounded-pill bg-gold-soft/60 px-5 py-2 text-lg font-extrabold tracking-wider text-plum">
-                {content.code}
-              </p>
-              <button
-                type="button"
-                onClick={dismiss}
-                className="mt-5 block w-full rounded-pill bg-ink px-5 py-3 font-bold text-cream transition hover:bg-plum"
-              >
-                Börja fynda
-              </button>
-            </div>
-          ) : (
-            <>
-              <h3
-                id="email-popup-title"
-                className="text-center font-display text-xl font-bold text-ink"
-              >
-                {content.heading}
-              </h3>
-              <p className="mt-2 text-center text-sm text-plum-soft">
-                {content.subheading}
-              </p>
-              <form onSubmit={submit} noValidate className="mt-4">
+        {submitted ? (
+          <div className="text-center">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-plum-soft">
+              Välkommen till jakten
+            </p>
+            <h3 className="mt-3 font-display text-3xl text-ink">
+              Din kod är här
+            </h3>
+            <p className="mt-3 text-sm text-plum-soft">
+              Använd koden i kassan för {content.discountPercentage}% rabatt:
+            </p>
+            <p className="mt-4 inline-block border border-ink px-6 py-2 font-display text-xl tracking-[0.14em] text-ink">
+              {content.code}
+            </p>
+            <button
+              type="button"
+              onClick={dismiss}
+              className="mt-6 block w-full rounded-pill bg-ink px-5 py-3 text-sm font-semibold text-cream transition hover:bg-plum"
+            >
+              Börja fynda
+            </button>
+          </div>
+        ) : (
+          <>
+            <p className="text-center text-xs font-medium uppercase tracking-[0.22em] text-plum-soft">
+              {content.heading}
+            </p>
+            <h3
+              id="email-popup-title"
+              className="mt-3 text-center font-display text-4xl text-ink"
+            >
+              {content.discountPercentage}% rabatt
+            </h3>
+            <p className="mt-3 text-center text-sm leading-relaxed text-plum-soft">
+              {content.subheading}
+            </p>
+            <form onSubmit={submit} noValidate className="mt-6">
+              {/* Honeypot: hidden from real users, bots fill it */}
+              <input
+                type="text"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="absolute left-[-9999px] h-px w-px opacity-0"
+              />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError(null);
+                }}
+                placeholder="Din e-postadress"
+                aria-label="E-postadress"
+                className="w-full border-b border-ink/30 bg-transparent px-1 py-3 text-center text-ink placeholder:text-plum-soft/60 focus:border-ink focus:outline-none"
+              />
+              <label className="mt-4 flex items-start gap-2.5 text-left text-xs leading-relaxed text-plum-soft">
                 <input
-                  type="email"
-                  value={email}
+                  type="checkbox"
+                  checked={consent}
                   onChange={(e) => {
-                    setEmail(e.target.value);
+                    setConsent(e.target.checked);
                     setError(null);
                   }}
-                  placeholder="din@epost.se"
-                  aria-label="E-postadress"
-                  className="w-full rounded-pill border border-sand bg-white px-5 py-3 text-ink placeholder:text-plum-soft/60 focus:border-fuchsia-brand focus:outline-none"
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-ink"
                 />
-                {error && (
-                  <p className="mt-1.5 text-xs text-fuchsia-deep">{error}</p>
-                )}
-                <button
-                  type="submit"
-                  className="mt-3 w-full rounded-pill bg-fuchsia-brand px-5 py-3 font-bold text-white transition hover:bg-fuchsia-deep"
-                >
-                  Ge mig rabatten
-                </button>
-              </form>
+                <span>
+                  {CONSENT_TEXT}{" "}
+                  <Link
+                    href="/integritetspolicy"
+                    className="underline underline-offset-2 hover:text-ink"
+                  >
+                    Läs mer i vår integritetspolicy.
+                  </Link>
+                </span>
+              </label>
+              {error && (
+                <p className="mt-2 text-xs text-fuchsia-deep">{error}</p>
+              )}
               <button
-                type="button"
-                onClick={dismiss}
-                className="mt-3 block w-full text-center text-xs text-plum-soft underline transition hover:text-ink"
+                type="submit"
+                className="mt-5 w-full rounded-pill bg-ink px-5 py-3 text-sm font-semibold text-cream transition hover:bg-plum"
               >
-                Nej tack, jag betalar fullt pris
+                Ge mig rabatten
               </button>
-            </>
-          )}
-        </div>
+            </form>
+            <button
+              type="button"
+              onClick={dismiss}
+              className="mt-4 block w-full text-center text-xs text-plum-soft underline underline-offset-2 transition hover:text-ink"
+            >
+              Nej tack, jag betalar fullt pris
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
