@@ -117,7 +117,7 @@ const DEFAULT_ANGERRATT =
 const REFERENCE_ISO = "2026-07-01T09:00:00.000Z";
 const REFERENCE_MS = Date.parse(REFERENCE_ISO);
 
-function buildProduct(seed: SeedInput): Product {
+function buildProduct(seed: SeedInput, index: number): Product {
   const id = `gid://shopify/Product/${seed.handle}`;
   const createdAt = new Date(
     REFERENCE_MS - seed.daysAgo * 24 * 60 * 60 * 1000,
@@ -195,6 +195,8 @@ function buildProduct(seed: SeedInput): Product {
     isDropship: seed.isDropship ?? false,
     customsNote: seed.customsNote ?? null,
     sourceLot: seed.sourceLot ?? null,
+    // Sequential catalogue number for the archive concept ("LOT 014").
+    lotNumber: index + 1,
     angerratt: seed.angerratt ?? DEFAULT_ANGERRATT,
   };
 }
@@ -704,4 +706,6 @@ const SEEDS: SeedInput[] = [
   },
 ];
 
-export const MOCK_PRODUCTS: Product[] = SEEDS.map(buildProduct);
+export const MOCK_PRODUCTS: Product[] = SEEDS.map((seed, i) =>
+  buildProduct(seed, i),
+);

@@ -57,20 +57,20 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Limited-time sale countdown */}
-      <section className="mx-auto w-full max-w-6xl px-4">
-        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-gold-soft bg-white px-6 py-5 sm:flex-row">
-          <div className="text-center sm:text-left">
-            <p className="font-display text-lg font-bold text-ink">
-              ⏳ Fyndkväll pågår
-            </p>
-            <p className="text-sm text-plum-soft">
-              Extra fynd så länge lagret räcker, passa på innan tiden rinner ut.
-            </p>
+      {/* Countdown, only shown when a genuine timed drop is configured. */}
+      {content.saleCountdownEndsAt && (
+        <section className="mx-auto w-full max-w-6xl px-4">
+          <div className="flex flex-col items-center justify-between gap-4 border border-rule bg-paper-raised px-6 py-5 sm:flex-row">
+            <div className="text-center sm:text-left">
+              <p className="meta">Släppet stänger</p>
+              <p className="mt-1 font-display text-lg text-ink">
+                Sista chansen på det här släppet
+              </p>
+            </div>
+            <CountdownTimer endsAt={content.saleCountdownEndsAt} />
           </div>
-          <CountdownTimer endsAt={content.saleCountdownEndsAt} />
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Latest finds carousel */}
       <section className="mx-auto w-full max-w-6xl px-4">

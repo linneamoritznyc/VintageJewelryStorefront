@@ -49,8 +49,11 @@ export interface BundleContent {
 export interface SiteContent {
   announcement: AnnouncementContent;
   emailPopup: EmailPopupContent;
-  /** ISO end-time for the homepage limited-time-sale countdown. */
-  saleCountdownEndsAt: string;
+  /**
+   * ISO end-time for a genuine timed drop, or null when there is no real
+   * deadline (the honest default). When null, no countdown renders anywhere.
+   */
+  saleCountdownEndsAt: string | null;
   hero: HeroContent;
   brandStory: BrandStoryContent;
   bundle: BundleContent;

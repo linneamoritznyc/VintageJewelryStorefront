@@ -39,12 +39,10 @@ function pad(n: number): string {
 function Cell({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col items-center">
-      <span className="min-w-[2.2ch] rounded-lg bg-ink/90 px-2 py-1.5 text-center font-sans text-lg font-bold tabular-nums text-cream sm:text-xl">
+      <span className="min-w-[2.4ch] border border-rule bg-paper-raised px-2 py-1.5 text-center font-mono text-lg font-medium tabular-nums text-signal sm:text-xl">
         {value}
       </span>
-      <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-plum-soft">
-        {label}
-      </span>
+      <span className="meta mt-1 text-[10px]">{label}</span>
     </div>
   );
 }
@@ -55,27 +53,35 @@ export function CountdownTimer({
   compact = false,
   onComplete,
 }: {
-  /** ISO timestamp of when the sale ends. */
-  endsAt: string;
+  /**
+   * ISO timestamp of a GENUINE deadline. When null/undefined (no real drop
+   * running) the component renders nothing at all, never a zeroed timer.
+   */
+  endsAt: string | null | undefined;
   className?: string;
   /** Compact inline variant (no day cell, tighter). */
   compact?: boolean;
   onComplete?: () => void;
 }) {
-  const endMs = Date.parse(endsAt);
+  const endMs = endsAt ? Date.parse(endsAt) : NaN;
+  const hasDeadline = Number.isFinite(endMs);
   const [remaining, setRemaining] = useState<Remaining | null>(null);
 
   useEffect(() => {
+    if (!hasDeadline) return;
     // First tick on mount, then every second.
     const update = () => setRemaining(computeRemaining(endMs, Date.now()));
     update();
     const id = window.setInterval(update, 1000);
     return () => window.clearInterval(id);
-  }, [endMs]);
+  }, [endMs, hasDeadline]);
 
   useEffect(() => {
     if (remaining?.done) onComplete?.();
   }, [remaining?.done, onComplete]);
+
+  // No genuine deadline configured: render nothing (honesty rule).
+  if (!hasDeadline) return null;
 
   // Pre-hydration / not-yet-mounted placeholder keeps layout stable.
   if (!remaining) {
@@ -90,13 +96,8 @@ export function CountdownTimer({
     );
   }
 
-  if (remaining.done) {
-    return (
-      <div className={`text-sm font-semibold text-fuchsia-deep ${className}`}>
-        Kampanjen har avslutats
-      </div>
-    );
-  }
+  // A passed deadline renders nothing, not a zeroed/"ended" state.
+  if (remaining.done) return null;
 
   if (compact) {
     return (

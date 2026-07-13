@@ -19,19 +19,19 @@ export default async function BundlePage() {
   const { bundle } = content;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
-      <header className="mb-8 text-center">
-        <span className="inline-flex rounded-pill bg-gold-soft/60 px-3 py-1 text-xs font-bold uppercase tracking-wide text-plum">
-          Flaggskeppet
-        </span>
-        <h1 className="mt-3 font-display text-3xl font-extrabold text-ink sm:text-4xl">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
+      <header className="mb-8 max-w-2xl border-b border-rule pb-8">
+        <p className="meta">Flaggskeppet</p>
+        <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
           Skapa ditt eget paket
         </h1>
-        <p className="mx-auto mt-3 max-w-xl text-plum-soft">
-          Välj {bundle.size} pjäser från {bundle.size} olika kategorier. Vi
-          packar allt fint i en {bundle.packageName.toLowerCase()}, för{" "}
-          {formatPrice(bundle.pricePerBundle)}. Perfekt att ge bort eller unna
-          dig själv.
+        <p className="mt-4 text-lg leading-relaxed text-ink-muted">
+          Välj {bundle.size} pjäser ur lagret, vilken mix du vill. Vi packar
+          allt i en {bundle.packageName.toLowerCase()} med silkespapper, för{" "}
+          <span className="mono text-ink">
+            {formatPrice(bundle.pricePerBundle)}
+          </span>
+          . Fyll brickan, lägg i korgen, klart.
         </p>
       </header>
 
@@ -40,10 +40,6 @@ export default async function BundlePage() {
         collections={collections}
         bundle={bundle}
       />
-
-      <p className="mt-6 text-center text-sm text-plum-soft">
-        {bundle.packageBlurb}
-      </p>
     </div>
   );
 }

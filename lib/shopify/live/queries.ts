@@ -42,6 +42,7 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     isDropship: metafield(namespace: "custom", key: "is_dropship") { value }
     customsNote: metafield(namespace: "custom", key: "customs_note") { value }
     sourceLot: metafield(namespace: "custom", key: "source_lot") { value }
+    lotNumber: metafield(namespace: "custom", key: "lot_number") { value }
     angerratt: metafield(namespace: "custom", key: "angerratt_notice") { value }
   }
 `;
