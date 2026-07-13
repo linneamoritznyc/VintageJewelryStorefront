@@ -12,11 +12,14 @@ import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { isNavCollectionHandle } from "@/lib/config/navigation";
 import { CartProvider } from "@/lib/cart/CartContext";
+import { ConsentProvider } from "@/lib/consent/ConsentContext";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { CookieConsent } from "@/components/layout/CookieConsent";
 import { EmailPopup } from "@/components/marketing/EmailPopup";
+import { Analytics } from "@/components/marketing/Analytics";
 
 export const metadata: Metadata = {
   title: {
@@ -58,14 +61,18 @@ export default async function RootLayout({
   return (
     <html lang="sv" className={grotesk.variable}>
       <body>
-        <CartProvider>
-          <AnnouncementBanner content={content.announcement} />
-          <Header collections={navCollections} />
-          <main className="min-h-[60vh]">{children}</main>
-          <Footer collections={navCollections} />
-          <CartDrawer />
-          <EmailPopup content={content.emailPopup} />
-        </CartProvider>
+        <ConsentProvider>
+          <CartProvider>
+            <AnnouncementBanner content={content.announcement} />
+            <Header collections={navCollections} />
+            <main className="min-h-[60vh]">{children}</main>
+            <Footer collections={navCollections} />
+            <CartDrawer />
+            <EmailPopup content={content.emailPopup} />
+            <CookieConsent />
+            <Analytics />
+          </CartProvider>
+        </ConsentProvider>
       </body>
     </html>
   );
