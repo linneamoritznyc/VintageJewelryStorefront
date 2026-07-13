@@ -5,6 +5,7 @@ import type {
   ProductSortKey,
 } from "../client";
 import type {
+  BlogArticle,
   Cart,
   CartLine,
   Collection,
@@ -12,12 +13,15 @@ import type {
   Money,
   Product,
   ProductVariant,
+  StorePage,
 } from "../types";
 import {
   PRODUCTS_QUERY,
   PRODUCT_BY_HANDLE_QUERY,
   COLLECTIONS_QUERY,
   COLLECTION_PRODUCTS_QUERY,
+  PAGE_BY_HANDLE_QUERY,
+  BLOG_ARTICLES_QUERY,
   CART_CREATE,
   CART_QUERY,
   CART_LINES_ADD,
@@ -25,6 +29,9 @@ import {
   CART_LINES_REMOVE,
   CART_DISCOUNT_CODES_UPDATE,
 } from "./queries";
+
+/** The store's single blog handle (see lib/shopify/README.md). */
+const BLOG_HANDLE = "news";
 
 /**
  * ============================================================================
@@ -182,7 +189,20 @@ function mapProduct(p: RawProduct): Product {
     isDropship: metafieldValue(p.isDropship) === "true",
     customsNote: metafieldValue(p.customsNote),
     sourceLot: metafieldValue(p.sourceLot),
-    angerratt: metafieldValue(p.angerratt),
+  };
+}
+
+function mapPage(p: RawPage): StorePage {
+  return { handle: p.handle, title: p.title, bodyHtml: p.body };
+}
+
+function mapArticle(a: RawArticle): BlogArticle {
+  return {
+    handle: a.handle,
+    title: a.title,
+    bodyHtml: a.contentHtml,
+    summaryHtml: a.excerptHtml ?? "",
+    publishedAt: a.publishedAt,
   };
 }
 
@@ -383,6 +403,26 @@ export const liveClient: StoreClient = {
     return all;
   },
 
+  /* --- static content: pages + blog --- */
+
+  async getPage(handle: string): Promise<StorePage | null> {
+    const data = await storefront<{ page: RawPage | null }>(PAGE_BY_HANDLE_QUERY, { handle });
+    return data.page ? mapPage(data.page) : null;
+  },
+
+  async getBlogArticles(): Promise<BlogArticle[]> {
+    const data = await storefront<{ blog: { articles: { nodes: RawArticle[] } } | null }>(
+      BLOG_ARTICLES_QUERY,
+      { handle: BLOG_HANDLE, first: 50 },
+    );
+    return (data.blog?.articles.nodes ?? []).map(mapArticle);
+  },
+
+  async getBlogArticle(handle: string): Promise<BlogArticle | null> {
+    const all = await this.getBlogArticles();
+    return all.find((a) => a.handle === handle) ?? null;
+  },
+
   /* --- cart --- */
 
   async createCart(): Promise<Cart> {
@@ -471,7 +511,18 @@ interface RawProduct {
   isDropship: { value: string } | null;
   customsNote: { value: string } | null;
   sourceLot: { value: string } | null;
-  angerratt: { value: string } | null;
+}
+interface RawPage {
+  handle: string;
+  title: string;
+  body: string;
+}
+interface RawArticle {
+  handle: string;
+  title: string;
+  contentHtml: string;
+  excerptHtml: string | null;
+  publishedAt: string;
 }
 interface RawProductConnection {
   nodes: RawProduct[];

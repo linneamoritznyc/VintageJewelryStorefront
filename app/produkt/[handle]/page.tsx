@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { store } from "@/lib/shopify";
+import { getSiteContent } from "@/lib/content";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
@@ -32,11 +33,12 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const primaryCollection = product.collections[0];
-  const [collection, related] = await Promise.all([
+  const [collection, related, content] = await Promise.all([
     primaryCollection ? store.getCollection(primaryCollection) : Promise.resolve(null),
     primaryCollection
       ? store.getProducts({ collection: primaryCollection, pageSize: 12 })
       : Promise.resolve(null),
+    getSiteContent(),
   ]);
 
   const relatedProducts =
@@ -91,14 +93,12 @@ export default async function ProductPage({
           </div>
 
           {/* Ångerrätt-badge, synlig FÖRE köpknappen (aldrig gömd i texten) */}
-          {product.angerratt && (
-            <div className="flex items-start gap-2 rounded-2xl border border-plum-soft/25 bg-white px-4 py-3 text-sm text-plum">
-              <span aria-hidden className="mt-0.5 text-base">
-                ↩
-              </span>
-              <p className="font-medium leading-snug">{product.angerratt}</p>
-            </div>
-          )}
+          <div className="flex items-start gap-2 rounded-2xl border border-plum-soft/25 bg-white px-4 py-3 text-sm text-plum">
+            <span aria-hidden className="mt-0.5 text-base">
+              ↩
+            </span>
+            <p className="font-medium leading-snug">{content.angerrattNotice}</p>
+          </div>
 
           <ProductPurchasePanel product={product} />
 

@@ -1,6 +1,7 @@
 import type { SiteContent } from "./types";
 import { ANNOUNCEMENT, EMAIL_POPUP, SALE_COUNTDOWN_ENDS_AT } from "@/lib/config/promotions";
 import { BUNDLE_CONFIG } from "@/lib/config/bundle";
+import { ANGERRATT_NOTICE } from "@/lib/config/legal";
 
 /**
  * Default site content, assembled from the code-level config in `lib/config/*`
@@ -46,5 +47,6 @@ export function getMockSiteContent(): SiteContent {
       packageName: BUNDLE_CONFIG.packageName,
       packageBlurb: BUNDLE_CONFIG.packageBlurb,
     },
+    angerrattNotice: ANGERRATT_NOTICE,
   };
 }

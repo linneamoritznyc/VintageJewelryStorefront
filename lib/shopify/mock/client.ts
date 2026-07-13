@@ -5,15 +5,19 @@ import type {
   ProductSortKey,
 } from "../client";
 import type {
+  BlogArticle,
   Cart,
   CartLine,
   Collection,
   Money,
   Product,
+  StorePage,
 } from "../types";
 import { findCoupon } from "@/lib/config/coupons";
 import { MOCK_PRODUCTS } from "./products";
 import { MOCK_COLLECTIONS } from "./collections";
+import { MOCK_PAGES } from "./pages";
+import { MOCK_BLOG_ARTICLES } from "./blog";
 
 /**
  * Mock implementation of StoreClient. Reads from the fixtures and keeps carts
@@ -143,6 +147,22 @@ export const mockClient: StoreClient = {
 
   async getAllProducts(): Promise<Product[]> {
     return MOCK_PRODUCTS;
+  },
+
+  /* --- static content: pages + blog --- */
+
+  async getPage(handle: string): Promise<StorePage | null> {
+    return MOCK_PAGES.find((p) => p.handle === handle) ?? null;
+  },
+
+  async getBlogArticles(): Promise<BlogArticle[]> {
+    return [...MOCK_BLOG_ARTICLES].sort(
+      (a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt),
+    );
+  },
+
+  async getBlogArticle(handle: string): Promise<BlogArticle | null> {
+    return MOCK_BLOG_ARTICLES.find((a) => a.handle === handle) ?? null;
   },
 
   /* --- cart --- */

@@ -54,4 +54,10 @@ export interface SiteContent {
   hero: HeroContent;
   brandStory: BrandStoryContent;
   bundle: BundleContent;
+  /**
+   * Shop-wide ångerrätt notice, shown as a visible badge on every product
+   * page BEFORE the buy button (legal requirement, never hidden in the
+   * description). Shop-level metafield `custom.angerratt_notice`.
+   */
+  angerrattNotice: string;
 }

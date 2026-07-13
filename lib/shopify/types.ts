@@ -83,7 +83,7 @@ export interface Product {
      product metafields in namespace `custom`, each exposed to the Storefront
      API. See lib/shopify/live/queries.ts. --- */
 
-  /** "Om denna vintage-pärla" copy. Metafield `custom.vintage_story`. */
+  /** "Om denna vintage-pärla" copy. Metafield `custom.vintage_blurb`. */
   vintageBlurb: string;
   /**
    * Original retail price for honest "was/now" comparison. Metafield
@@ -97,12 +97,6 @@ export interface Product {
   customsNote: string | null;
   /** Optional source lot/parti the piece came from. Metafield `custom.source_lot`. */
   sourceLot: string | null;
-  /**
-   * Ångerrätt-notis som visas som en synlig badge PÅ produktsidan, före
-   * köpknappen (aldrig gömd i beskrivningen). Metafield
-   * `custom.angerratt_notice`. `null` faller tillbaka på en standardnotis.
-   */
-  angerratt: string | null;
 }
 
 export interface Collection {
@@ -111,6 +105,27 @@ export interface Collection {
   title: string;
   description: string;
   image: Image | null;
+}
+
+/* ------------------------------------------------------------------ */
+/* Static content: Shopify Pages and the Blog                          */
+/* ------------------------------------------------------------------ */
+
+/** A static Shopify Page (Storefront API `page(handle:)`). */
+export interface StorePage {
+  handle: string;
+  title: string;
+  bodyHtml: string;
+}
+
+/** A published blog article (Storefront API `blog(handle:) { articles }`). */
+export interface BlogArticle {
+  handle: string;
+  title: string;
+  bodyHtml: string;
+  summaryHtml: string;
+  /** ISO timestamp. */
+  publishedAt: string;
 }
 
 /* ------------------------------------------------------------------ */

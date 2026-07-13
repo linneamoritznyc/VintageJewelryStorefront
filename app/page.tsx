@@ -164,7 +164,7 @@ export default async function HomePage() {
                 Skapa ditt eget paket
               </h2>
               <p className="mt-2 max-w-md text-plum-soft">
-                Välj {bundle.size} valfria pjäser från vilka kategorier du vill,
+                Välj {bundle.size} pjäser från {bundle.size} olika kategorier,
                 samla dem i din bricka och få allt i en{" "}
                 {bundle.packageName.toLowerCase()}, för bara{" "}
                 {formatPrice(bundle.pricePerBundle)}.
