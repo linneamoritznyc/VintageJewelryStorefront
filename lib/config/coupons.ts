@@ -27,7 +27,7 @@ export interface CouponDefinition {
  * email-capture popup so the two surfaces stay logically consistent, both
  * offer THIS code. Keeping it in one constant is the single source of truth.
  */
-export const STOREWIDE_DISCOUNT_CODE = "VINTAGE10";
+export const STOREWIDE_DISCOUNT_CODE = "FYND10";
 export const STOREWIDE_DISCOUNT_PERCENTAGE = 10;
 
 export const COUPONS: CouponDefinition[] = [

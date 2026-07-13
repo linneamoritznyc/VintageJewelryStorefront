@@ -54,6 +54,14 @@ export function Footer({ collections }: { collections: Collection[] }) {
                 Leverans &amp; retur
               </Link>
             </li>
+            <li>
+              <a
+                href="https://shopify.com/102317621595/account"
+                className="transition hover:text-fuchsia-brand"
+              >
+                Mitt konto
+              </a>
+            </li>
           </ul>
         </div>
 

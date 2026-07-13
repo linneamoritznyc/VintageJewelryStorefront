@@ -316,7 +316,7 @@ function CouponRow({
             setValue(e.target.value);
             setError(null);
           }}
-          placeholder="T.ex. VINTAGE10"
+          placeholder="T.ex. FYND10"
           autoCapitalize="characters"
           className="min-w-0 flex-1 rounded-pill border border-sand bg-white px-4 py-2 text-sm uppercase tracking-wide text-ink placeholder:normal-case placeholder:tracking-normal placeholder:text-plum-soft/60 focus:border-fuchsia-brand focus:outline-none"
         />

@@ -97,6 +97,12 @@ export interface Product {
   customsNote: string | null;
   /** Optional source lot/parti the piece came from. Metafield `custom.source_lot`. */
   sourceLot: string | null;
+  /**
+   * Ångerrätt-notis som visas som en synlig badge PÅ produktsidan, före
+   * köpknappen (aldrig gömd i beskrivningen). Metafield
+   * `custom.angerratt_notice`. `null` faller tillbaka på en standardnotis.
+   */
+  angerratt: string | null;
 }
 
 export interface Collection {

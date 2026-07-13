@@ -3,7 +3,7 @@
  * locked to 2026-07 (see index.ts / .env).
  *
  * NOTE on metafields: the custom fields (vintage_story, original_retail,
- * is_dropship, customs_note, source_lot) only return values if their metafield
+ * is_dropship, customs_note, source_lot, angerratt_notice) only return values if their metafield
  * definitions are exposed to the Storefront API (Settings → Custom data →
  * Products → each definition → "Storefront access"). The live client flattens
  * them onto the Product type so components never see the difference.
@@ -42,6 +42,7 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     isDropship: metafield(namespace: "custom", key: "is_dropship") { value }
     customsNote: metafield(namespace: "custom", key: "customs_note") { value }
     sourceLot: metafield(namespace: "custom", key: "source_lot") { value }
+    angerratt: metafield(namespace: "custom", key: "angerratt_notice") { value }
   }
 `;
 

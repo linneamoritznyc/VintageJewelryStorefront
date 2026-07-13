@@ -90,6 +90,16 @@ export default async function ProductPage({
             )}
           </div>
 
+          {/* Ångerrätt-badge, synlig FÖRE köpknappen (aldrig gömd i texten) */}
+          {product.angerratt && (
+            <div className="flex items-start gap-2 rounded-2xl border border-plum-soft/25 bg-white px-4 py-3 text-sm text-plum">
+              <span aria-hidden className="mt-0.5 text-base">
+                ↩
+              </span>
+              <p className="font-medium leading-snug">{product.angerratt}</p>
+            </div>
+          )}
+
           <ProductPurchasePanel product={product} />
 
           {product.description && (

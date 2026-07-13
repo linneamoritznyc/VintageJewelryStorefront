@@ -99,7 +99,17 @@ interface SeedInput {
   isDropship?: boolean;
   customsNote?: string;
   sourceLot?: string;
+  /** Per-product ångerrätt-notis. Faller tillbaka på standardnotisen. */
+  angerratt?: string;
 }
+
+/**
+ * Standardnotis för ångerrätt. Visas som synlig badge på produktsidan när
+ * produkten inte har en egen `custom.angerratt_notice`. Gäller alla köp enligt
+ * distansavtalslagen. Ingen em-dash i copyn.
+ */
+const DEFAULT_ANGERRATT =
+  "14 dagars ångerrätt enligt distansavtalslagen. Retur i oanvänt skick.";
 
 // Fixed reference instant so the mock catalog is deterministic across renders
 // (server/client) and does not depend on the current clock. Represents
@@ -185,6 +195,7 @@ function buildProduct(seed: SeedInput): Product {
     isDropship: seed.isDropship ?? false,
     customsNote: seed.customsNote ?? null,
     sourceLot: seed.sourceLot ?? null,
+    angerratt: seed.angerratt ?? DEFAULT_ANGERRATT,
   };
 }
 
