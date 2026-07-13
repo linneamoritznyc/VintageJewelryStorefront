@@ -8,8 +8,8 @@ import type { EmailPopupContent } from "@/lib/content/types";
  * code as the announcement banner, kept consistent via the content layer).
  * Shows a few seconds after load, at most once per browser session.
  *
- * The submit is a stubbed capture: it just reveals the code. Wire this to a
- * real list (Shopify customer / Klaviyo / etc.) at the marked TODO.
+ * Submits to the shared /api/subscribe endpoint (which forwards to the
+ * marketing provider when one is configured), then reveals the code.
  */
 const SESSION_KEY = "vjs-email-popup-seen";
 const SHOW_DELAY_MS = 6000;
@@ -32,14 +32,22 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
     setVisible(false);
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     if (!valid) {
       setError("Ange en giltig e-postadress.");
       return;
     }
-    // TODO(live): POST the email to the marketing list / Shopify customer API.
+    try {
+      await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+    } catch {
+      // Non-fatal: still reveal the code so the visitor gets their discount.
+    }
     window.sessionStorage.setItem(SESSION_KEY, "1");
     setSubmitted(true);
   };

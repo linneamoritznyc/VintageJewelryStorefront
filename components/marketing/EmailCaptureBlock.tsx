@@ -5,22 +5,31 @@ import type { EmailPopupContent } from "@/lib/content/types";
 
 /**
  * Inline email-capture block for the homepage. Offers the same storewide code
- * as the popup and banner (single source in the content layer). Stubbed submit
- *, wire to the real list at the marked TODO.
+ * as the popup and banner (single source in the content layer). Submits to the
+ * shared /api/subscribe endpoint, which forwards to the marketing provider
+ * when one is configured.
  */
 export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     if (!valid) {
       setError("Ange en giltig e-postadress.");
       return;
     }
-    // TODO(live): POST the email to the marketing list / Shopify customer API.
+    try {
+      await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+    } catch {
+      // Non-fatal: still show the code so the visitor gets their discount.
+    }
     setSubmitted(true);
   };
 
