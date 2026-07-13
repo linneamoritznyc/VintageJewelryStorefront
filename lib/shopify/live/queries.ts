@@ -24,7 +24,7 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     tags
     featuredImage { url altText width height }
     images(first: 8) { nodes { url altText width height } }
-    options { id name values }
+    options { id name optionValues { name } }
     priceRange { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } }
     compareAtPriceRange { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } }
     collections(first: 10) { nodes { handle } }

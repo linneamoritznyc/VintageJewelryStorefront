@@ -188,7 +188,14 @@ function mapProduct(p: RawProduct): Product {
     availableForSale: p.availableForSale,
     featuredImage,
     images: images.length > 0 ? images : [featuredImage],
-    options: (p.options ?? []).map((o) => ({ id: o.id, name: o.name, values: o.values })),
+    // Shopify represents a single-variant product with one synthetic option
+    // named "Title" whose only value is "Default Title". Drop it so those
+    // products render with no option selector (matching the mock catalog),
+    // rather than a pointless "Title: Default Title" picker. `values` is
+    // deprecated on ProductOption, so read the values off `optionValues`.
+    options: (p.options ?? [])
+      .map((o) => ({ id: o.id, name: o.name, values: o.optionValues.map((v) => v.name) }))
+      .filter((o) => !(o.values.length === 1 && o.values[0] === "Default Title")),
     variants: (p.variants?.nodes ?? []).map(mapVariant),
     priceRange: {
       minVariantPrice: requireMoney(p.priceRange.minVariantPrice),
@@ -518,7 +525,7 @@ interface RawProduct {
   tags: string[];
   featuredImage: RawImage | null;
   images: { nodes: RawImage[] } | null;
-  options: { id: string; name: string; values: string[] }[];
+  options: { id: string; name: string; optionValues: { name: string }[] }[];
   priceRange: { minVariantPrice: RawMoney; maxVariantPrice: RawMoney };
   compareAtPriceRange: { minVariantPrice: RawMoney | null; maxVariantPrice: RawMoney | null } | null;
   collections: { nodes: { handle: string }[] } | null;
