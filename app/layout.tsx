@@ -11,6 +11,7 @@ const grotesk = Familjen_Grotesk({
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { isNavCollectionHandle } from "@/lib/config/navigation";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_TAGLINE } from "@/lib/config/site";
 import { CartProvider } from "@/lib/cart/CartContext";
 import { ConsentProvider } from "@/lib/consent/ConsentContext";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
@@ -20,20 +21,36 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { EmailPopup } from "@/components/marketing/EmailPopup";
 import { Analytics } from "@/components/marketing/Analytics";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationSchema, websiteSchema } from "@/lib/seo/structured-data";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Fyndlådan, oanvända vintagesmycken till fyndpris",
-    template: "%s · Fyndlådan",
+    default: `${SITE_NAME} · ${SITE_TAGLINE}`,
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    "Oanvända vintagesmycken från ett tömt lager. Aldrig burna, alltid långt under ursprungspris. Örhängen, halsband, armband och mer, fynd så länge lagret räcker.",
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  applicationName: SITE_NAME,
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
   openGraph: {
-    title: "Fyndlådan",
-    description:
-      "Oanvända vintagesmycken från ett tömt lager. Fynd så länge lagret räcker.",
-    locale: "sv_SE",
     type: "website",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} · ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    locale: "sv_SE",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} · ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
   },
 };
 
@@ -61,6 +78,7 @@ export default async function RootLayout({
   return (
     <html lang="sv" className={grotesk.variable}>
       <body>
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <ConsentProvider>
           <CartProvider>
             <AnnouncementBanner content={content.announcement} />

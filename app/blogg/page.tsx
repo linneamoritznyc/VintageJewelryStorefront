@@ -4,8 +4,9 @@ import { store } from "@/lib/shopify";
 import { RichContent } from "@/components/content/RichContent";
 
 export const metadata: Metadata = {
-  title: "Blogg",
-  description: "Nyheter, guider och historier från Fyndlådan.",
+  title: "Blogg om vintage och second hand-smycken",
+  description: "Guider och historier om vintage-smycken, deadstock, hållbar lyx och hur du vårdar dina smycken, från Fyndlådan.",
+  alternates: { canonical: "/blogg" },
 };
 
 function formatDate(iso: string): string {

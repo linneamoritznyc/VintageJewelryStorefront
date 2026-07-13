@@ -6,7 +6,8 @@ import { RichContent } from "@/components/content/RichContent";
 
 export const metadata: Metadata = {
   title: "Leverans",
-  description: "Frakt, leveranstid och fraktkostnad hos Fyndlådan.",
+  description: "Frakt, leveranstid och fraktkostnad hos Fyndlådan. Fri frakt över 199 kr, spårbar leverans med PostNord inom Sverige.",
+  alternates: { canonical: "/leverans" },
 };
 
 export default async function ShippingPage() {

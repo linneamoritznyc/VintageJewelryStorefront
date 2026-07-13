@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { store, type ProductSortKey } from "@/lib/shopify";
 import { SYSTEM_COLLECTION_HANDLES } from "@/lib/config/navigation";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { collectionSchema, breadcrumbSchema } from "@/lib/seo/structured-data";
 import { FilterBar } from "@/components/category/FilterBar";
 import { CategoryListing } from "@/components/category/CategoryListing";
 
@@ -25,9 +27,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const collection = await store.getCollection(params.handle);
   if (!collection) return { title: "Kategori hittades inte" };
+  const canonical = `/kategori/${collection.handle}`;
+  const description =
+    collection.description ||
+    `${collection.title} från Fyndlådan: oanvända vintage och second hand-smycken, aldrig burna. 14 dagars ångerrätt.`;
   return {
-    title: collection.title,
-    description: collection.description,
+    title: `${collection.title} · vintage och second hand`,
+    description,
+    alternates: { canonical },
+    openGraph: { type: "website", title: collection.title, description, url: canonical },
   };
 }
 
@@ -64,6 +72,16 @@ export default async function CategoryPage({
   const filterKey = `${sort}|${maxPrice ?? "all"}`;
 
   return (
+    <>
+      <JsonLd
+        data={[
+          collectionSchema(collection, products),
+          breadcrumbSchema([
+            { name: "Hem", path: "/" },
+            { name: collection.title, path: `/kategori/${collection.handle}` },
+          ]),
+        ]}
+      />
     <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
       <nav className="mb-3 text-sm text-plum-soft" aria-label="Brödsmulor">
         <Link href="/" className="transition hover:text-fuchsia-brand">
@@ -99,6 +117,7 @@ export default async function CategoryPage({
           maxPrice={maxPrice}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }

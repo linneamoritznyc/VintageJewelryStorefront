@@ -5,7 +5,8 @@ import { RichContent } from "@/components/content/RichContent";
 
 export const metadata: Metadata = {
   title: "Ångerrätt och returer",
-  description: "Din 14 dagars ångerrätt hos Fyndlådan, och hur du utnyttjar den.",
+  description: "Din 14 dagars ångerrätt hos Fyndlådan, och hur du utnyttjar den. Ångra köpet direkt online, med kontant återbetalning som standard.",
+  alternates: { canonical: "/angerratt" },
 };
 
 export default async function AngerrattPage() {

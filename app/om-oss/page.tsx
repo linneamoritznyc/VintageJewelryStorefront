@@ -6,6 +6,7 @@ import { RichContent } from "@/components/content/RichContent";
 
 export const metadata: Metadata = {
   title: "Vår historia",
+  alternates: { canonical: "/om-oss" },
   description:
     "Historien bakom Fyndlådan, oanvända smycken räddade ur tomma varuhuslager.",
 };

@@ -3,6 +3,14 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { store } from "@/lib/shopify";
 import { RichContent } from "@/components/content/RichContent";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { articleSchema, breadcrumbSchema } from "@/lib/seo/structured-data";
+
+/** Strip HTML tags to a plain-text meta description. */
+function toText(html: string, max = 160): string {
+  const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+}
 
 export async function generateMetadata({
   params,
@@ -11,7 +19,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const article = await store.getBlogArticle(params.handle);
   if (!article) return { title: "Inlägget hittades inte" };
-  return { title: article.title };
+  const canonical = `/blogg/${article.handle}`;
+  const description = toText(article.summaryHtml || article.bodyHtml);
+  return {
+    title: article.title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "article",
+      title: article.title,
+      description,
+      url: canonical,
+      publishedTime: article.publishedAt,
+    },
+  };
 }
 
 function formatDate(iso: string): string {
@@ -28,6 +49,15 @@ export default async function BlogArticlePage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+      <JsonLd
+        data={[
+          articleSchema(article),
+          breadcrumbSchema([
+            { name: "Blogg", path: "/blogg" },
+            { name: article.title, path: `/blogg/${article.handle}` },
+          ]),
+        ]}
+      />
       <nav className="mb-4 text-sm text-plum-soft" aria-label="Brödsmulor">
         <Link href="/blogg" className="transition hover:text-fuchsia-brand">
           Blogg

@@ -5,7 +5,8 @@ import { RichContent } from "@/components/content/RichContent";
 
 export const metadata: Metadata = {
   title: "Kontakt",
-  description: "Kontakta Fyndlådan.",
+  description: "Kontakta Fyndlådan. Vi svarar oftast inom en arbetsdag.",
+  alternates: { canonical: "/kontakt" },
 };
 
 export default async function KontaktPage() {

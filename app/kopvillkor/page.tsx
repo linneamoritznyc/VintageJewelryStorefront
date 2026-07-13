@@ -6,6 +6,7 @@ import { RichContent } from "@/components/content/RichContent";
 export const metadata: Metadata = {
   title: "Köpvillkor",
   description: "Allmänna köpvillkor för Fyndlådan.",
+  alternates: { canonical: "/kopvillkor" },
 };
 
 export default async function TermsPage() {

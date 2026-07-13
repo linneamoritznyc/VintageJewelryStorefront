@@ -6,6 +6,7 @@ import { RichContent } from "@/components/content/RichContent";
 export const metadata: Metadata = {
   title: "Integritetspolicy",
   description: "Så hanterar Fyndlådan dina personuppgifter.",
+  alternates: { canonical: "/integritetspolicy" },
 };
 
 export default async function PrivacyPage() {
