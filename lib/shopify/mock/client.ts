@@ -14,6 +14,7 @@ import type {
   StorePage,
 } from "../types";
 import { findCoupon } from "@/lib/config/coupons";
+import { BUNDLE_CONFIG } from "@/lib/config/bundle";
 import { MOCK_PRODUCTS } from "./products";
 import { MOCK_COLLECTIONS } from "./collections";
 import { MOCK_PAGES } from "./pages";
@@ -71,10 +72,27 @@ function computeCart(stored: StoredCart): Cart {
     (sum, l) => sum + Number(l.merchandise.price.amount) * l.quantity,
     0,
   );
+  const totalQuantity = stored.lines.reduce((sum, l) => sum + l.quantity, 0);
+
+  // Mirrors the real Shopify discount setup: a non-combining code (FYND10)
+  // wins outright; otherwise the automatic "N or more items" discount
+  // applies on its own. See lib/cart/CartContext.tsx for the same logic
+  // (the client-side cart the UI actually uses today).
   const coupon = stored.discountCode ? findCoupon(stored.discountCode) : null;
-  const discount = coupon
-    ? { code: coupon.code, percentage: coupon.percentage, title: coupon.title }
+  const couponBlocksAutomatic = !!coupon && !coupon.combinesWithAutomatic;
+
+  let discount = coupon
+    ? { code: coupon.code, percentage: coupon.percentage, title: coupon.title, isAutomatic: false }
     : null;
+  if (!couponBlocksAutomatic && totalQuantity >= BUNDLE_CONFIG.size) {
+    discount = {
+      code: "",
+      percentage: BUNDLE_CONFIG.discountPercentage,
+      title: `Pakträtt (${BUNDLE_CONFIG.size}+ delar)`,
+      isAutomatic: true,
+    };
+  }
+
   const total = discount ? subtotal * (1 - discount.percentage / 100) : subtotal;
   return {
     id: stored.id,
@@ -82,7 +100,7 @@ function computeCart(stored: StoredCart): Cart {
     subtotal: money(subtotal),
     total: money(total),
     discount,
-    totalQuantity: stored.lines.reduce((n, l) => n + l.quantity, 0),
+    totalQuantity,
     // Mock has no real hosted checkout; the checkout page shows a clear stub.
     checkoutUrl: null,
   };
@@ -218,10 +236,7 @@ export const mockClient: StoreClient = {
     } else {
       const line = cart.lines.find((l) => l.id === lineId);
       if (line) {
-        const cap = line.merchandise.isBundle
-          ? quantity
-          : Math.min(quantity, Math.max(1, line.merchandise.quantityAvailable));
-        line.quantity = cap;
+        line.quantity = Math.min(quantity, Math.max(1, line.merchandise.quantityAvailable));
       }
     }
     return computeCart(cart);

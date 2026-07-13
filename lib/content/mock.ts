@@ -42,7 +42,7 @@ export function getMockSiteContent(): SiteContent {
     },
     bundle: {
       size: BUNDLE_CONFIG.size,
-      pricePerBundle: BUNDLE_CONFIG.pricePerBundle,
+      discountPercentage: BUNDLE_CONFIG.discountPercentage,
       currencyCode: BUNDLE_CONFIG.currencyCode,
       packageName: BUNDLE_CONFIG.packageName,
       packageBlurb: BUNDLE_CONFIG.packageBlurb,

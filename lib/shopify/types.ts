@@ -132,14 +132,6 @@ export interface BlogArticle {
 /* Cart shapes (mirror Storefront API Cart / CartLine / CartLineInput)  */
 /* ------------------------------------------------------------------ */
 
-/** A single piece contained inside a completed bundle line (for display). */
-export interface BundleContentItem {
-  productHandle: string;
-  productTitle: string;
-  variantTitle: string;
-  image: Image | null;
-}
-
 export interface CartLineMerchandise {
   variantId: string;
   productHandle: string;
@@ -151,13 +143,14 @@ export interface CartLineMerchandise {
   image: Image | null;
   quantityAvailable: number;
   /**
-   * When true, this line represents a completed "Skapa ditt eget paket"
-   * bundle: a single fixed-price line whose contents are listed in
-   * `bundleContents`. Once live, this maps to a Shopify bundle product variant
-   * (or a fixed-price bundle discount) plus line-item attributes.
+   * Set when this line was added via "Skapa ditt eget paket". Each piece is a
+   * REAL product variant line (real price, real stock), the automatic
+   * 15%-off-3-or-more discount applies the same way it would to any 3+ item
+   * cart. `bundleId` is purely a display tag (groups the pieces visually in
+   * the cart), not a pricing mechanism, once live this maps to a Shopify
+   * cart line attribute.
    */
-  isBundle?: boolean;
-  bundleContents?: BundleContentItem[];
+  bundleId?: string;
 }
 
 export interface CartLine {
@@ -168,10 +161,16 @@ export interface CartLine {
 }
 
 export interface AppliedDiscount {
+  /** Empty string for the automatic discount (no customer-entered code). */
   code: string;
   /** Percentage off, e.g. 10 for 10%. */
   percentage: number;
   title: string;
+  /**
+   * True for the automatic "3+ items" bundle discount (no code, cannot be
+   * manually removed by the customer). False for a code the customer typed.
+   */
+  isAutomatic?: boolean;
 }
 
 export interface Cart {

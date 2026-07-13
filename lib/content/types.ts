@@ -40,7 +40,8 @@ export interface BrandStoryContent {
 export interface BundleContent {
   /** Number of pieces to complete a bundle. */
   size: number;
-  pricePerBundle: number;
+  /** The real automatic Shopify discount's percentage off. */
+  discountPercentage: number;
   currencyCode: string;
   packageName: string;
   packageBlurb: string;

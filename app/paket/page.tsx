@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { BundleBuilder } from "@/components/bundle/BundleBuilder";
-import { formatPrice } from "@/lib/utils/format";
 
 export const metadata: Metadata = {
   title: "Skapa ditt eget paket",
   description:
-    "Välj dina favoritpjäser, samla dem i din bricka och få allt i en fin vintage-ask till ett fast paketpris.",
+    "Välj dina favoritpjäser, samla dem i din bricka och få allt i en fin vintage-ask, med automatisk pakträtt.",
 };
 
 export default async function BundlePage() {
@@ -29,9 +28,9 @@ export default async function BundlePage() {
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-plum-soft">
           Välj {bundle.size} pjäser från {bundle.size} olika kategorier. Vi
-          packar allt fint i en {bundle.packageName.toLowerCase()}, för{" "}
-          {formatPrice(bundle.pricePerBundle)}. Perfekt att ge bort eller unna
-          dig själv.
+          packar allt fint i en {bundle.packageName.toLowerCase()}, och du får
+          automatiskt {bundle.discountPercentage}% pakträtt i kassan. Perfekt
+          att ge bort eller unna dig själv.
         </p>
       </header>
 

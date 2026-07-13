@@ -4,7 +4,6 @@ import { getSiteContent } from "@/lib/content";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { EmailCaptureBlock } from "@/components/marketing/EmailCaptureBlock";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
-import { formatPrice } from "@/lib/utils/format";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   orhangen: "💎",
@@ -166,8 +165,8 @@ export default async function HomePage() {
               <p className="mt-2 max-w-md text-plum-soft">
                 Välj {bundle.size} pjäser från {bundle.size} olika kategorier,
                 samla dem i din bricka och få allt i en{" "}
-                {bundle.packageName.toLowerCase()}, för bara{" "}
-                {formatPrice(bundle.pricePerBundle)}.
+                {bundle.packageName.toLowerCase()}, med automatiskt{" "}
+                {bundle.discountPercentage}% pakträtt i kassan.
               </p>
               <Link
                 href="/paket"
