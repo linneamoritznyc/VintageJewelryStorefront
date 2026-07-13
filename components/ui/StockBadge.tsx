@@ -1,8 +1,11 @@
 import type { StockStatus } from "@/lib/utils/stock";
 
 /**
- * Scarcity/stock indicator. Only renders something when there's a message , 
- * low stock ("Endast 1 kvar") or sold out. Playful, not stressful.
+ * Stock indicator in the inventory voice. Only renders when there is something
+ * true to say (genuinely low stock, or sold out). Low stock uses the red
+ * signal, which is the ONLY place on the card red is allowed, because it is
+ * factually scarce. Sold out is neutral ink. No sparkle, no manufactured
+ * urgency: the scarcity is real.
  */
 export function StockBadge({
   status,
@@ -16,7 +19,7 @@ export function StockBadge({
   if (!status.inStock) {
     return (
       <span
-        className={`inline-flex items-center gap-1 rounded-pill bg-ink/10 px-2.5 py-1 text-xs font-semibold text-ink/70 ${className}`}
+        className={`meta inline-flex items-center bg-paper px-2 py-1 text-ink-muted ring-1 ring-rule ${className}`}
       >
         {status.label}
       </span>
@@ -25,11 +28,8 @@ export function StockBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-pill bg-gold-soft/60 px-2.5 py-1 text-xs font-bold text-plum ${className}`}
+      className={`meta inline-flex items-center bg-paper-raised px-2 py-1 font-medium text-signal ring-1 ring-signal/40 ${className}`}
     >
-      <span aria-hidden className="animate-sparkle">
-        ✦
-      </span>
       {status.label}
     </span>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { primaryCategoryHandle } from "@/lib/config/navigation";
+import { lotNumber } from "@/lib/utils/lot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { productSchema, breadcrumbSchema } from "@/lib/seo/structured-data";
 import { ProductGallery } from "@/components/product/ProductGallery";
@@ -56,6 +57,7 @@ export default async function ProductPage({
   const relatedProducts =
     related?.products.filter((p) => p.handle !== product.handle).slice(0, 8) ??
     [];
+  const lot = lotNumber(product.handle);
 
   const breadcrumbs = [
     { name: "Hem", path: "/" },
@@ -64,15 +66,15 @@ export default async function ProductPage({
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+    <div className="mx-auto max-w-[1280px] px-4 py-8 sm:py-12">
       <JsonLd
         data={[
           productSchema(product, collection?.title),
           breadcrumbSchema(breadcrumbs),
         ]}
       />
-      <nav className="mb-4 text-sm text-plum-soft" aria-label="Brödsmulor">
-        <Link href="/" className="transition hover:text-fuchsia-brand">
+      <nav className="meta mb-6 text-ink-faint" aria-label="Brödsmulor">
+        <Link href="/" className="transition hover:text-ink">
           Hem
         </Link>
         {collection && (
@@ -82,7 +84,7 @@ export default async function ProductPage({
             </span>
             <Link
               href={`/kategori/${collection.handle}`}
-              className="transition hover:text-fuchsia-brand"
+              className="transition hover:text-ink"
             >
               {collection.title}
             </Link>
@@ -94,60 +96,49 @@ export default async function ProductPage({
         <span className="text-ink">{product.title}</span>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
         <ProductGallery images={product.images} title={product.title} />
 
         <div className="flex flex-col gap-6">
           <div>
-            <h1 className="font-display text-3xl font-extrabold text-ink sm:text-4xl">
+            <p className="meta text-ink-faint">
+              LOT {lot}
+              {product.tags.length > 0 && ` · ${product.tags.join(" · ")}`}
+            </p>
+            <h1 className="mt-2 font-display text-3xl leading-tight text-ink sm:text-4xl">
               {product.title}
             </h1>
-            {product.tags.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {product.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-pill bg-sand px-2.5 py-1 text-xs font-medium text-plum-soft"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* Ångerrätt-badge, synlig FÖRE köpknappen (aldrig gömd i texten) */}
-          <div className="flex items-start gap-2 rounded-2xl border border-plum-soft/25 bg-white px-4 py-3 text-sm text-plum">
-            <span aria-hidden className="mt-0.5 text-base">
-              ↩
-            </span>
-            <p className="font-medium leading-snug">{content.angerrattNotice}</p>
+          {/* Ångerrätt-notis, synlig FÖRE köpknappen (aldrig gömd i texten) */}
+          <div className="border-y border-rule py-3">
+            <p className="text-sm leading-snug text-ink-muted">
+              {content.angerrattNotice}
+            </p>
           </div>
 
           <ProductPurchasePanel product={product} />
 
           {product.description && (
-            <div className="border-t border-sand pt-5">
-              <h2 className="font-display text-lg font-bold text-ink">
-                Beskrivning
-              </h2>
-              <p className="mt-2 leading-relaxed text-plum-soft">
+            <div className="border-t border-rule pt-6">
+              <h2 className="meta text-ink-faint">Beskrivning</h2>
+              <p className="mt-2 leading-relaxed text-ink-muted">
                 {product.description}
               </p>
             </div>
           )}
 
-          {/* Per-product vintage story. Falls back to the description when the
-              vintage_blurb metafield isn't set, so this section is never empty. */}
-          <div className="rounded-2xl bg-gradient-to-br from-sand/70 to-cream p-5">
-            <h2 className="flex items-center gap-2 font-display text-lg font-bold text-plum">
-              <span aria-hidden>✧</span> Om denna vintage-pärla
-            </h2>
+          {/* Per-product vintage story. Falls back to the description HTML when
+              the vintage_blurb metafield isn't set, so it is never empty. */}
+          <div className="border border-rule bg-paper-raised p-5">
+            <h2 className="meta text-ink-faint">Om denna vintage-pärla</h2>
             {product.vintageBlurb ? (
-              <p className="mt-2 leading-relaxed text-ink/80">{product.vintageBlurb}</p>
+              <p className="mt-2 leading-relaxed text-ink-muted">
+                {product.vintageBlurb}
+              </p>
             ) : (
               <div
-                className="mt-2 space-y-2 leading-relaxed text-ink/80"
+                className="mt-2 space-y-2 leading-relaxed text-ink-muted"
                 dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
               />
             )}
@@ -156,8 +147,8 @@ export default async function ProductPage({
       </div>
 
       {relatedProducts.length > 0 && (
-        <section className="mt-16">
-          <h2 className="mb-4 font-display text-2xl font-bold text-ink">
+        <section className="mt-20 border-t border-rule pt-10">
+          <h2 className="mb-6 font-display text-2xl text-ink">
             Fler fynd i {collection?.title ?? "samma kategori"}
           </h2>
           <ProductCarousel products={relatedProducts} />

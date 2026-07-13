@@ -1,20 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Familjen_Grotesk, Fraunces } from "next/font/google";
+import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const grotesk = Familjen_Grotesk({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-grotesk",
+/* Interface grotesque: nav, buttons, body, forms. */
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
   display: "swap",
 });
 
-/* Editorial display serif for headlines, paired with the grotesk body. */
+/* Editorial display serif: headings, product names, story, hero. */
 const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-fraunces",
+  display: "swap",
+});
+
+/* The inventory voice: lot numbers, prices, stock counts, SKUs, timestamps. */
+const mono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
   display: "swap",
 });
 import { store } from "@/lib/shopify";
@@ -24,6 +33,7 @@ import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_TAGLINE } fr
 import { CartProvider } from "@/lib/cart/CartContext";
 import { ConsentProvider } from "@/lib/consent/ConsentContext";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
+import { MemberBanner } from "@/components/layout/MemberBanner";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
@@ -64,7 +74,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FBF6EE",
+  themeColor: "#F4F1EA",
   width: "device-width",
   initialScale: 1,
 };
@@ -85,12 +95,16 @@ export default async function RootLayout({
   const navCollections = allCollections.filter((c) => isNavCollectionHandle(c.handle));
 
   return (
-    <html lang="sv" className={`${grotesk.variable} ${fraunces.variable}`}>
+    <html
+      lang="sv"
+      className={`${inter.variable} ${fraunces.variable} ${mono.variable}`}
+    >
       <body>
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <ConsentProvider>
           <CartProvider>
-            <AnnouncementBanner content={content.announcement} />
+            <AnnouncementBanner />
+            <MemberBanner content={content.announcement} />
             <Header collections={navCollections} />
             <main className="min-h-[60vh]">{children}</main>
             <Footer collections={navCollections} />

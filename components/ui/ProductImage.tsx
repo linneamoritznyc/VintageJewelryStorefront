@@ -1,5 +1,6 @@
 import type { Image as ShopImage } from "@/lib/shopify/types";
 import { JewelryArt } from "./jewelryArt";
+import { RemoteImage } from "./RemoteImage";
 
 /**
  * Renders a product image. During development, mock images use a `mock:art:hue`
@@ -55,17 +56,16 @@ export function ProductImage({
     );
   }
 
-  // Live image path.
+  // Live image path: next/image optimizes the Shopify CDN source (AVIF/WebP,
+  // responsive sizes, lazy below the fold), with a clean fallback if the photo
+  // is missing or blocked.
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
+    <RemoteImage
       src={image.url}
       alt={image.altText ?? ""}
       sizes={sizes}
-      loading={priority ? "eager" : "lazy"}
-      className={`object-cover ${className}`}
-      width={image.width}
-      height={image.height}
+      priority={priority}
+      className={className}
     />
   );
 }

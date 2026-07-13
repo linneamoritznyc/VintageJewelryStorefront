@@ -16,13 +16,16 @@ export const ANNOUNCEMENT = {
 };
 
 /**
- * Limited-time sale countdown (renders nothing once the date has passed).
- * Edit endsAt/label to run a new sale; set enabled: false to hide.
+ * Countdown for a GENUINE drop deadline only. Off by default: there is no real
+ * deadline right now, and a countdown on a non-genuine deadline is forbidden
+ * (both legally and by the design brief). To run a real timed drop, set
+ * enabled: true and endsAt to the true end time; it renders nothing once the
+ * date has passed.
  */
 export const COUNTDOWN = {
-  enabled: true,
-  endsAt: "2026-07-31T21:59:59+02:00",
-  label: "Sommarfynden slutar om",
+  enabled: false,
+  endsAt: "",
+  label: "Släppet stänger om",
 };
 
 export const EMAIL_POPUP = {

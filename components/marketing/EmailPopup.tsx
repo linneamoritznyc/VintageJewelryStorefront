@@ -126,14 +126,14 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
           </div>
         ) : (
           <>
-            <p className="text-center text-xs font-medium uppercase tracking-[0.22em] text-plum-soft">
-              {content.heading}
+            <p className="meta text-center text-ink-faint">
+              Bli medlem · {content.discountPercentage}% rabatt
             </p>
             <h3
               id="email-popup-title"
               className="mt-3 text-center font-display text-4xl text-ink"
             >
-              {content.discountPercentage}% rabatt
+              {content.heading}
             </h3>
             <p className="mt-3 text-center text-sm leading-relaxed text-plum-soft">
               {content.subheading}

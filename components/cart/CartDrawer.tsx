@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { formatMoney } from "@/lib/utils/format";
+import { lotNumber } from "@/lib/utils/lot";
 import type { AppliedDiscount, CartLine } from "@/lib/shopify/types";
 
 export function CartDrawer() {
@@ -54,19 +55,19 @@ export function CartDrawer() {
       />
 
       {/* Panel */}
-      <div className="absolute right-0 top-0 flex h-full w-full max-w-md animate-slide-in-right flex-col bg-cream shadow-pop">
-        <div className="flex items-center justify-between border-b border-sand px-4 py-4">
-          <h2 className="font-display text-lg font-bold text-ink">
+      <div className="absolute right-0 top-0 flex h-full w-full max-w-md animate-slide-in-right flex-col border-l border-rule bg-paper">
+        <div className="flex items-center justify-between border-b border-rule px-4 py-4">
+          <h2 className="font-display text-xl text-ink">
             Din varukorg{" "}
             {cart.totalQuantity > 0 && (
-              <span className="text-plum-soft">({cart.totalQuantity})</span>
+              <span className="meta text-ink-faint">({cart.totalQuantity})</span>
             )}
           </h2>
           <button
             type="button"
             onClick={closeCart}
             aria-label="Stäng"
-            className="rounded-full p-1.5 text-ink/70 transition hover:bg-sand hover:text-ink"
+            className="p-1.5 text-ink/60 transition hover:text-ink"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
               <path
@@ -81,16 +82,14 @@ export function CartDrawer() {
 
         {isEmpty ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-            <span aria-hidden className="text-5xl">
-              🧺
-            </span>
-            <p className="text-plum-soft">
-              Din varukorg är tom. Dags att börja skattjakten!
+            <p className="meta text-ink-faint">Tom bricka</p>
+            <p className="text-ink-muted">
+              Din varukorg är tom. Dags att börja skattjakten.
             </p>
             <Link
               href="/kategori/orhangen"
               onClick={closeCart}
-              className="rounded-pill bg-fuchsia-brand px-5 py-2.5 font-bold text-white transition hover:bg-fuchsia-deep"
+              className="meta bg-ink px-5 py-3 font-medium text-paper transition hover:bg-ink-muted"
             >
               Utforska fynden
             </Link>
@@ -136,24 +135,41 @@ export function CartDrawer() {
                     </dd>
                   </div>
                 )}
-                <div className="flex justify-between pt-1 text-base font-extrabold text-ink">
-                  <dt>Att betala</dt>
-                  <dd>{formatMoney(cart.total)}</dd>
+                <div className="flex items-baseline justify-between border-t border-rule pt-2 text-ink">
+                  <dt className="font-medium">Att betala</dt>
+                  <dd className="font-mono text-base font-medium tabular-nums">
+                    {formatMoney(cart.total)}
+                  </dd>
                 </div>
               </dl>
+
+              {/* 14-day right of withdrawal, disclosed before purchase (law).
+                  Visible line, never buried in a footer link. */}
+              <p className="mt-4 border-t border-rule pt-3 text-xs leading-snug text-ink-muted">
+                14 dagars ångerrätt på alla köp. Du kan ångra köpet direkt online,
+                ingen kundtjänst behövs.{" "}
+                <Link
+                  href="/angerratt"
+                  onClick={closeCart}
+                  className="underline underline-offset-2 hover:text-ink"
+                >
+                  Läs om ångerrätten
+                </Link>
+                .
+              </p>
 
               <Link
                 href="/kassa"
                 onClick={closeCart}
-                className="mt-4 block rounded-pill bg-fuchsia-brand px-5 py-3 text-center font-bold text-white transition hover:bg-fuchsia-deep"
+                className="meta mt-4 block bg-ink px-5 py-3.5 text-center font-medium text-paper transition hover:bg-ink-muted"
               >
                 Till kassan
               </Link>
-              <p className="mt-2 text-center text-xs text-plum-soft">
-                Frakt och betalning beräknas i nästa steg.
+              <p className="meta mt-2 text-center text-ink-faint">
+                Frakt och betalning i nästa steg
               </p>
-              <p className="mt-1 text-center text-[11px] text-plum-soft/70">
-                Betalning sker via Swish. Testnummer: 123123123 (platshållare)
+              <p className="mt-1 text-center text-[11px] text-ink-faint">
+                Betalning via Swish. Testnummer 123123123 (platshållare)
               </p>
             </div>
           </>
@@ -176,27 +192,28 @@ function CartLineRow({
   const hasVariant = m.variantTitle && m.variantTitle !== "Default Title";
 
   return (
-    <li className="flex gap-3 border-b border-sand/70 py-3 last:border-b-0">
+    <li className="flex gap-3 border-b border-rule py-3 last:border-b-0">
       {m.image && (
-        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl">
+        <div className="h-20 w-20 flex-shrink-0 overflow-hidden bg-paper-sunk ring-1 ring-rule">
           <ProductImage image={m.image} className="h-full w-full" />
         </div>
       )}
       <div className="flex flex-1 flex-col">
         <div className="flex justify-between gap-2">
           <div>
+            <p className="meta text-ink-faint">LOT {lotNumber(m.productHandle)}</p>
             <Link
               href={`/produkt/${m.productHandle}`}
-              className="font-semibold text-ink transition hover:text-fuchsia-brand"
+              className="font-display text-ink transition hover:underline hover:underline-offset-4"
             >
               {m.productTitle}
             </Link>
             {hasVariant && (
-              <p className="text-xs text-plum-soft">{m.variantTitle}</p>
+              <p className="text-xs text-ink-faint">{m.variantTitle}</p>
             )}
             {m.bundleId && (
-              <span className="mt-1 inline-block rounded-pill bg-gold-soft/40 px-2 py-0.5 text-[11px] font-semibold text-plum">
-                🎁 Del av ditt paket
+              <span className="meta mt-1 inline-block text-ink-muted ring-1 ring-rule px-2 py-0.5">
+                Del av ditt paket
               </span>
             )}
           </div>
@@ -218,16 +235,16 @@ function CartLineRow({
         </div>
 
         <div className="mt-auto flex items-center justify-between pt-2">
-          <div className="flex items-center rounded-pill border border-sand">
+          <div className="flex items-center border border-rule">
             <button
               type="button"
               onClick={() => onUpdate(line.id, line.quantity - 1)}
               aria-label="Minska antal"
-              className="px-2.5 py-1 text-ink transition hover:text-fuchsia-brand"
+              className="px-2.5 py-1 text-ink transition hover:bg-paper-sunk"
             >
               −
             </button>
-            <span className="min-w-[1.5rem] text-center text-sm font-semibold tabular-nums">
+            <span className="min-w-[1.5rem] text-center font-mono text-sm tabular-nums">
               {line.quantity}
             </span>
             <button
@@ -235,12 +252,12 @@ function CartLineRow({
               onClick={() => onUpdate(line.id, line.quantity + 1)}
               disabled={line.quantity >= Math.max(1, m.quantityAvailable)}
               aria-label="Öka antal"
-              className="px-2.5 py-1 text-ink transition hover:text-fuchsia-brand disabled:opacity-30"
+              className="px-2.5 py-1 text-ink transition hover:bg-paper-sunk disabled:opacity-30"
             >
               +
             </button>
           </div>
-          <span className="text-sm font-bold text-ink">
+          <span className="font-mono text-sm font-medium tabular-nums text-ink">
             {formatMoney({
               amount: (Number(m.price.amount) * line.quantity).toFixed(2),
               currencyCode: m.price.currencyCode,

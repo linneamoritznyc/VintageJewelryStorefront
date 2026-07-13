@@ -147,12 +147,12 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           disabled={!canAdd}
           className="flex-1 rounded-pill bg-fuchsia-brand px-6 py-3.5 text-center font-bold text-white transition hover:bg-fuchsia-deep disabled:cursor-not-allowed disabled:bg-plum-soft/40"
         >
-          {!canAdd ? "Slutsåld" : added ? "✓ Tillagd!" : "Lägg i varukorg"}
+          {!canAdd ? "Slutsåld" : added ? "Tillagd i varukorgen" : "Lägg i varukorg"}
         </button>
       </div>
 
-      <p className="text-xs text-plum-soft">
-        Fri prisvärd frakt · Säker betalning via Shopify · Begränsat lager
+      <p className="meta text-ink-faint">
+        Säker betalning via Shopify · Begränsat lager
       </p>
     </div>
   );
