@@ -51,9 +51,9 @@ export default async function HomePage() {
             <p className="mt-4 max-w-sm text-body text-ink-muted">{hero.subheading}</p>
             <Link
               href="/kategori/orhangen"
-              className="mt-6 inline-block border-b border-ink pb-[3px] text-body text-ink transition hover:text-accent"
+              className="mt-6 inline-block border border-accent bg-accent px-6 py-3 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover"
             >
-              Se allt →
+              Se hela lagret
             </Link>
           </div>
         </div>
