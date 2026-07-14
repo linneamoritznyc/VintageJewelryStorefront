@@ -4,62 +4,84 @@ import { getSiteContent } from "@/lib/content";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { EmailCaptureBlock } from "@/components/marketing/EmailCaptureBlock";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
-import { formatPrice } from "@/lib/utils/format";
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  orhangen: "💎",
-  halsband: "📿",
-  armband: "🔗",
-  ovrigt: "✨",
-};
+import { ArchivePlaceholder } from "@/components/ui/ArchivePlaceholder";
+import { formatPrice, formatLot } from "@/lib/utils/format";
 
 export default async function HomePage() {
-  const [collections, latest, content] = await Promise.all([
+  const [collections, latest, newest, allProducts, content] = await Promise.all([
     store.getCollections(),
-    store.getLatestProducts(10),
+    store.getLatestProducts(8),
+    store.getLatestProducts(16).then((ps) => ps.slice(8)),
+    store.getAllProducts(),
     getSiteContent(),
   ]);
   const { hero, brandStory, bundle } = content;
 
+  const totalCount = allProducts.length;
+  const lastLot = formatLot(totalCount) ?? `LOT ${totalCount}`;
+  const countByCategory = new Map<string, number>();
+  for (const p of allProducts) {
+    const cat = p.collections[0];
+    if (cat) countByCategory.set(cat, (countByCategory.get(cat) ?? 0) + 1);
+  }
+
   return (
-    <div className="flex flex-col gap-14 py-6 sm:gap-20 sm:py-10">
+    <div className="flex flex-col">
       {/* Hero */}
-      <section className="mx-auto w-full max-w-6xl px-4">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-fuchsia-brand via-fuchsia-deep to-plum px-6 py-12 text-cream sm:px-12 sm:py-20">
-          <div className="absolute -right-8 -top-8 text-[10rem] opacity-10" aria-hidden>
-            ✧
+      <section className="border-b border-rule">
+        <div className="relative">
+          <ArchivePlaceholder
+            label="HERO-BILD · ERSÄTT MED FOTO"
+            className="aspect-[4/5] w-full sm:aspect-[16/9]"
+          />
+          <div className="absolute inset-x-0 top-0 p-4 sm:p-6">
+            <p className="meta text-ink-faint">
+              LOT 001-{lastLot.replace("LOT ", "")} · {hero.badge.toUpperCase()}
+            </p>
           </div>
-          <div className="relative max-w-xl">
-            <span className="inline-flex items-center gap-1.5 rounded-pill bg-cream/15 px-3 py-1 text-xs font-bold uppercase tracking-wide">
-              <span aria-hidden>✦</span> {hero.badge}
-            </span>
-            <h1 className="mt-4 font-display text-4xl font-extrabold leading-tight sm:text-6xl">
+          <div className="absolute inset-x-0 bottom-0 p-4 sm:p-8">
+            <h1 className="max-w-md font-display text-4xl leading-[1.05] text-ink sm:text-6xl">
               {hero.heading}
             </h1>
-            <p className="mt-4 max-w-md text-cream/85 sm:text-lg">
+            <p className="mt-3 max-w-sm text-ink-muted sm:text-lg">
               {hero.subheading}
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                href="/kategori/orhangen"
-                className="rounded-pill bg-cream px-6 py-3 font-bold text-plum transition hover:bg-white"
-              >
-                Börja fynda
-              </Link>
-              <Link
-                href="/paket"
-                className="rounded-pill border-2 border-cream/60 px-6 py-3 font-bold text-cream transition hover:bg-cream/10"
-              >
-                Skapa ditt paket
-              </Link>
-            </div>
+            <Link
+              href="/kategori/orhangen"
+              className="mt-5 inline-block bg-ink px-6 py-3 font-mono text-xs uppercase tracking-meta text-paper transition hover:bg-ink-muted"
+            >
+              Se hela lagret
+            </Link>
           </div>
+        </div>
+      </section>
+
+      {/* USP row */}
+      <section className="border-b border-rule">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 sm:grid-cols-4">
+          {[
+            "I originalskick",
+            "Fri frakt över 400 kr",
+            "14 dagars ångerrätt",
+            "Ett exemplar av det mesta",
+          ].map((usp, i) => (
+            <div
+              key={usp}
+              className={`border-rule px-4 py-4 text-center font-mono text-[11px] uppercase tracking-meta text-ink-muted sm:text-xs ${
+                i % 2 === 0 ? "border-r sm:border-r-0" : ""
+              } ${i < 2 ? "border-b sm:border-b-0" : ""} ${
+                i > 0 ? "sm:border-l" : ""
+              }`}
+            >
+              {usp}
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Countdown, only shown when a genuine timed drop is configured. */}
       {content.saleCountdownEndsAt && (
-        <section className="mx-auto w-full max-w-6xl px-4">
+        <section className="mx-auto w-full max-w-6xl px-4 py-8">
           <div className="flex flex-col items-center justify-between gap-4 border border-rule bg-paper-raised px-6 py-5 sm:flex-row">
             <div className="text-center sm:text-left">
               <p className="meta">Släppet stänger</p>
@@ -73,118 +95,119 @@ export default async function HomePage() {
       )}
 
       {/* Latest finds carousel */}
-      <section className="mx-auto w-full max-w-6xl px-4">
-        <div className="mb-4 flex items-end justify-between">
+      <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
+        <div className="mb-4 flex items-end justify-between border-b border-rule pb-3">
           <div>
-            <h2 className="font-display text-2xl font-bold text-ink sm:text-3xl">
+            <h2 className="font-display text-2xl text-ink sm:text-3xl">
               Senaste fynden
             </h2>
-            <p className="text-sm text-plum-soft">Nyss framgrävt ur lagret.</p>
+            <p className="meta mt-1">Nyss inregistrerat i lagret</p>
           </div>
+          <Link
+            href="/kategori/orhangen"
+            className="font-mono text-xs uppercase tracking-meta text-ink-muted transition hover:text-ink"
+          >
+            Visa fler
+          </Link>
         </div>
         <ProductCarousel products={latest} />
       </section>
 
-      {/* Category navigation */}
-      <section className="mx-auto w-full max-w-6xl px-4">
-        <h2 className="mb-4 font-display text-2xl font-bold text-ink sm:text-3xl">
-          Utforska kategorier
-        </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          {collections.map((c) => (
-            <Link
-              key={c.handle}
-              href={`/kategori/${c.handle}`}
-              className="group flex flex-col items-center gap-2 rounded-2xl bg-white p-6 text-center shadow-card transition-transform hover:-translate-y-1"
-            >
-              <span aria-hidden className="text-4xl">
-                {CATEGORY_EMOJI[c.handle] ?? "✨"}
-              </span>
-              <span className="font-display text-lg font-bold text-ink group-hover:text-fuchsia-brand">
-                {c.title}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Brand story */}
-      <section className="mx-auto w-full max-w-6xl px-4">
-        <div className="grid items-center gap-6 rounded-3xl bg-sand/60 p-6 sm:grid-cols-2 sm:p-10">
-          <div>
-            <span className="inline-flex rounded-pill bg-fuchsia-brand/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-fuchsia-deep">
-              {brandStory.eyebrow}
-            </span>
-            <h2 className="mt-3 font-display text-2xl font-bold text-ink sm:text-3xl">
+      {/* Story block: the deadstock narrative. Give it room. */}
+      <section className="border-y border-rule bg-paper-raised">
+        <div className="mx-auto grid max-w-6xl items-center gap-0 sm:grid-cols-2">
+          <ArchivePlaceholder
+            label="ARKIVBILD · ERSÄTT MED FOTO"
+            className="aspect-square sm:aspect-auto sm:h-full sm:min-h-[420px]"
+          />
+          <div className="px-4 py-10 sm:px-12 sm:py-16">
+            <p className="meta">{brandStory.eyebrow}</p>
+            <h2 className="mt-3 font-display text-3xl text-ink sm:text-4xl">
               {brandStory.heading}
             </h2>
-            <div className="mt-4 space-y-3 text-plum-soft">
+            <div className="mt-5 space-y-3 text-ink-muted">
               {brandStory.paragraphs.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
-              <p className="font-semibold text-ink">{brandStory.closingLine}</p>
+              <p className="text-ink">{brandStory.closingLine}</p>
             </div>
             <Link
               href="/om-oss"
-              className="mt-5 inline-block rounded-pill bg-ink px-5 py-2.5 font-bold text-cream transition hover:bg-plum"
+              className="mt-5 inline-block font-mono text-xs uppercase tracking-meta text-ink underline underline-offset-4 transition hover:text-ink-muted"
             >
               Läs hela historien
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { n: "100%", l: "Oanvänt & aldrig buret" },
-              { n: "−60%", l: "Ofta mot ursprungspris" },
-              { n: "1 av 1", l: "Ofta bara ett kvar" },
-              { n: "🇸🇪", l: "Svenskt lager" },
-            ].map((stat) => (
-              <div
-                key={stat.l}
-                className="flex flex-col items-center justify-center rounded-2xl bg-white p-5 text-center shadow-card"
-              >
-                <span className="font-display text-2xl font-extrabold text-fuchsia-brand">
-                  {stat.n}
-                </span>
-                <span className="mt-1 text-xs text-plum-soft">{stat.l}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      {/* Bundle CTA */}
-      <section className="mx-auto w-full max-w-6xl px-4">
-        <div className="relative overflow-hidden rounded-3xl border-2 border-dashed border-fuchsia-brand/40 bg-white p-6 sm:p-10">
-          <div className="grid items-center gap-6 sm:grid-cols-[1fr_auto]">
-            <div>
-              <span className="inline-flex rounded-pill bg-gold-soft/60 px-3 py-1 text-xs font-bold uppercase tracking-wide text-plum">
-                Flaggskeppet
-              </span>
-              <h2 className="mt-3 font-display text-2xl font-bold text-ink sm:text-3xl">
-                Skapa ditt eget paket
-              </h2>
-              <p className="mt-2 max-w-md text-plum-soft">
-                Välj {bundle.size} valfria pjäser från vilka kategorier du vill,
-                samla dem i din bricka och få allt i en{" "}
-                {bundle.packageName.toLowerCase()}, för bara{" "}
-                {formatPrice(bundle.pricePerBundle)}.
-              </p>
-              <Link
-                href="/paket"
-                className="mt-5 inline-block rounded-pill bg-fuchsia-brand px-6 py-3 font-bold text-white transition hover:bg-fuchsia-deep"
-              >
-                Bygg ditt paket →
+      {/* Category tiles, honest per-category counts */}
+      <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
+        <h2 className="mb-4 border-b border-rule pb-3 font-display text-2xl text-ink sm:text-3xl">
+          Kategorier
+        </h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {collections.map((c) => {
+            const count = countByCategory.get(c.handle) ?? 0;
+            return (
+              <Link key={c.handle} href={`/kategori/${c.handle}`} className="group block">
+                <div className="relative aspect-[3/4] overflow-hidden border border-rule">
+                  <ArchivePlaceholder label="BILD" className="h-full w-full" />
+                  <div className="absolute inset-x-0 bottom-0 bg-ink/85 px-3 py-3 text-center">
+                    <span className="font-display text-lg text-paper">{c.title}</span>
+                  </div>
+                </div>
+                <p className="meta mt-2 text-center">
+                  {c.title.toUpperCase()} · {count} STYCKEN
+                </p>
               </Link>
-            </div>
-            <div className="hidden text-8xl sm:block" aria-hidden>
-              🎁
-            </div>
-          </div>
+            );
+          })}
         </div>
+      </section>
+
+      {/* Bundle builder entry point, full-bleed, the flagship. */}
+      <section className="border-y border-rule bg-ink text-paper">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-16">
+          <p className="meta text-paper/60">Flaggskeppet</p>
+          <h2 className="mt-3 font-display text-3xl sm:text-4xl">
+            Skapa ditt eget paket
+          </h2>
+          <p className="mt-3 max-w-md text-paper/80">
+            Välj {bundle.size} fynd, vilken mix du vill. Vi packar dem i en{" "}
+            {bundle.packageName.toLowerCase()} och skickar iväg, för{" "}
+            <span className="mono">{formatPrice(bundle.pricePerBundle)}</span>.
+          </p>
+          <Link
+            href="/paket"
+            className="mt-5 inline-block bg-paper px-6 py-3 font-mono text-xs uppercase tracking-meta text-ink transition hover:bg-paper-sunk"
+          >
+            Skapa ditt paket
+          </Link>
+        </div>
+      </section>
+
+      {/* Second carousel */}
+      <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
+        <div className="mb-4 flex items-end justify-between border-b border-rule pb-3">
+          <div>
+            <h2 className="font-display text-2xl text-ink sm:text-3xl">Nya fynd</h2>
+            <p className="meta mt-1">Mer ur samma parti</p>
+          </div>
+          <Link
+            href="/kategori/halsband"
+            className="font-mono text-xs uppercase tracking-meta text-ink-muted transition hover:text-ink"
+          >
+            Visa fler
+          </Link>
+        </div>
+        <ProductCarousel products={newest} />
       </section>
 
       {/* Email capture */}
-      <EmailCaptureBlock content={content.emailPopup} />
+      <div className="pb-16">
+        <EmailCaptureBlock content={content.emailPopup} />
+      </div>
     </div>
   );
 }
