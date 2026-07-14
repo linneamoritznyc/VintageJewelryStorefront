@@ -5,20 +5,15 @@ import type {
   ProductSortKey,
 } from "../client";
 import type {
-  BlogArticle,
   Cart,
   CartLine,
   Collection,
   Money,
   Product,
-  StorePage,
 } from "../types";
 import { findCoupon } from "@/lib/config/coupons";
-import { BUNDLE_CONFIG } from "@/lib/config/bundle";
 import { MOCK_PRODUCTS } from "./products";
 import { MOCK_COLLECTIONS } from "./collections";
-import { MOCK_PAGES } from "./pages";
-import { MOCK_BLOG_ARTICLES } from "./blog";
 
 /**
  * Mock implementation of StoreClient. Reads from the fixtures and keeps carts
@@ -72,27 +67,10 @@ function computeCart(stored: StoredCart): Cart {
     (sum, l) => sum + Number(l.merchandise.price.amount) * l.quantity,
     0,
   );
-  const totalQuantity = stored.lines.reduce((sum, l) => sum + l.quantity, 0);
-
-  // Mirrors the real Shopify discount setup: a non-combining code (FYND10)
-  // wins outright; otherwise the automatic "N or more items" discount
-  // applies on its own. See lib/cart/CartContext.tsx for the same logic
-  // (the client-side cart the UI actually uses today).
   const coupon = stored.discountCode ? findCoupon(stored.discountCode) : null;
-  const couponBlocksAutomatic = !!coupon && !coupon.combinesWithAutomatic;
-
-  let discount = coupon
-    ? { code: coupon.code, percentage: coupon.percentage, title: coupon.title, isAutomatic: false }
+  const discount = coupon
+    ? { code: coupon.code, percentage: coupon.percentage, title: coupon.title }
     : null;
-  if (!couponBlocksAutomatic && totalQuantity >= BUNDLE_CONFIG.size) {
-    discount = {
-      code: "",
-      percentage: BUNDLE_CONFIG.discountPercentage,
-      title: `Pakträtt (${BUNDLE_CONFIG.size}+ delar)`,
-      isAutomatic: true,
-    };
-  }
-
   const total = discount ? subtotal * (1 - discount.percentage / 100) : subtotal;
   return {
     id: stored.id,
@@ -100,7 +78,7 @@ function computeCart(stored: StoredCart): Cart {
     subtotal: money(subtotal),
     total: money(total),
     discount,
-    totalQuantity,
+    totalQuantity: stored.lines.reduce((n, l) => n + l.quantity, 0),
     // Mock has no real hosted checkout; the checkout page shows a clear stub.
     checkoutUrl: null,
   };
@@ -167,22 +145,6 @@ export const mockClient: StoreClient = {
     return MOCK_PRODUCTS;
   },
 
-  /* --- static content: pages + blog --- */
-
-  async getPage(handle: string): Promise<StorePage | null> {
-    return MOCK_PAGES.find((p) => p.handle === handle) ?? null;
-  },
-
-  async getBlogArticles(): Promise<BlogArticle[]> {
-    return [...MOCK_BLOG_ARTICLES].sort(
-      (a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt),
-    );
-  },
-
-  async getBlogArticle(handle: string): Promise<BlogArticle | null> {
-    return MOCK_BLOG_ARTICLES.find((a) => a.handle === handle) ?? null;
-  },
-
   /* --- cart --- */
 
   async createCart(): Promise<Cart> {
@@ -236,7 +198,10 @@ export const mockClient: StoreClient = {
     } else {
       const line = cart.lines.find((l) => l.id === lineId);
       if (line) {
-        line.quantity = Math.min(quantity, Math.max(1, line.merchandise.quantityAvailable));
+        const cap = line.merchandise.isBundle
+          ? quantity
+          : Math.min(quantity, Math.max(1, line.merchandise.quantityAvailable));
+        line.quantity = cap;
       }
     }
     return computeCart(cart);

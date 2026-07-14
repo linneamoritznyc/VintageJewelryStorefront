@@ -23,7 +23,7 @@ export function ProductGallery({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="overflow-hidden rounded-3xl bg-white shadow-card">
+      <div className="overflow-hidden border border-line bg-bg-tile">
         <ProductImage
           image={current}
           className="aspect-square h-full w-full"
@@ -41,10 +41,8 @@ export function ProductGallery({
               onClick={() => setActive(i)}
               aria-label={`Visa bild ${i + 1}`}
               aria-current={i === active}
-              className={`h-16 w-16 overflow-hidden rounded-xl border-2 transition sm:h-20 sm:w-20 ${
-                i === active
-                  ? "border-fuchsia-brand"
-                  : "border-transparent opacity-70 hover:opacity-100"
+              className={`h-16 w-16 overflow-hidden border transition sm:h-20 sm:w-20 ${
+                i === active ? "border-ink" : "border-line opacity-70 hover:opacity-100"
               }`}
             >
               <ProductImage image={img} className="h-full w-full" />

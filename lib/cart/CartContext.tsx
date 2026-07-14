@@ -17,7 +17,6 @@ import type {
   AppliedDiscount,
 } from "@/lib/shopify/types";
 import { findCoupon } from "@/lib/config/coupons";
-import { BUNDLE_CONFIG } from "@/lib/config/bundle";
 
 /**
  * Client-side cart state. Models the Storefront API Cart shape (lines,
@@ -60,23 +59,23 @@ function reducer(state: CartState, action: Action): CartState {
 
     case "ADD": {
       const { merchandise, quantity } = action;
-      // Same variant already in cart (e.g. reused across two bundle builds,
-      // or added again from the product page): bump quantity, real Shopify
-      // carts merge same-variant lines the same way.
-      const existing = state.lines.find(
-        (l) => l.merchandise.variantId === merchandise.variantId,
-      );
-      if (existing) {
-        const capped = Math.min(
-          existing.quantity + quantity,
-          Math.max(1, merchandise.quantityAvailable),
+      // Bundles are always distinct lines (each is a unique fixed-price set).
+      if (!merchandise.isBundle) {
+        const existing = state.lines.find(
+          (l) => l.merchandise.variantId === merchandise.variantId,
         );
-        return {
-          ...state,
-          lines: state.lines.map((l) =>
-            l.id === existing.id ? { ...l, quantity: capped } : l,
-          ),
-        };
+        if (existing) {
+          const capped = Math.min(
+            existing.quantity + quantity,
+            Math.max(1, merchandise.quantityAvailable),
+          );
+          return {
+            ...state,
+            lines: state.lines.map((l) =>
+              l.id === existing.id ? { ...l, quantity: capped } : l,
+            ),
+          };
+        }
       }
       const line: CartLine = {
         id: nextLineId(),
@@ -97,7 +96,9 @@ function reducer(state: CartState, action: Action): CartState {
         ...state,
         lines: state.lines.map((l) => {
           if (l.id !== action.lineId) return l;
-          const cap = Math.min(action.quantity, Math.max(1, l.merchandise.quantityAvailable));
+          const cap = l.merchandise.isBundle
+            ? action.quantity
+            : Math.min(action.quantity, Math.max(1, l.merchandise.quantityAvailable));
           return { ...l, quantity: cap };
         }),
       };
@@ -129,33 +130,24 @@ function computeCart(state: CartState): Cart {
     (sum, l) => sum + Number(l.merchandise.price.amount) * l.quantity,
     0,
   );
-  const totalQuantity = state.lines.reduce((sum, l) => sum + l.quantity, 0);
 
-  // Mirrors the real Shopify discount setup (verified live): a manually
-  // entered non-combining code (FYND10 combines with nothing) wins outright.
-  // Otherwise, the automatic "N or more items" discount applies on its own,
-  // no code needed and not something the customer can remove short of
-  // removing items. (No coupon today has combinesWithAutomatic: true, if one
-  // is ever added the two percentages would need to stack here.)
-  const coupon = state.discountCode ? findCoupon(state.discountCode) : null;
-  const couponBlocksAutomatic = !!coupon && !coupon.combinesWithAutomatic;
-
-  let discount: AppliedDiscount | null = coupon
-    ? { code: coupon.code, percentage: coupon.percentage, title: coupon.title, isAutomatic: false }
-    : null;
-
-  if (!couponBlocksAutomatic && totalQuantity >= BUNDLE_CONFIG.size) {
-    discount = {
-      code: "",
-      percentage: BUNDLE_CONFIG.discountPercentage,
-      title: `Pakträtt (${BUNDLE_CONFIG.size}+ delar)`,
-      isAutomatic: true,
-    };
+  let discount: AppliedDiscount | null = null;
+  if (state.discountCode) {
+    const coupon = findCoupon(state.discountCode);
+    if (coupon) {
+      discount = {
+        code: coupon.code,
+        percentage: coupon.percentage,
+        title: coupon.title,
+      };
+    }
   }
 
   const totalAmount = discount
     ? subtotalAmount * (1 - discount.percentage / 100)
     : subtotalAmount;
+
+  const totalQuantity = state.lines.reduce((sum, l) => sum + l.quantity, 0);
 
   return {
     id: null,

@@ -3,11 +3,8 @@
 @tailwind utilities;
 
 :root {
-  /* Inter for body/UI, Fraunces (editorial serif) for headlines, JetBrains
-     Mono for the inventory voice. All loaded via next/font in layout. */
-  --font-sans: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
-  --font-mono-stack: var(--font-mono), ui-monospace, monospace;
+  /* One typeface everywhere: Cormorant, loaded via next/font in layout. */
+  --font-serif: var(--font-serif), Georgia, serif;
 }
 
 @layer base {
@@ -16,19 +13,22 @@
   }
 
   body {
-    @apply bg-paper text-ink antialiased;
-    font-family: var(--font-sans);
+    @apply bg-bg text-ink antialiased;
+    font-family: var(--font-serif);
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: 400;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--font-display);
-    font-weight: 400;
+    font-family: var(--font-serif);
+    font-weight: 300;
   }
 
-  /* Respect reduced-motion preferences for all the playful animations. */
+  /* Respect reduced-motion: disable the (restrained) animations. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -36,21 +36,30 @@
       animation-duration: 0.001ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
     }
   }
 }
 
-@layer utilities {
-  /* The inventory voice: mono, uppercase, tracked. Lot numbers, labels,
-     counts, SKUs, timestamps. */
+@layer components {
+  /* Labels / eyebrows: italic, sentence case, never smaller than 16px, never
+     a pale grey on cream. The only uppercase in the whole system is the
+     FYNDLÅDAN wordmark. */
   .meta {
-    font-family: var(--font-mono-stack);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 0.75rem;
-    line-height: 1.4;
+    @apply text-body italic text-ink-label;
   }
 
+  /* Tabular numerals for prices/counts, same serif family. */
+  .mono {
+    font-feature-settings: "tnum" 1;
+  }
+
+  .wordmark {
+    @apply text-wordmark font-medium uppercase tracking-wordmark;
+  }
+}
+
+@layer utilities {
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -58,7 +67,7 @@
     overflow: hidden;
   }
 
-  /* Hide scrollbar for horizontal carousels while keeping scroll. */
+  /* Hide scrollbar for native scroll-snap carousels while keeping scroll. */
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

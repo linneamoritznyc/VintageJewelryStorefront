@@ -53,14 +53,14 @@ export function CategoryListing({
       <ProductGrid products={products} priorityCount={4} />
 
       {hasNext && (
-        <div className="mt-8 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <button
             type="button"
             onClick={loadMore}
             disabled={isPending}
-            className="rounded-pill bg-ink px-8 py-3 font-bold text-cream transition hover:bg-plum disabled:opacity-60"
+            className="border border-ink px-8 py-3 text-body text-ink transition hover:bg-ink hover:text-bg disabled:opacity-60"
           >
-            {isPending ? "Laddar…" : "Ladda fler fynd"}
+            {isPending ? "Laddar" : "Ladda fler fynd"}
           </button>
         </div>
       )}

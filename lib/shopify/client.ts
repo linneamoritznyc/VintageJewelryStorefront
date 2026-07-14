@@ -1,4 +1,4 @@
-import type { BlogArticle, Cart, Collection, Product, StorePage } from "./types";
+import type { Cart, Collection, Product } from "./types";
 
 /**
  * The commerce data contract. NO component imports Shopify (or the mock)
@@ -39,11 +39,6 @@ export interface StoreClient {
   getProductsByHandles(handles: string[]): Promise<Product[]>;
   getLatestProducts(limit?: number): Promise<Product[]>;
   getAllProducts(): Promise<Product[]>;
-
-  /* --- static content: pages + blog --- */
-  getPage(handle: string): Promise<StorePage | null>;
-  getBlogArticles(): Promise<BlogArticle[]>;
-  getBlogArticle(handle: string): Promise<BlogArticle | null>;
 
   /* --- cart (mirrors Storefront API cart mutations) ---
      In live Shopify these run server-side (the token must never reach the

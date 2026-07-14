@@ -1,6 +1,5 @@
 import type { Image as ShopImage } from "@/lib/shopify/types";
 import { JewelryArt } from "./jewelryArt";
-import { RemoteImage } from "./RemoteImage";
 
 /**
  * Renders a product image. During development, mock images use a `mock:art:hue`
@@ -31,41 +30,31 @@ export function ProductImage({
   const mock = parseMock(image.url);
 
   if (mock) {
-    const { hue, art } = mock;
-    const h2 = (hue + 40) % 360;
+    const { art } = mock;
     return (
       <div
-        className={`relative flex items-center justify-center overflow-hidden ${className}`}
-        style={{
-          background: `linear-gradient(135deg, hsl(${hue} 58% 90%), hsl(${h2} 48% 82%))`,
-        }}
+        className={`relative flex items-center justify-center overflow-hidden bg-bg-tile ${className}`}
         role="img"
         aria-label={image.altText ?? "Produktbild"}
       >
-        <div className="h-[72%] w-[72%]">
-          <JewelryArt art={art} hue={hue} />
+        <div className="h-[68%] w-[68%] opacity-80">
+          <JewelryArt art={art} hue={80} metal="gold" />
         </div>
-        <span
-          aria-hidden
-          className="absolute right-3 top-3 text-sm opacity-50"
-          style={{ color: `hsl(${h2} 45% 35%)` }}
-        >
-          ✧
-        </span>
       </div>
     );
   }
 
-  // Live image path: next/image optimizes the Shopify CDN source (AVIF/WebP,
-  // responsive sizes, lazy below the fold), with a clean fallback if the photo
-  // is missing or blocked.
+  // Live image path.
   return (
-    <RemoteImage
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       src={image.url}
       alt={image.altText ?? ""}
       sizes={sizes}
-      priority={priority}
-      className={className}
+      loading={priority ? "eager" : "lazy"}
+      className={`object-cover ${className}`}
+      width={image.width}
+      height={image.height}
     />
   );
 }

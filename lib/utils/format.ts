@@ -21,17 +21,8 @@ export function formatPrice(amount: number, currencyCode = "SEK"): string {
   return formatMoney({ amount: amount.toFixed(2), currencyCode });
 }
 
-/**
- * Percentage saved vs. the original (compare-at) price, rounded. Returns null
- * when there is no valid discount to show.
- */
-export function discountPercentage(
-  price: Money,
-  compareAt: Money | null,
-): number | null {
-  if (!compareAt) return null;
-  const now = Number(price.amount);
-  const was = Number(compareAt.amount);
-  if (!(was > now) || was <= 0) return null;
-  return Math.round(((was - now) / was) * 100);
+/** Format a lot number as an archive catalogue code, e.g. 14 -> "LOT 014". */
+export function formatLot(lotNumber: number | null | undefined): string | null {
+  if (lotNumber == null || !Number.isFinite(lotNumber)) return null;
+  return `LOT ${String(lotNumber).padStart(3, "0")}`;
 }

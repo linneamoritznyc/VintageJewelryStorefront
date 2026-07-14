@@ -6,12 +6,13 @@ import type {
   Collection,
   ProductVariant,
   CartLineMerchandise,
+  BundleContentItem,
 } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/CartContext";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { ArchivePlaceholder } from "@/components/ui/ArchivePlaceholder";
 import type { BundleContent } from "@/lib/content/types";
 import { formatPrice } from "@/lib/utils/format";
-import { primaryCategoryHandle } from "@/lib/config/navigation";
 
 interface Pick {
   product: Product;
@@ -27,11 +28,21 @@ function pickVariant(product: Product): ProductVariant | null {
   );
 }
 
+const PACKAGE_IMAGE = {
+  url: "mock:giftbox:80",
+  altText: "Presentask",
+  width: 800,
+  height: 800,
+};
+
 /**
- * "Skapa ditt eget paket", the flagship. Pick a fixed number of pieces across
- * any categories, watch them collect in a visual tray alongside the physical
- * package, then drop the whole thing in the cart as one fixed-price bundle
- * line. Built to feel fast and fun, not like a form.
+ * "Skapa ditt eget paket", the flagship. Choose a tier (fixed piece count,
+ * fixed flat price), tap real vintage pieces into a visual tray, get the
+ * whole thing shipped assembled in the presentask. Fast and tactile, not a
+ * form: one tap adds or removes, a full tray lets you swap rather than
+ * silently refusing a new pick, and the price row shows the real sum of the
+ * pieces you actually chose against the flat tier price, never an invented
+ * comparison.
  */
 export function BundleBuilder({
   products,
@@ -42,336 +53,283 @@ export function BundleBuilder({
   collections: Collection[];
   bundle: BundleContent;
 }) {
-  const { addLine } = useCart();
-  const size = bundle.size;
+  const { addLine, applyDiscount, removeDiscount, cart } = useCart();
+  const [tierId, setTierId] = useState(bundle.tiers[0]?.id);
+  const tier = bundle.tiers.find((t) => t.id === tierId) ?? bundle.tiers[0];
+  const categoryTitle = useMemo(() => {
+    const map = new Map(collections.map((c) => [c.handle, c.title]));
+    return (handle: string | undefined) => (handle && map.get(handle)) || "Fynd";
+  }, [collections]);
 
   const [picks, setPicks] = useState<Pick[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [justAdded, setJustAdded] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [couponInput, setCouponInput] = useState("");
+  const [couponError, setCouponError] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    const inStock = products.filter((p) => p.availableForSale);
-    if (activeCategory === "all") return inStock;
-    return inStock.filter((p) => p.collections.includes(activeCategory));
-  }, [products, activeCategory]);
-
-  // The bundle discount requires pieces from DIFFERENT categories. Track which
-  // categories are already in the tray so we can block a second pick from the
-  // same one and gate the CTA.
-  const pickedCategories = useMemo(
-    () =>
-      new Set(
-        picks
-          .map((p) => primaryCategoryHandle(p.product.collections))
-          .filter((c): c is string => !!c),
-      ),
-    [picks],
+  const available = useMemo(
+    () => products.filter((p) => p.availableForSale),
+    [products],
   );
 
+  const size = tier.size;
   const isFull = picks.length >= size;
   const remaining = size - picks.length;
-  const picksSubtotal = picks.reduce((sum, p) => sum + Number(p.variant.price.amount), 0);
 
-  function addPick(product: Product) {
-    if (isFull) return;
-    const category = primaryCategoryHandle(product.collections);
-    if (category && pickedCategories.has(category)) {
-      setNotice(
-        `Välj ${size} olika kategorier. Du har redan en pjäs från den här kategorin.`,
-      );
-      window.setTimeout(() => setNotice(null), 2600);
+  const piecesSum = useMemo(
+    () => picks.reduce((sum, p) => sum + Number(p.variant.price.amount), 0),
+    [picks],
+  );
+  const saving = Math.max(0, Math.round(piecesSum - tier.pricePerBundle));
+
+  function selectTier(id: string) {
+    setTierId(id);
+    setPicks([]);
+  }
+
+  function togglePick(product: Product) {
+    const index = picks.findIndex((p) => p.product.handle === product.handle);
+    if (index >= 0) {
+      setPicks((prev) => prev.filter((_, i) => i !== index));
       return;
     }
     const variant = pickVariant(product);
     if (!variant) return;
-    setNotice(null);
-    setPicks((prev) => [...prev, { product, variant }]);
-  }
-
-  function removePick(index: number) {
-    setPicks((prev) => prev.filter((_, i) => i !== index));
+    setPicks((prev) => {
+      // A full tray lets you swap: drop the oldest pick, add the new one,
+      // rather than silently refusing the tap.
+      const next = prev.length >= size ? prev.slice(1) : prev;
+      return [...next, { product, variant }];
+    });
   }
 
   function addBundleToCart() {
     if (!isFull) return;
 
-    // Each piece is added as its own REAL product line (real variant, real
-    // price, real stock), tagged with a shared bundleId so the cart can show
-    // them grouped. This is what actually triggers Shopify's real automatic
-    // discount at checkout, a synthetic fixed-price line would not.
-    const bundleId = `bundle-${Date.now()}`;
-    for (const pick of picks) {
-      const merchandise: CartLineMerchandise = {
-        variantId: pick.variant.id,
-        productHandle: pick.product.handle,
-        productTitle: pick.product.title,
-        variantTitle: pick.variant.title,
-        selectedOptions: pick.variant.selectedOptions,
-        price: pick.variant.price,
-        compareAtPrice: pick.variant.compareAtPrice,
-        image: pick.variant.image ?? pick.product.featuredImage,
-        quantityAvailable: pick.variant.quantityAvailable,
-        bundleId,
-      };
-      addLine(merchandise, 1);
-    }
+    const contents: BundleContentItem[] = picks.map((p) => ({
+      productHandle: p.product.handle,
+      productTitle: p.product.title,
+      variantTitle: p.variant.title,
+      image: p.variant.image ?? p.product.featuredImage,
+    }));
 
+    const merchandise: CartLineMerchandise = {
+      variantId: `bundle:${tier.id}:${picks.map((p) => p.product.handle).join("+")}`,
+      productHandle: "paket",
+      productTitle: `${tier.label} (${size} delar)`,
+      variantTitle: bundle.packageName,
+      selectedOptions: [],
+      price: {
+        amount: tier.pricePerBundle.toFixed(2),
+        currencyCode: bundle.currencyCode,
+      },
+      compareAtPrice: null,
+      image: PACKAGE_IMAGE,
+      quantityAvailable: 99,
+      isBundle: true,
+      bundleContents: contents,
+    };
+
+    addLine(merchandise, 1);
     setPicks([]);
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 2500);
   }
 
+  function submitCoupon(e: React.FormEvent) {
+    e.preventDefault();
+    const ok = applyDiscount(couponInput);
+    if (ok) {
+      setCouponInput("");
+      setCouponError(null);
+    } else {
+      setCouponError("Ogiltig kod.");
+    }
+  }
+
   const ctaLabel = justAdded
-    ? "✓ Paketet är i varukorgen!"
+    ? "Paketet ligger i varukorgen"
     : isFull
-      ? "Lägg paketet i varukorgen"
+      ? "Lägg i varukorgen"
       : `Välj ${remaining} till`;
 
   return (
-    <div className="grid gap-8 pb-24 lg:grid-cols-[1fr_360px] lg:pb-0">
-      {/* Picker */}
+    <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
+      {/* Tray */}
+      <div className="border border-line bg-bg-panel p-6">
+        <div className="flex items-baseline justify-between">
+          <p className="text-body italic text-ink-label">
+            {bundle.packageName}, ingår
+          </p>
+          <p className="mono text-body text-ink-muted">
+            {picks.length} av {size}
+          </p>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-px bg-line">
+          {Array.from({ length: size }).map((_, i) => {
+            const pick = picks[i];
+            if (!pick) {
+              return (
+                <div
+                  key={i}
+                  className="flex aspect-square flex-col items-center justify-center gap-2 border border-dashed border-line bg-bg-tile text-ink-label"
+                >
+                  <span className="text-body italic">Tom plats</span>
+                  <span className="text-body leading-none">+</span>
+                </div>
+              );
+            }
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => togglePick(pick.product)}
+                aria-label={`Ta bort ${pick.product.title}`}
+                className="relative aspect-square animate-slot-in overflow-hidden border border-accent bg-bg"
+              >
+                <ProductImage
+                  image={pick.variant.image ?? pick.product.featuredImage}
+                  className="h-full w-full"
+                />
+              </button>
+            );
+          })}
+          {/* The presentask, its own visible tile alongside the picks. */}
+          <ArchivePlaceholder label="Ask" className="aspect-square" />
+        </div>
+
+        <p className="mt-4 text-small italic text-ink-label">
+          {bundle.packageBlurb}
+        </p>
+      </div>
+
+      {/* Picker + price */}
       <div>
-        {/* Category tabs */}
-        <div className="no-scrollbar -mx-1 mb-4 flex gap-2 overflow-x-auto px-1">
-          <CategoryTab
-            label="Alla"
-            active={activeCategory === "all"}
-            onClick={() => setActiveCategory("all")}
-          />
-          {collections.map((c) => (
-            <CategoryTab
-              key={c.handle}
-              label={c.title}
-              active={activeCategory === c.handle}
-              onClick={() => setActiveCategory(c.handle)}
-            />
+        {/* Tier selector */}
+        <div className="grid grid-cols-2 gap-px bg-line">
+          {bundle.tiers.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => selectTier(t.id)}
+              aria-pressed={t.id === tier.id}
+              className={`border p-5 text-left transition ${
+                t.id === tier.id ? "border-accent bg-bg-selected" : "border-line bg-bg"
+              }`}
+            >
+              <span className="block text-sub text-ink">{t.label}</span>
+              <span className="block text-body italic text-ink-label">
+                {t.size} delar
+              </span>
+            </button>
           ))}
         </div>
 
-        {/* Rule hint + inline notice when a category is already taken */}
-        <p className="mb-3 text-sm text-plum-soft">
-          Regel: {size} pjäser från {size} olika kategorier.
+        <p className="mt-6 text-body italic text-ink-label">
+          Tryck för att lägga i lådan
         </p>
-        {notice && (
-          <div
-            role="status"
-            className="mb-3 rounded-2xl border border-fuchsia-brand/30 bg-fuchsia-brand/10 px-4 py-2.5 text-sm font-semibold text-fuchsia-deep"
-          >
-            {notice}
-          </div>
-        )}
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {filtered.map((product) => {
-            const pickedCount = picks.filter(
-              (p) => p.product.handle === product.handle,
-            ).length;
-            const productCategory = primaryCategoryHandle(product.collections);
-            const categoryTaken = !!productCategory && pickedCategories.has(productCategory);
+        <div className="mt-3 grid grid-cols-2 gap-px bg-line">
+          {available.map((product) => {
+            const picked = picks.some((p) => p.product.handle === product.handle);
             return (
               <button
                 key={product.id}
                 type="button"
-                onClick={() => addPick(product)}
-                disabled={isFull || categoryTaken}
-                aria-disabled={isFull || categoryTaken}
-                className="group relative flex flex-col overflow-hidden rounded-2xl bg-white text-left shadow-card transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => togglePick(product)}
+                aria-pressed={picked}
+                className={`flex items-start justify-between gap-3 border p-4 text-left transition ${
+                  picked ? "border-accent bg-bg-selected" : "border-line bg-bg hover:border-ink"
+                }`}
               >
-                <div className="relative aspect-square">
-                  <ProductImage
-                    image={product.featuredImage}
-                    className="h-full w-full"
-                    sizes="(max-width: 640px) 50vw, 33vw"
-                  />
-                  {pickedCount > 0 && (
-                    <span className="absolute right-2 top-2 flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-fuchsia-brand px-1.5 text-xs font-bold text-white">
-                      {pickedCount}×
-                    </span>
-                  )}
-                  {!isFull && (
-                    <span className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-ink/80 text-lg text-cream opacity-0 transition group-hover:opacity-100">
-                      +
-                    </span>
-                  )}
-                </div>
-                <div className="p-2.5">
-                  <p className="line-clamp-2 text-sm font-semibold text-ink">
-                    {product.title}
-                  </p>
-                </div>
+                <span>
+                  <span className="block text-body italic text-ink-label">
+                    {categoryTitle(product.collections[0])}
+                  </span>
+                  <span className="block text-sub text-ink">{product.title}</span>
+                </span>
+                <span className="mt-1 flex-shrink-0 text-sub text-ink-label">
+                  {picked ? "−" : "+"}
+                </span>
               </button>
             );
           })}
         </div>
-      </div>
 
-      {/* Bundle tray */}
-      <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-3xl border-2 border-dashed border-fuchsia-brand/40 bg-white p-5 shadow-card">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Din bricka
-            </h2>
-            <span className="rounded-pill bg-sand px-3 py-1 text-sm font-bold text-plum">
-              {picks.length} / {size}
-            </span>
-          </div>
-
-          {/* Progress */}
-          <div className="mt-3 h-2 overflow-hidden rounded-pill bg-sand">
-            <div
-              className="h-full rounded-pill bg-fuchsia-brand transition-all duration-300"
-              style={{ width: `${(picks.length / size) * 100}%` }}
-            />
-          </div>
-
-          {/* Slots */}
-          <ul className="mt-4 space-y-2">
-            {Array.from({ length: size }).map((_, i) => {
-              const pick = picks[i];
-              if (!pick) {
-                return (
-                  <li
-                    key={i}
-                    className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-sand px-3 py-2.5 text-plum-soft/70"
-                  >
-                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-sand/50 text-xl">
-                      ✧
-                    </span>
-                    <span className="text-sm">Ledig plats, välj en pjäs</span>
-                  </li>
-                );
-              }
-              return (
-                <li
-                  key={i}
-                  className="flex animate-pop-in items-center gap-3 rounded-2xl bg-sand/40 px-3 py-2.5"
-                >
-                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl">
-                    <ProductImage
-                      image={pick.variant.image ?? pick.product.featuredImage}
-                      className="h-full w-full"
-                    />
-                  </div>
-                  <span className="flex-1 text-sm font-semibold text-ink">
-                    {pick.product.title}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => removePick(i)}
-                    aria-label={`Ta bort ${pick.product.title}`}
-                    className="text-plum-soft/70 transition hover:text-fuchsia-deep"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                      <path
-                        d="M4 4l8 8M12 4l-8 8"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Physical package, a marketing asset, always shown */}
-          <div className="mt-3 flex items-center gap-3 rounded-2xl bg-gold-soft/25 px-3 py-2.5">
-            <span aria-hidden className="text-2xl">
-              🎁
-            </span>
-            <div>
-              <p className="text-sm font-bold text-plum">
-                + {bundle.packageName}
+        {/* Coupon */}
+        <div className="mt-6 border-t border-line pt-6">
+          {cart.discount ? (
+            <div className="flex items-center justify-between">
+              <p className="text-body italic text-accent">
+                {cart.discount.code} tillagd
               </p>
-              <p className="text-xs text-plum-soft">Ingår alltid i paketet</p>
+              <button
+                type="button"
+                onClick={removeDiscount}
+                className="text-small italic text-ink-muted underline underline-offset-2 hover:text-ink"
+              >
+                Ta bort
+              </button>
             </div>
-          </div>
+          ) : (
+            <form onSubmit={submitCoupon} className="flex gap-3">
+              <input
+                type="text"
+                value={couponInput}
+                onChange={(e) => {
+                  setCouponInput(e.target.value);
+                  setCouponError(null);
+                }}
+                placeholder="Rabattkod"
+                aria-label="Rabattkod"
+                className="min-w-0 flex-1 border border-input-border bg-bg px-4 py-3 text-body uppercase text-ink placeholder:normal-case placeholder:text-placeholder focus:border-accent focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="border border-ink px-6 py-3 text-body text-ink transition hover:bg-ink hover:text-bg"
+              >
+                Lägg till
+              </button>
+            </form>
+          )}
+          {couponError && (
+            <p className="mt-1.5 text-small italic text-error">{couponError}</p>
+          )}
+        </div>
 
-          {/* Price + CTA */}
-          <div className="mt-5 border-t border-sand pt-4">
-            <div className="flex items-baseline justify-between">
-              <span className="text-sm text-plum-soft">Delsumma ({picks.length} delar)</span>
-              <span className="font-display text-2xl font-extrabold text-ink">
-                {formatPrice(picksSubtotal)}
+        {/* Price + CTA */}
+        <div className="mt-6 border-t border-line pt-6">
+          {picks.length > 0 && (
+            <div className="flex items-baseline justify-between text-body text-ink-muted">
+              <span>
+                Ordinarie ({picks.length} av {size})
               </span>
+              <span className="mono">{formatPrice(piecesSum)}</span>
             </div>
-            <p className="mt-1 text-xs font-semibold text-fuchsia-deep">
-              −{bundle.discountPercentage}% pakträtt tillämpas automatiskt i kassan
-              vid {size}+ delar
-            </p>
+          )}
+          <div className="mt-1 flex items-end justify-between">
+            <div>
+              <span className="mono block text-numeral font-light text-ink">
+                {formatPrice(tier.pricePerBundle)}
+              </span>
+              <span className="text-body italic text-ink-label">paketpris</span>
+            </div>
             <button
               type="button"
               onClick={addBundleToCart}
               disabled={!isFull}
-              className="mt-3 w-full rounded-pill bg-fuchsia-brand px-6 py-3.5 font-bold text-white transition hover:bg-fuchsia-deep disabled:cursor-not-allowed disabled:bg-plum-soft/40"
+              className="border border-accent bg-accent px-6 py-3.5 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-line disabled:bg-bg-tile disabled:text-ink-label"
             >
               {ctaLabel}
             </button>
-            {picks.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setPicks([])}
-                className="mt-2 w-full text-center text-xs text-plum-soft underline transition hover:text-ink"
-              >
-                Töm brickan
-              </button>
-            )}
           </div>
-        </div>
-      </aside>
-
-      {/* Sticky mobile action bar, keeps progress + CTA in reach while
-          scrolling the picker on phones (the flagship should feel fast). */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-sand bg-cream/95 px-4 py-3 backdrop-blur lg:hidden">
-        <div className="flex items-center gap-3">
-          <div className="flex-shrink-0">
-            <div className="flex items-center gap-1.5">
-              <span className="font-display text-lg font-bold text-ink">
-                {picks.length}/{size}
-              </span>
-              <span aria-hidden className="text-lg">
-                🎁
-              </span>
-            </div>
-            <span className="text-xs font-semibold text-plum-soft">
-              {formatPrice(picksSubtotal)} · −{bundle.discountPercentage}%
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={addBundleToCart}
-            disabled={!isFull}
-            className="flex-1 rounded-pill bg-fuchsia-brand px-5 py-3 text-sm font-bold text-white transition hover:bg-fuchsia-deep disabled:cursor-not-allowed disabled:bg-plum-soft/40"
-          >
-            {ctaLabel}
-          </button>
+          {isFull && saving > 0 && (
+            <p className="mt-2 text-right text-body italic text-accent">
+              Du sparar {formatPrice(saving)}
+            </p>
+          )}
         </div>
       </div>
     </div>
-  );
-}
-
-function CategoryTab({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`whitespace-nowrap rounded-pill px-4 py-2 text-sm font-semibold transition ${
-        active ? "bg-ink text-cream" : "bg-white text-ink hover:bg-sand"
-      }`}
-    >
-      {label}
-    </button>
   );
 }

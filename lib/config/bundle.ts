@@ -1,31 +1,30 @@
 /**
  * "Skapa ditt eget paket" (create-your-own-bundle) configuration.
  *
- * The discount is a real Shopify AUTOMATIC discount ("Paketrabatt: 15 % på 3
- * eller fler smycken", verified live 2026-07-13), not a fixed bundle price
- * and not a code. It applies to any cart with `size` or more items, however
- * they got there, the "3 different categories" rule below is our own UI
- * curation for the bundle-builder page, not a condition of the discount
- * itself. Keeping the real percentage/size here (rather than a fabricated
- * flat price) means the number shown in the UI always matches what Shopify
- * actually charges once live.
+ * All bundle rules are data here so the flagship feature can be re-tuned
+ * without code changes. Once live, each tier's `pricePerBundle` should
+ * reconcile with a Shopify bundle product / cart transform so checkout
+ * charges the flat tier price regardless of which real items (39-139 kr
+ * each) the customer picked.
  */
-export interface BundleConfig {
-  /** Minimum items in the cart for the automatic discount to apply. */
+export interface BundleTier {
+  /** Stable id, used as the selected-tier key. */
+  id: string;
+  /** "Liten låda" / "Stor låda". */
+  label: string;
+  /** Exact number of pieces to complete this tier. */
   size: number;
-  /** The real automatic discount's percentage off. */
-  discountPercentage: number;
-  currencyCode: string;
-  /** Copy for the included physical package (a marketing asset, not billed separately). */
-  packageName: string;
-  packageBlurb: string;
+  /** Flat price for a completed bundle at this tier, in the store currency. */
+  pricePerBundle: number;
 }
 
-export const BUNDLE_CONFIG: BundleConfig = {
-  size: 3,
-  discountPercentage: 15,
-  currencyCode: "SEK",
-  packageName: "Vintage-ask",
-  packageBlurb:
-    "Ditt paket levereras i vår handplockade vintage-ask med silkespapper, redo att ge bort eller unna dig själv.",
-};
+export const BUNDLE_TIERS: BundleTier[] = [
+  { id: "liten", label: "Liten låda", size: 3, pricePerBundle: 249 },
+  { id: "stor", label: "Stor låda", size: 5, pricePerBundle: 379 },
+];
+
+export const BUNDLE_CURRENCY = "SEK";
+
+/** Copy for the included physical package (a marketing asset). */
+export const BUNDLE_PACKAGE_NAME = "Presentask";
+export const BUNDLE_PACKAGE_BLURB = "Levereras ihopsatt i originalask, redo att ge bort.";

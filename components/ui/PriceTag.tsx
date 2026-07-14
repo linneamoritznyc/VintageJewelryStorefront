@@ -2,29 +2,25 @@ import type { Money } from "@/lib/shopify/types";
 import { formatMoney } from "@/lib/utils/format";
 
 /**
- * Price display in the inventory voice: mono, so it reads as a record rather
- * than a marketing number.
+ * Plain price display, tabular numerals in the one house serif.
  *
- * No struck-through "original" price is ever shown. Swedish Prisinformationslag
- * and the EU Omnibus Directive make invented before-prices illegal, and no
- * documented former retail price exists for this deadstock, so the figure is
- * omitted entirely. The `compareAtPrice` prop is accepted for call-site
- * compatibility but intentionally not rendered.
+ * These pieces were never price-marked before liquidation, so there is no
+ * documented former retail price to compare against. Per the brand's legal
+ * constraints (Prisinformationslagen + the EU Omnibus Directive) an invented
+ * "was" price is illegal, so this deliberately never renders a struck-through
+ * price or a percentage-off badge. Just the real price, read from Shopify.
  */
 export function PriceTag({
   price,
   size = "md",
 }: {
   price: Money;
-  compareAtPrice?: Money | null;
   size?: "sm" | "md" | "lg";
-  showSaving?: boolean;
 }) {
-  const priceSize =
-    size === "lg" ? "text-xl" : size === "sm" ? "text-sm" : "text-base";
+  const priceSize = size === "lg" ? "text-numeral" : size === "sm" ? "text-body" : "text-sub";
 
   return (
-    <span className={`font-mono font-medium tabular-nums text-ink ${priceSize}`}>
+    <span className={`mono font-normal text-ink ${priceSize}`}>
       {formatMoney(price)}
     </span>
   );

@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { ArchivePlaceholder } from "@/components/ui/ArchivePlaceholder";
 import { formatMoney } from "@/lib/utils/format";
-import { lotNumber } from "@/lib/utils/lot";
-import type { AppliedDiscount, CartLine } from "@/lib/shopify/types";
+import type { CartLine } from "@/lib/shopify/types";
 
 export function CartDrawer() {
   const {
@@ -55,25 +55,25 @@ export function CartDrawer() {
       />
 
       {/* Panel */}
-      <div className="absolute right-0 top-0 flex h-full w-full max-w-md animate-slide-in-right flex-col border-l border-rule bg-paper">
-        <div className="flex items-center justify-between border-b border-rule px-4 py-4">
-          <h2 className="font-display text-xl text-ink">
+      <div className="absolute right-0 top-0 flex h-full w-full max-w-md animate-slide-in-right flex-col border-l border-line bg-bg">
+        <div className="flex items-center justify-between border-b border-line px-5 py-4">
+          <h2 className="text-sub text-ink">
             Din varukorg{" "}
             {cart.totalQuantity > 0 && (
-              <span className="meta text-ink-faint">({cart.totalQuantity})</span>
+              <span className="text-ink-muted">({cart.totalQuantity})</span>
             )}
           </h2>
           <button
             type="button"
             onClick={closeCart}
             aria-label="Stäng"
-            className="p-1.5 text-ink/60 transition hover:text-ink"
+            className="p-1.5 text-ink-muted transition hover:text-ink focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
               <path
                 d="M5 5l10 10M15 5L5 15"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.3"
                 strokeLinecap="round"
               />
             </svg>
@@ -82,21 +82,18 @@ export function CartDrawer() {
 
         {isEmpty ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-            <p className="meta text-ink-faint">Tom bricka</p>
-            <p className="text-ink-muted">
-              Din varukorg är tom. Dags att börja skattjakten.
-            </p>
+            <p className="text-body italic text-ink-label">Din varukorg är tom.</p>
             <Link
               href="/kategori/orhangen"
               onClick={closeCart}
-              className="meta bg-ink px-5 py-3 font-medium text-paper transition hover:bg-ink-muted"
+              className="border border-accent bg-accent px-5 py-2.5 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover"
             >
               Utforska fynden
             </Link>
           </div>
         ) : (
           <>
-            <ul className="flex-1 overflow-y-auto px-4 py-3">
+            <ul className="flex-1 overflow-y-auto px-5 py-3">
               {cart.lines.map((line) => (
                 <CartLineRow
                   key={line.id}
@@ -107,24 +104,28 @@ export function CartDrawer() {
               ))}
             </ul>
 
-            <div className="border-t border-sand px-4 py-4">
+            <div className="border-t border-line px-5 py-4">
               <CouponRow
                 appliedCode={cart.discount?.code ?? null}
                 appliedTitle={cart.discount?.title ?? null}
-                automaticDiscount={cart.discount?.isAutomatic ? cart.discount : null}
                 onApply={applyDiscount}
                 onRemove={removeDiscount}
               />
 
-              <dl className="mt-4 space-y-1.5 text-sm">
-                <div className="flex justify-between text-plum-soft">
+              {/* 14-day right of withdrawal, disclosed here before purchase. */}
+              <p className="mt-4 text-small italic text-ink-label">
+                14 dagars ångerrätt enligt distansavtalslagen.
+              </p>
+
+              <dl className="mt-3 space-y-1.5 text-body">
+                <div className="flex justify-between text-ink-muted">
                   <dt>Delsumma</dt>
-                  <dd>{formatMoney(cart.subtotal)}</dd>
+                  <dd className="mono">{formatMoney(cart.subtotal)}</dd>
                 </div>
                 {cart.discount && (
-                  <div className="flex justify-between font-semibold text-fuchsia-deep">
+                  <div className="flex justify-between italic text-accent">
                     <dt>Rabatt ({cart.discount.percentage}%)</dt>
-                    <dd>
+                    <dd className="mono">
                       −
                       {formatMoney({
                         amount: (
@@ -135,41 +136,21 @@ export function CartDrawer() {
                     </dd>
                   </div>
                 )}
-                <div className="flex items-baseline justify-between border-t border-rule pt-2 text-ink">
-                  <dt className="font-medium">Att betala</dt>
-                  <dd className="font-mono text-base font-medium tabular-nums">
-                    {formatMoney(cart.total)}
-                  </dd>
+                <div className="flex justify-between pt-1 text-sub text-ink">
+                  <dt>Att betala</dt>
+                  <dd className="mono">{formatMoney(cart.total)}</dd>
                 </div>
               </dl>
-
-              {/* 14-day right of withdrawal, disclosed before purchase (law).
-                  Visible line, never buried in a footer link. */}
-              <p className="mt-4 border-t border-rule pt-3 text-xs leading-snug text-ink-muted">
-                14 dagars ångerrätt på alla köp. Du kan ångra köpet direkt online,
-                ingen kundtjänst behövs.{" "}
-                <Link
-                  href="/angerratt"
-                  onClick={closeCart}
-                  className="underline underline-offset-2 hover:text-ink"
-                >
-                  Läs om ångerrätten
-                </Link>
-                .
-              </p>
 
               <Link
                 href="/kassa"
                 onClick={closeCart}
-                className="meta mt-4 block bg-ink px-5 py-3.5 text-center font-medium text-paper transition hover:bg-ink-muted"
+                className="mt-4 block border border-accent bg-accent px-5 py-3 text-center text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover"
               >
                 Till kassan
               </Link>
-              <p className="meta mt-2 text-center text-ink-faint">
-                Frakt och betalning i nästa steg
-              </p>
-              <p className="mt-1 text-center text-[11px] text-ink-faint">
-                Betalning via Swish. Testnummer 123123123 (platshållare)
+              <p className="mt-2 text-center text-small italic text-ink-label">
+                Frakt och betalning beräknas i nästa steg.
               </p>
             </div>
           </>
@@ -189,45 +170,55 @@ function CartLineRow({
   onRemove: (id: string) => void;
 }) {
   const m = line.merchandise;
-  const hasVariant = m.variantTitle && m.variantTitle !== "Default Title";
+  const hasVariant =
+    m.variantTitle && m.variantTitle !== "Default Title" && !m.isBundle;
 
   return (
-    <li className="flex gap-3 border-b border-rule py-3 last:border-b-0">
-      {m.image && (
-        <div className="h-20 w-20 flex-shrink-0 overflow-hidden bg-paper-sunk ring-1 ring-rule">
-          <ProductImage image={m.image} className="h-full w-full" />
-        </div>
+    <li className="flex gap-3 border-b border-line py-3 last:border-b-0">
+      {m.isBundle ? (
+        <ArchivePlaceholder label="Ask" className="h-20 w-20 flex-shrink-0" />
+      ) : (
+        m.image && (
+          <div className="h-20 w-20 flex-shrink-0 overflow-hidden border border-line">
+            <ProductImage image={m.image} className="h-full w-full" />
+          </div>
+        )
       )}
       <div className="flex flex-1 flex-col">
         <div className="flex justify-between gap-2">
           <div>
-            <p className="meta text-ink-faint">LOT {lotNumber(m.productHandle)}</p>
-            <Link
-              href={`/produkt/${m.productHandle}`}
-              className="font-display text-ink transition hover:underline hover:underline-offset-4"
-            >
-              {m.productTitle}
-            </Link>
-            {hasVariant && (
-              <p className="text-xs text-ink-faint">{m.variantTitle}</p>
+            {m.isBundle ? (
+              <p className="text-body text-ink">{m.productTitle}</p>
+            ) : (
+              <Link
+                href={`/produkt/${m.productHandle}`}
+                className="text-body text-ink transition hover:text-accent"
+              >
+                {m.productTitle}
+              </Link>
             )}
-            {m.bundleId && (
-              <span className="meta mt-1 inline-block text-ink-muted ring-1 ring-rule px-2 py-0.5">
-                Del av ditt paket
-              </span>
+            {hasVariant && (
+              <p className="text-small italic text-ink-label">{m.variantTitle}</p>
+            )}
+            {m.isBundle && m.bundleContents && (
+              <ul className="mt-1 space-y-0.5 text-small italic text-ink-label">
+                {m.bundleContents.map((item, i) => (
+                  <li key={i}>{item.productTitle}</li>
+                ))}
+              </ul>
             )}
           </div>
           <button
             type="button"
             onClick={() => onRemove(line.id)}
             aria-label={`Ta bort ${m.productTitle}`}
-            className="h-6 text-plum-soft/70 transition hover:text-fuchsia-deep"
+            className="h-6 text-ink-label transition hover:text-ink"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
               <path
                 d="M4 4l8 8M12 4l-8 8"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.3"
                 strokeLinecap="round"
               />
             </svg>
@@ -235,29 +226,31 @@ function CartLineRow({
         </div>
 
         <div className="mt-auto flex items-center justify-between pt-2">
-          <div className="flex items-center border border-rule">
+          <div className="flex items-center border border-input-border">
             <button
               type="button"
               onClick={() => onUpdate(line.id, line.quantity - 1)}
               aria-label="Minska antal"
-              className="px-2.5 py-1 text-ink transition hover:bg-paper-sunk"
+              className="px-2.5 py-1 text-ink transition hover:text-accent"
             >
               −
             </button>
-            <span className="min-w-[1.5rem] text-center font-mono text-sm tabular-nums">
+            <span className="mono min-w-[1.5rem] text-center text-body">
               {line.quantity}
             </span>
             <button
               type="button"
               onClick={() => onUpdate(line.id, line.quantity + 1)}
-              disabled={line.quantity >= Math.max(1, m.quantityAvailable)}
+              disabled={
+                !m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)
+              }
               aria-label="Öka antal"
-              className="px-2.5 py-1 text-ink transition hover:bg-paper-sunk disabled:opacity-30"
+              className="px-2.5 py-1 text-ink transition hover:text-accent disabled:opacity-30"
             >
               +
             </button>
           </div>
-          <span className="font-mono text-sm font-medium tabular-nums text-ink">
+          <span className="mono text-body text-ink">
             {formatMoney({
               amount: (Number(m.price.amount) * line.quantity).toFixed(2),
               currencyCode: m.price.currencyCode,
@@ -272,13 +265,11 @@ function CartLineRow({
 function CouponRow({
   appliedCode,
   appliedTitle,
-  automaticDiscount,
   onApply,
   onRemove,
 }: {
   appliedCode: string | null;
   appliedTitle: string | null;
-  automaticDiscount: AppliedDiscount | null;
   onApply: (code: string) => boolean;
   onRemove: () => void;
 }) {
@@ -287,17 +278,15 @@ function CouponRow({
 
   if (appliedCode) {
     return (
-      <div className="flex items-center justify-between rounded-xl bg-mint/15 px-3 py-2.5">
-        <div className="text-sm">
-          <span className="font-bold text-mint">✓ {appliedCode}</span>
-          {appliedTitle && (
-            <span className="ml-1 text-plum-soft">,  {appliedTitle}</span>
-          )}
-        </div>
+      <div className="flex items-center justify-between border border-line px-3 py-2.5">
+        <p className="text-body italic text-accent">
+          {appliedCode}
+          {appliedTitle && <span className="text-ink-muted">, {appliedTitle}</span>}
+        </p>
         <button
           type="button"
           onClick={onRemove}
-          className="text-xs font-semibold text-plum-soft underline transition hover:text-fuchsia-deep"
+          className="text-small italic text-ink-muted underline underline-offset-2 hover:text-ink"
         >
           Ta bort
         </button>
@@ -312,18 +301,13 @@ function CouponRow({
       setValue("");
       setError(null);
     } else {
-      setError("Ogiltig kod. Dubbelkolla och försök igen.");
+      setError("Ogiltig kod.");
     }
   };
 
   return (
     <form onSubmit={submit} noValidate>
-      {automaticDiscount && (
-        <p className="mb-2 text-xs font-semibold text-mint">
-          ✓ {automaticDiscount.title} tillämpad automatiskt (−{automaticDiscount.percentage}%)
-        </p>
-      )}
-      <label htmlFor="coupon" className="text-xs font-semibold text-plum-soft">
+      <label htmlFor="coupon" className="meta">
         Rabattkod
       </label>
       <div className="mt-1 flex gap-2">
@@ -335,18 +319,18 @@ function CouponRow({
             setValue(e.target.value);
             setError(null);
           }}
-          placeholder="T.ex. FYND10"
+          placeholder="T.ex. LÅDAN10"
           autoCapitalize="characters"
-          className="min-w-0 flex-1 rounded-pill border border-sand bg-white px-4 py-2 text-sm uppercase tracking-wide text-ink placeholder:normal-case placeholder:tracking-normal placeholder:text-plum-soft/60 focus:border-fuchsia-brand focus:outline-none"
+          className="min-w-0 flex-1 border border-input-border bg-bg px-4 py-2 text-body uppercase text-ink placeholder:normal-case placeholder:text-placeholder focus:border-accent focus:outline-none"
         />
         <button
           type="submit"
-          className="rounded-pill bg-ink px-4 py-2 text-sm font-bold text-cream transition hover:bg-plum"
+          className="border border-ink px-4 py-2 text-body text-ink transition hover:bg-ink hover:text-bg"
         >
           Använd
         </button>
       </div>
-      {error && <p className="mt-1.5 text-xs text-fuchsia-deep">{error}</p>}
+      {error && <p className="mt-1.5 text-small italic text-error">{error}</p>}
     </form>
   );
 }

@@ -1,7 +1,11 @@
 import type { SiteContent } from "./types";
-import { ANNOUNCEMENT, EMAIL_POPUP } from "@/lib/config/promotions";
-import { BUNDLE_CONFIG } from "@/lib/config/bundle";
-import { ANGERRATT_NOTICE } from "@/lib/config/legal";
+import { ANNOUNCEMENT, EMAIL_POPUP, SALE_COUNTDOWN_ENDS_AT } from "@/lib/config/promotions";
+import {
+  BUNDLE_TIERS,
+  BUNDLE_CURRENCY,
+  BUNDLE_PACKAGE_NAME,
+  BUNDLE_PACKAGE_BLURB,
+} from "@/lib/config/bundle";
 
 /**
  * Default site content, assembled from the code-level config in `lib/config/*`
@@ -23,29 +27,28 @@ export function getMockSiteContent(): SiteContent {
       code: EMAIL_POPUP.code,
       discountPercentage: EMAIL_POPUP.discountPercentage,
     },
+    saleCountdownEndsAt: SALE_COUNTDOWN_ENDS_AT,
     hero: {
-      badge: "Deadstock · aldrig burna",
-      heading: "Skattjakt bland vintagesmycken",
-      subheading:
-        "Oanvända smycken från ett tömt lager, räddade, aldrig burna och långt under ursprungspris. När de är slut är de slut.",
+      badge: "Aktuellt lager",
+      heading: "Direkt",
+      headingAccent: "ur lagret",
+      subheading: "Vintagesmycken från ett svenskt varuhus, i originalskick.",
     },
     brandStory: {
       eyebrow: "Vår historia",
-      heading: "Räddat ur ett tömt lager",
+      heading: "Ett svenskt varuhus lade ner.",
       paragraphs: [
-        "När ett svenskt smyckesmärke lade ner blev hela lagret över: lådvis med smycken som aldrig hann ut i butik. Oanvända, oburna, fortfarande i sina originalförpackningar.",
-        "Istället för att låta dem samla damm har vi räddat dem, och säljer dem vidare långt under ursprungspris. Varje pjäs är ett litet stycke vintage som väntar på sin första ägare.",
+        "Smyckena stod kvar på lagret. Kartonger med örhängen, halsband och armband i originalförpackning, i originalskick.",
+        "Vi köpte hela partiet.",
       ],
       closingLine:
-        "Lagret är begränsat. När ett fynd är borta kommer det inte tillbaka.",
+        "Det är den enda leveransen som kommer. När ett smycke är slut går det till någon annan.",
     },
     bundle: {
-      size: BUNDLE_CONFIG.size,
-      discountPercentage: BUNDLE_CONFIG.discountPercentage,
-      currencyCode: BUNDLE_CONFIG.currencyCode,
-      packageName: BUNDLE_CONFIG.packageName,
-      packageBlurb: BUNDLE_CONFIG.packageBlurb,
+      tiers: BUNDLE_TIERS,
+      currencyCode: BUNDLE_CURRENCY,
+      packageName: BUNDLE_PACKAGE_NAME,
+      packageBlurb: BUNDLE_PACKAGE_BLURB,
     },
-    angerrattNotice: ANGERRATT_NOTICE,
   };
 }

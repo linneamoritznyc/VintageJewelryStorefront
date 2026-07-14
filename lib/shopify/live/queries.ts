@@ -2,14 +2,11 @@
  * Storefront API (GraphQL) operations for the live client. API version is
  * locked to 2026-07 (see index.ts / .env).
  *
- * NOTE on metafields: the custom fields (vintage_blurb, original_retail,
- * is_dropship, customs_note, source_lot) only return values if their metafield
+ * NOTE on metafields: the custom fields (vintage_story, original_retail,
+ * is_dropship, customs_note, source_lot, angerratt_notice) only return values if their metafield
  * definitions are exposed to the Storefront API (Settings → Custom data →
  * Products → each definition → "Storefront access"). The live client flattens
  * them onto the Product type so components never see the difference.
- *
- * The shop-wide ångerrätt notice is a SHOP-level metafield (`custom.angerratt_notice`),
- * not a per-product one, see SHOP_METAFIELDS_QUERY below and lib/content.
  */
 
 const PRODUCT_FRAGMENT = /* GraphQL */ `
@@ -17,7 +14,6 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     id
     handle
     title
-    vendor
     description
     descriptionHtml
     availableForSale
@@ -25,14 +21,13 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     tags
     featuredImage { url altText width height }
     images(first: 8) { nodes { url altText width height } }
-    options { id name optionValues { name } }
+    options { id name values }
     priceRange { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } }
     compareAtPriceRange { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } }
     collections(first: 10) { nodes { handle } }
     variants(first: 50) {
       nodes {
         id
-        sku
         title
         availableForSale
         quantityAvailable
@@ -42,11 +37,13 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
         image { url altText width height }
       }
     }
-    vintageBlurb: metafield(namespace: "custom", key: "vintage_blurb") { value }
+    vintageBlurb: metafield(namespace: "custom", key: "vintage_story") { value }
     originalRetail: metafield(namespace: "custom", key: "original_retail") { value }
     isDropship: metafield(namespace: "custom", key: "is_dropship") { value }
     customsNote: metafield(namespace: "custom", key: "customs_note") { value }
     sourceLot: metafield(namespace: "custom", key: "source_lot") { value }
+    lotNumber: metafield(namespace: "custom", key: "lot_number") { value }
+    angerratt: metafield(namespace: "custom", key: "angerratt_notice") { value }
   }
 `;
 
@@ -83,33 +80,6 @@ export const COLLECTION_PRODUCTS_QUERY = /* GraphQL */ `
         nodes { ...ProductFields }
         pageInfo { hasNextPage endCursor }
       }
-    }
-  }
-`;
-
-/* --- static content: pages, blog, shop-wide metafields --- */
-
-export const PAGE_BY_HANDLE_QUERY = /* GraphQL */ `
-  query PageByHandle($handle: String!) {
-    page(handle: $handle) { handle title body }
-  }
-`;
-
-export const BLOG_ARTICLES_QUERY = /* GraphQL */ `
-  query BlogArticles($handle: String!, $first: Int!) {
-    blog(handle: $handle) {
-      articles(first: $first, sortKey: PUBLISHED_AT, reverse: true) {
-        nodes { handle title contentHtml excerptHtml publishedAt }
-      }
-    }
-  }
-`;
-
-/** The shop-wide ångerrätt notice, shown as a badge before the buy button. */
-export const SHOP_METAFIELDS_QUERY = /* GraphQL */ `
-  query ShopMetafields {
-    shop {
-      angerrattNotice: metafield(namespace: "custom", key: "angerratt_notice") { value }
     }
   }
 `;
