@@ -8,8 +8,10 @@ import type { EmailPopupContent } from "@/lib/content/types";
  * code as the announcement banner, kept consistent via the content layer).
  * Shows a few seconds after load, at most once per browser session.
  *
- * The submit is a stubbed capture: it just reveals the code. Wire this to a
- * real list (Shopify customer / Klaviyo / etc.) at the marked TODO.
+ * Consent is unchecked by default (pre-checked consent is invalid under
+ * GDPR). Submits to /api/lead, which fans the address out to every
+ * configured sink (Shopify customer list, Google Sheet); both are optional
+ * and the request always succeeds from the customer's point of view.
  */
 const SESSION_KEY = "vjs-email-popup-seen";
 const SHOW_DELAY_MS = 6000;
@@ -18,6 +20,9 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [company, setCompany] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,16 +37,33 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
     setVisible(false);
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     if (!valid) {
       setError("Ange en giltig e-postadress.");
       return;
     }
-    // TODO(live): POST the email to the marketing list / Shopify customer API.
-    window.sessionStorage.setItem(SESSION_KEY, "1");
-    setSubmitted(true);
+    if (!consent) {
+      setError("Kryssa i samtycket för att bli medlem.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, consent, company, source: "popup" }),
+      });
+      if (!res.ok) throw new Error();
+      window.sessionStorage.setItem(SESSION_KEY, "1");
+      setSubmitted(true);
+    } catch {
+      setError("Något gick fel. Försök igen om en stund.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!visible) return null;
@@ -60,64 +82,55 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
         onClick={dismiss}
       />
 
-      <div className="relative w-full max-w-md animate-pop-in overflow-hidden rounded-3xl bg-cream shadow-pop">
+      <div className="relative w-full max-w-md border border-rule bg-paper">
         <button
           type="button"
           onClick={dismiss}
           aria-label="Stäng"
-          className="absolute right-3 top-3 z-10 rounded-full bg-white/70 p-1.5 text-ink/70 transition hover:bg-white hover:text-ink"
+          className="absolute right-3 top-3 z-10 p-1.5 text-ink/70 transition hover:text-ink"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
             <path
               d="M4.5 4.5l9 9M13.5 4.5l-9 9"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="1.6"
               strokeLinecap="round"
             />
           </svg>
         </button>
 
-        <div className="bg-gradient-to-br from-fuchsia-brand to-plum px-6 py-8 text-center text-white">
-          <span aria-hidden className="text-4xl">
-            ✧
-          </span>
-          <p className="mt-1 text-4xl font-extrabold">
+        <div className="border-b border-rule bg-ink px-6 py-6 text-center text-paper">
+          <p className="meta text-paper/70">Bli medlem</p>
+          <p className="mono mt-1 text-4xl font-medium">
             {content.discountPercentage}%
           </p>
-          <p className="text-sm font-semibold uppercase tracking-wide text-white/90">
-            på din första beställning
-          </p>
+          <p className="text-sm text-paper/85">på din första beställning</p>
         </div>
 
         <div className="px-6 py-6">
           {submitted ? (
             <div className="text-center">
-              <h3 className="font-display text-xl font-bold text-ink">
-                Välkommen till jakten! 🎉
-              </h3>
-              <p className="mt-2 text-sm text-plum-soft">
-                Använd koden i kassan för {content.discountPercentage}% rabatt:
+              <h3 className="font-display text-xl text-ink">Välkommen</h3>
+              <p className="mt-2 text-sm text-ink-muted">
+                Din kod för {content.discountPercentage}% rabatt i kassan:
               </p>
-              <p className="mt-3 inline-block rounded-pill bg-gold-soft/60 px-5 py-2 text-lg font-extrabold tracking-wider text-plum">
+              <p className="mono mt-3 inline-block border border-rule px-5 py-2 text-lg font-medium tracking-wide text-ink">
                 {content.code}
               </p>
               <button
                 type="button"
                 onClick={dismiss}
-                className="mt-5 block w-full rounded-pill bg-ink px-5 py-3 font-bold text-cream transition hover:bg-plum"
+                className="mt-5 block w-full bg-ink px-5 py-3 font-mono text-xs uppercase tracking-meta text-paper transition hover:bg-ink-muted"
               >
-                Börja fynda
+                Se hela lagret
               </button>
             </div>
           ) : (
             <>
-              <h3
-                id="email-popup-title"
-                className="text-center font-display text-xl font-bold text-ink"
-              >
+              <h3 id="email-popup-title" className="text-center font-display text-xl text-ink">
                 {content.heading}
               </h3>
-              <p className="mt-2 text-center text-sm text-plum-soft">
+              <p className="mt-2 text-center text-sm text-ink-muted">
                 {content.subheading}
               </p>
               <form onSubmit={submit} noValidate className="mt-4">
@@ -130,22 +143,44 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
                   }}
                   placeholder="din@epost.se"
                   aria-label="E-postadress"
-                  className="w-full rounded-pill border border-sand bg-white px-5 py-3 text-ink placeholder:text-plum-soft/60 focus:border-fuchsia-brand focus:outline-none"
+                  className="w-full border border-rule bg-paper-raised px-5 py-3 text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
                 />
-                {error && (
-                  <p className="mt-1.5 text-xs text-fuchsia-deep">{error}</p>
-                )}
+                {/* Honeypot: hidden from real users, bots tend to fill any field. */}
+                <input
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute left-[-9999px] h-0 w-0 opacity-0"
+                />
+                <label className="mt-3 flex items-start gap-2 text-xs text-ink-muted">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => {
+                      setConsent(e.target.checked);
+                      setError(null);
+                    }}
+                    className="mt-0.5 h-4 w-4 flex-shrink-0 border-rule accent-ink"
+                  />
+                  Jag vill få nyhetsbrev med erbjudanden och nya fynd. Jag kan
+                  avregistrera mig när som helst.
+                </label>
+                {error && <p className="mt-1.5 text-xs text-signal">{error}</p>}
                 <button
                   type="submit"
-                  className="mt-3 w-full rounded-pill bg-fuchsia-brand px-5 py-3 font-bold text-white transition hover:bg-fuchsia-deep"
+                  disabled={submitting}
+                  className="mt-3 w-full bg-ink px-5 py-3 font-mono text-xs uppercase tracking-meta text-paper transition hover:bg-ink-muted disabled:opacity-60"
                 >
-                  Ge mig rabatten
+                  {submitting ? "Skickar" : "Bli medlem"}
                 </button>
               </form>
               <button
                 type="button"
                 onClick={dismiss}
-                className="mt-3 block w-full text-center text-xs text-plum-soft underline transition hover:text-ink"
+                className="mt-3 block w-full text-center text-xs text-ink-faint underline underline-offset-2 transition hover:text-ink"
               >
                 Nej tack, jag betalar fullt pris
               </button>

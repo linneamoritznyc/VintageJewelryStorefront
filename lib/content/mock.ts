@@ -24,20 +24,20 @@ export function getMockSiteContent(): SiteContent {
     },
     saleCountdownEndsAt: SALE_COUNTDOWN_ENDS_AT,
     hero: {
-      badge: "Deadstock · aldrig burna",
-      heading: "Skattjakt bland vintagesmycken",
+      badge: "Aktuellt lager",
+      heading: "Direkt ur lagret.",
       subheading:
-        "Oanvända smycken från ett tömt lager, räddade, aldrig burna och långt under ursprungspris. När de är slut är de slut.",
+        "Vintagesmycken från ett svenskt varuhus, i originalskick. Nittio kronor styck.",
     },
     brandStory: {
       eyebrow: "Vår historia",
-      heading: "Räddat ur ett tömt lager",
+      heading: "Ett svenskt varuhus lade ner.",
       paragraphs: [
-        "När ett svenskt smyckesmärke lade ner blev hela lagret över: lådvis med smycken som aldrig hann ut i butik. Oanvända, oburna, fortfarande i sina originalförpackningar.",
-        "Istället för att låta dem samla damm har vi räddat dem, och säljer dem vidare långt under ursprungspris. Varje pjäs är ett litet stycke vintage som väntar på sin första ägare.",
+        "Smyckena stod kvar på lagret. Kartonger med örhängen, halsband och armband i originalförpackning, i originalskick.",
+        "Vi köpte hela partiet.",
       ],
       closingLine:
-        "Lagret är begränsat. När ett fynd är borta kommer det inte tillbaka.",
+        "Det är den enda leveransen som kommer. När ett smycke är slut går det till någon annan.",
     },
     bundle: {
       size: BUNDLE_CONFIG.size,

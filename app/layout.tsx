@@ -1,11 +1,28 @@
 import type { Metadata, Viewport } from "next";
-import { Familjen_Grotesk } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const grotesk = Familjen_Grotesk({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-grotesk",
+// Display / headings, an editorial serif (not luxury-soft). Optical sizing off
+// so headings read as catalogue type, not fashion masthead.
+const fraunces = Fraunces({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+// Interface, a clean grotesque for nav, buttons, body, forms.
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+// The inventory voice, mono for lot numbers, prices, stock counts, SKUs.
+const mono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "700"],
+  variable: "--font-mono",
   display: "swap",
 });
 import { store } from "@/lib/shopify";
@@ -34,7 +51,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FBF6EE",
+  themeColor: "#F4F1EA",
   width: "device-width",
   initialScale: 1,
 };
@@ -51,7 +68,10 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang="sv" className={grotesk.variable}>
+    <html
+      lang="sv"
+      className={`${fraunces.variable} ${inter.variable} ${mono.variable}`}
+    >
       <body>
         <CartProvider>
           <AnnouncementBanner content={content.announcement} />

@@ -20,7 +20,6 @@ export const BUNDLE_CONFIG: BundleConfig = {
   size: 3,
   pricePerBundle: 199,
   currencyCode: "SEK",
-  packageName: "Vintage-ask",
-  packageBlurb:
-    "Ditt paket levereras i vår handplockade vintage-ask med silkespapper, redo att ge bort eller unna dig själv.",
+  packageName: "Ask",
+  packageBlurb: "Vi packar fynden i en ask och skickar iväg.",
 };

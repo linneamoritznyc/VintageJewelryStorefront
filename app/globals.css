@@ -3,10 +3,11 @@
 @tailwind utilities;
 
 :root {
-  /* Familjen Grotesk (loaded via next/font in layout as --font-grotesk).
-     One clean grotesk family for both body and headings. */
-  --font-sans: var(--font-grotesk), "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-grotesk), "Helvetica Neue", Arial, sans-serif;
+  /* Loaded via next/font in layout. Fraunces (serif) / Inter (grotesque) /
+     JetBrains Mono (the inventory voice). */
+  --font-display: var(--font-display), Georgia, serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
 }
 
 @layer base {
@@ -15,7 +16,7 @@
   }
 
   body {
-    @apply bg-cream text-ink antialiased;
+    @apply bg-paper text-ink antialiased;
     font-family: var(--font-sans);
   }
 
@@ -24,9 +25,12 @@
   h3,
   h4 {
     font-family: var(--font-display);
+    font-weight: 400;
+    /* Editorial serif reads best a touch tighter than default. */
+    letter-spacing: -0.01em;
   }
 
-  /* Respect reduced-motion preferences for all the playful animations. */
+  /* Respect reduced-motion: disable the (restrained) animations. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -34,7 +38,24 @@
       animation-duration: 0.001ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  /* The metadata voice: 12px uppercase mono with letter spacing. Used for lot
+     numbers, stock counts, category counts, captions, nav labels. This hard
+     mono against the soft serif is the whole personality of the site. */
+  .meta {
+    font-family: var(--font-mono);
+    @apply text-xs uppercase tracking-meta text-ink-faint;
+  }
+
+  /* Prices, SKUs, timestamps, the record voice. */
+  .mono {
+    font-family: var(--font-mono);
+    font-feature-settings: "tnum" 1;
   }
 }
 
@@ -46,7 +67,7 @@
     overflow: hidden;
   }
 
-  /* Hide scrollbar for horizontal carousels while keeping scroll. */
+  /* Hide scrollbar for native scroll-snap carousels while keeping scroll. */
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

@@ -98,6 +98,12 @@ export interface Product {
   /** Optional source lot/parti the piece came from. Metafield `custom.source_lot`. */
   sourceLot: string | null;
   /**
+   * Per-piece catalogue number for the archive/inventory concept, rendered as
+   * "LOT 014". A stable 1-based index into the released catalogue. Metafield
+   * `custom.lot_number`; `null` when unassigned (no lot line is then shown).
+   */
+  lotNumber: number | null;
+  /**
    * Ångerrätt-notis som visas som en synlig badge PÅ produktsidan, före
    * köpknappen (aldrig gömd i beskrivningen). Metafield
    * `custom.angerratt_notice`. `null` faller tillbaka på en standardnotis.
