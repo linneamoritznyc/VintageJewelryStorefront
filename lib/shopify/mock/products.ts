@@ -215,7 +215,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Klassiska droppformade örhängen med en liten sötvattenspärla. Diskreta nog för vardag, fina nog för fest.",
     vintageStory:
-      "En kvarglömd klassiker från lagret, aldrig burna, aldrig sålda. Tidlösa pärlor som stått och väntat på sin första ägare sedan varumärket lade ner.",
+      "En klassiker från lagret, i originalskick. Pärlor som stått och väntat på sin första ägare sedan varumärket lade ner.",
     tags: ["pärla", "klassiker"],
   },
   {
@@ -245,7 +245,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 1,
     description: "Pyttesmå stjärnor i studs-modell. Blänker till precis lagom.",
     vintageStory:
-      "Ett fynd ur konkurslagret, små stjärnor som legat orörda i sina fack. Aldrig burna, redo att glittra för första gången.",
+      "Ett fynd ur konkurslagret, små stjärnor som legat orörda i sina fack. I originalskick, redo att glittra för första gången.",
     tags: ["studs", "stjärna"],
   },
   {
@@ -303,7 +303,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 6,
     description: "Böjda halvmånar med matt finish. Lite mystiska, väldigt fina.",
     vintageStory:
-      "Månar som legat i mörkret på ett lager i åratal. Aldrig burna, nu redo att lysa upp.",
+      "Månar som legat i mörkret på ett lager i åratal. I originalskick, nu redo att lysa upp.",
     tags: ["måne", "matt"],
   },
   {
@@ -361,9 +361,9 @@ const SEEDS: SeedInput[] = [
     stock: 8,
     hue: 48,
     daysAgo: 4,
-    description: "Tunn guldkedja för lagning. Bär ensam eller trassla ihop.",
+    description: "Tunn guldkedja att bära ensam eller kombinera med fler halsband.",
     vintageStory:
-      "Basplagget alla vill ha. Tunna kedjor från ett tömt lager, aldrig burna, alltid rätt.",
+      "Basplagget alla vill ha. Tunna kedjor från ett tömt lager, i originalskick, alltid rätt.",
     tags: ["guld", "kedja", "layering"],
     metals: ["Guld", "Silver"],
   },
@@ -379,7 +379,7 @@ const SEEDS: SeedInput[] = [
     description:
       "Öppningsbar medaljong i hjärtform. Gömställe för ett litet minne.",
     vintageStory:
-      "En medaljong utan bild i, ännu. Deadstock som väntar på att få bära ditt hemlighet.",
+      "En medaljong utan bild i, ännu. Deadstock som väntar på att få bära din hemlighet.",
     tags: ["medaljong", "hjärta", "romantisk"],
   },
   {
@@ -393,7 +393,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 5,
     description: "Kedja med måne- och stjärnberlocker. Himlen runt halsen.",
     vintageStory:
-      "Små himlakroppar ur ett konkursbo. Aldrig burna berlocker som legat och drömt på ett lager.",
+      "Små himlakroppar ur ett konkursbo. Berlocker i originalskick som legat och väntat på ett lager.",
     tags: ["berlock", "måne", "stjärna"],
   },
   {
@@ -468,7 +468,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 2,
     description: "Elastiskt pärlarmband som passar de flesta handleder.",
     vintageStory:
-      "Enkelt och älskbart. Elastiska pärlarmband ur deadstock, aldrig burna, alltid redo.",
+      "Enkelt och älskbart. Elastiska pärlarmband ur deadstock, i originalskick, alltid redo.",
     tags: ["pärla", "vardag"],
   },
   {
@@ -526,7 +526,7 @@ const SEEDS: SeedInput[] = [
     daysAgo: 8,
     description: "Randig emalj i glada kulörer. Sommar året runt.",
     vintageStory:
-      "Solsken på burk. Randiga emaljarmband ur konkurslagret, aldrig burna, alltid glada.",
+      "Solsken på burk. Randiga emaljarmband ur konkurslagret, i originalskick, alltid glada.",
     tags: ["emalj", "färg", "sommar"],
   },
   {
@@ -626,9 +626,9 @@ const SEEDS: SeedInput[] = [
     stock: 8,
     hue: 44,
     daysAgo: 3,
-    description: "Slät signetring med matt yta. Cool ensam eller i sällskap.",
+    description: "Slät signetring med matt yta. Bär ensam eller stapla med fler ringar.",
     vintageStory:
-      "Tidlös form ur deadstock. Signetringar som aldrig fått ett finger att sitta på, än.",
+      "En klassisk form ur deadstock. Signetringar som väntar på sitt första finger.",
     tags: ["ring", "minimal"],
     metals: ["Guld", "Silver"],
   },
