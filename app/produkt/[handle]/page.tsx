@@ -2,11 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { store } from "@/lib/shopify";
-import { getSiteContent } from "@/lib/content";
-import { primaryCategoryHandle } from "@/lib/config/navigation";
-import { lotNumber } from "@/lib/utils/lot";
-import { JsonLd } from "@/components/seo/JsonLd";
-import { productSchema, breadcrumbSchema } from "@/lib/seo/structured-data";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
@@ -18,21 +13,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const product = await store.getProduct(params.handle);
   if (!product) return { title: "Produkt hittades inte" };
-  const canonical = `/produkt/${product.handle}`;
-  const ogImage = product.images.find((i) => /^https?:\/\//.test(i.url))?.url;
-  const description =
-    product.description ||
-    `${product.title}, oanvänt vintage-smycke från ${product.priceRange.minVariantPrice.amount} kr. 14 dagars ångerrätt.`;
   return {
     title: product.title,
-    description,
-    alternates: { canonical },
+    description: product.description,
     openGraph: {
-      type: "website",
       title: product.title,
-      description,
-      url: canonical,
-      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+      description: product.description,
     },
   };
 }
@@ -45,35 +31,21 @@ export default async function ProductPage({
   const product = await store.getProduct(params.handle);
   if (!product) notFound();
 
-  const primaryCollection = primaryCategoryHandle(product.collections);
-  const [collection, related, content] = await Promise.all([
+  const primaryCollection = product.collections[0];
+  const [collection, related] = await Promise.all([
     primaryCollection ? store.getCollection(primaryCollection) : Promise.resolve(null),
     primaryCollection
       ? store.getProducts({ collection: primaryCollection, pageSize: 12 })
       : Promise.resolve(null),
-    getSiteContent(),
   ]);
 
   const relatedProducts =
     related?.products.filter((p) => p.handle !== product.handle).slice(0, 8) ??
     [];
-  const lot = lotNumber(product.handle);
-
-  const breadcrumbs = [
-    { name: "Hem", path: "/" },
-    ...(collection ? [{ name: collection.title, path: `/kategori/${collection.handle}` }] : []),
-    { name: product.title, path: `/produkt/${product.handle}` },
-  ];
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-8 sm:py-12">
-      <JsonLd
-        data={[
-          productSchema(product, collection?.title),
-          breadcrumbSchema(breadcrumbs),
-        ]}
-      />
-      <nav className="meta mb-6 text-ink-faint" aria-label="Brödsmulor">
+    <div className="mx-auto max-w-6xl px-6 py-8 sm:py-12">
+      <nav className="mb-4 text-body italic text-ink-label" aria-label="Brödsmulor">
         <Link href="/" className="transition hover:text-ink">
           Hem
         </Link>
@@ -82,10 +54,7 @@ export default async function ProductPage({
             <span className="mx-1.5" aria-hidden>
               /
             </span>
-            <Link
-              href={`/kategori/${collection.handle}`}
-              className="transition hover:text-ink"
-            >
+            <Link href={`/kategori/${collection.handle}`} className="transition hover:text-ink">
               {collection.title}
             </Link>
           </>
@@ -96,59 +65,46 @@ export default async function ProductPage({
         <span className="text-ink">{product.title}</span>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
         <ProductGallery images={product.images} title={product.title} />
 
         <div className="flex flex-col gap-6">
-          <div>
-            <p className="meta text-ink-faint">
-              LOT {lot}
-              {product.tags.length > 0 && ` · ${product.tags.join(" · ")}`}
-            </p>
-            <h1 className="mt-2 font-display text-3xl leading-tight text-ink sm:text-4xl">
-              {product.title}
-            </h1>
-          </div>
+          <h1 className="text-heading font-light text-ink">{product.title}</h1>
 
-          {/* Ångerrätt-notis, synlig FÖRE köpknappen (aldrig gömd i texten) */}
-          <div className="border-y border-rule py-3">
-            <p className="text-sm leading-snug text-ink-muted">
-              {content.angerrattNotice}
-            </p>
-          </div>
+          {/* Ångerrätt-badge, synlig FÖRE köpknappen (aldrig gömd i texten) */}
+          {product.angerratt && (
+            <div className="border border-line bg-bg-panel px-4 py-3 text-body text-ink-muted">
+              {product.angerratt}
+            </div>
+          )}
 
           <ProductPurchasePanel product={product} />
 
           {product.description && (
-            <div className="border-t border-rule pt-6">
-              <h2 className="meta text-ink-faint">Beskrivning</h2>
-              <p className="mt-2 leading-relaxed text-ink-muted">
-                {product.description}
-              </p>
+            <div className="border-t border-line pt-5">
+              <h2 className="text-sub text-ink">Beskrivning</h2>
+              <p className="mt-2 text-body text-ink-muted">{product.description}</p>
             </div>
           )}
 
-          {/* Per-product vintage story. Falls back to the description HTML when
-              the vintage_blurb metafield isn't set, so it is never empty. */}
-          <div className="border border-rule bg-paper-raised p-5">
-            <h2 className="meta text-ink-faint">Om denna vintage-pärla</h2>
-            {product.vintageBlurb ? (
-              <p className="mt-2 leading-relaxed text-ink-muted">
-                {product.vintageBlurb}
-              </p>
-            ) : (
-              <div
-                className="mt-2 space-y-2 leading-relaxed text-ink-muted"
-                dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-              />
-            )}
-          </div>
+          {/* Per-product vintage story */}
+          {product.vintageBlurb && (
+            <div className="border border-line bg-bg-panel p-5">
+              <h2 className="text-sub text-ink">Om denna vintage-pärla</h2>
+              <p className="mt-2 text-body text-ink-muted">{product.vintageBlurb}</p>
+            </div>
+          )}
+
+          {/* Dropshipped accessories ship direct from supplier, disclosed here. */}
+          {product.isDropship && product.customsNote && (
+            <p className="text-small italic text-ink-label">{product.customsNote}</p>
+          )}
         </div>
       </div>
 
       {relatedProducts.length > 0 && (
-        <section className="mt-20 border-t border-rule pt-10">
-          <h2 className="mb-6 font-display text-2xl text-ink">
+        <section className="mt-20 border-t border-line pt-10">
+          <h2 className="mb-6 text-heading font-light text-ink">
             Fler fynd i {collection?.title ?? "samma kategori"}
           </h2>
           <ProductCarousel products={relatedProducts} />

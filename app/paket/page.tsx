@@ -1,51 +1,40 @@
 import type { Metadata } from "next";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
-import { isNavCollectionHandle } from "@/lib/config/navigation";
 import { BundleBuilder } from "@/components/bundle/BundleBuilder";
+import { JEWELRY_COLLECTION_HANDLES } from "@/lib/config/categories";
 
 export const metadata: Metadata = {
   title: "Skapa ditt eget paket",
   description:
-    "Välj dina favoritpjäser, samla dem i din bricka och få allt i en fin vintage-ask, med automatisk pakträtt.",
-  alternates: { canonical: "/paket" },
+    "Välj dina favoritpjäser, samla dem i din bricka och få allt i en presentask till ett fast paketpris.",
 };
 
 export default async function BundlePage() {
-  const [products, allCollections, content] = await Promise.all([
+  const [allProducts, allCollections, content] = await Promise.all([
     store.getAllProducts(),
     store.getCollections(),
     getSiteContent(),
   ]);
-  const collections = allCollections.filter((c) => isNavCollectionHandle(c.handle));
   const { bundle } = content;
 
+  // Only real vintage pieces go in the bundle, not the accessory add-ons
+  // (smyckeshållare, rengöring, presentförpackning).
+  const collections = allCollections.filter((c) =>
+    JEWELRY_COLLECTION_HANDLES.includes(c.handle),
+  );
+  const products = allProducts.filter((p) =>
+    p.collections.some((c) => JEWELRY_COLLECTION_HANDLES.includes(c)),
+  );
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
-      <header className="mb-8 text-center">
-        <span className="inline-flex rounded-pill bg-gold-soft/60 px-3 py-1 text-xs font-bold uppercase tracking-wide text-plum">
-          Flaggskeppet
-        </span>
-        <h1 className="mt-3 font-display text-3xl font-extrabold text-ink sm:text-4xl">
-          Skapa ditt eget paket
-        </h1>
-        <p className="mx-auto mt-3 max-w-xl text-plum-soft">
-          Välj {bundle.size} pjäser från {bundle.size} olika kategorier. Vi
-          packar allt fint i en {bundle.packageName.toLowerCase()}, och du får
-          automatiskt {bundle.discountPercentage}% pakträtt i kassan. Perfekt
-          att ge bort eller unna dig själv.
-        </p>
+    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+      <header className="mb-10 flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-8">
+        <h1 className="text-heading font-light text-ink">Skapa ditt eget paket</h1>
+        <p className="text-body italic text-ink-label">Fyll lådan, ett fast pris</p>
       </header>
 
-      <BundleBuilder
-        products={products}
-        collections={collections}
-        bundle={bundle}
-      />
-
-      <p className="mt-6 text-center text-sm text-plum-soft">
-        {bundle.packageBlurb}
-      </p>
+      <BundleBuilder products={products} collections={collections} bundle={bundle} />
     </div>
   );
 }

@@ -1,37 +1,49 @@
 /**
- * Promotional surfaces configuration: the storewide announcement banner and
- * the reusable countdown/limited-time-sale settings.
+ * Promotional surfaces configuration: the storewide announcement bar, the
+ * email-capture offer, the free-shipping threshold and the (genuine-only)
+ * countdown.
  *
- * The end-time is stored as a fixed ISO string so the countdown is
- * deterministic and easy for a non-developer owner to edit. Update the date to
- * run a new limited-time sale.
+ * All of these are real facts. Per the design brief there is NO fabricated
+ * urgency: the countdown renders only when `SALE_COUNTDOWN.genuine` is true AND
+ * a real `endsAt` is set. With no genuine drop deadline configured it renders
+ * nothing at all, not a zeroed timer.
  */
 import { STOREWIDE_DISCOUNT_CODE, STOREWIDE_DISCOUNT_PERCENTAGE } from "./coupons";
+
+/** Free-shipping threshold in whole kronor. Shown as a real fact (USP + bar). */
+export const FREE_SHIPPING_THRESHOLD = 400;
 
 export const ANNOUNCEMENT = {
   enabled: true,
   discountPercentage: STOREWIDE_DISCOUNT_PERCENTAGE,
   code: STOREWIDE_DISCOUNT_CODE,
-  message: `Fyndkväll! ${STOREWIDE_DISCOUNT_PERCENTAGE}% på allt med koden`,
-};
-
-/**
- * Countdown for a GENUINE drop deadline only. Off by default: there is no real
- * deadline right now, and a countdown on a non-genuine deadline is forbidden
- * (both legally and by the design brief). To run a real timed drop, set
- * enabled: true and endsAt to the true end time; it renders nothing once the
- * date has passed.
- */
-export const COUNTDOWN = {
-  enabled: false,
-  endsAt: "",
-  label: "Släppet stänger om",
+  // Affirmative facts only (påståendeform, no negations).
+  message: `I originalskick. Fri frakt över ${FREE_SHIPPING_THRESHOLD} kr.`,
 };
 
 export const EMAIL_POPUP = {
   enabled: true,
   discountPercentage: STOREWIDE_DISCOUNT_PERCENTAGE,
   code: STOREWIDE_DISCOUNT_CODE,
-  heading: "Häng med på skattjakten",
-  subheading: `Skriv upp dig och få ${STOREWIDE_DISCOUNT_PERCENTAGE}% på din första beställning. Först till kvarn, lagret är begränsat.`,
+  heading: "Först till kvarn",
+  subheading:
+    "Vi mejlar när nya fynd släpps ur lagret. Nya medlemmar får tio procent.",
 };
+
+/**
+ * Countdown configuration. A countdown may ONLY run against a genuine deadline
+ * (a real drop closing). Keep `genuine: false` and there is no countdown, which
+ * is the honest default. To run a real timed drop, set a future `endsAt` and
+ * flip `genuine` to true.
+ */
+export const SALE_COUNTDOWN: {
+  genuine: boolean;
+  endsAt: string | null;
+} = {
+  genuine: false,
+  endsAt: null,
+};
+
+/** Resolved end-time for the countdown, or null when there is no genuine one. */
+export const SALE_COUNTDOWN_ENDS_AT: string | null =
+  SALE_COUNTDOWN.genuine && SALE_COUNTDOWN.endsAt ? SALE_COUNTDOWN.endsAt : null;

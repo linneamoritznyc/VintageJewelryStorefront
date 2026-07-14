@@ -40,8 +40,6 @@ export interface ProductOption {
 
 export interface ProductVariant {
   id: string;
-  /** Stock-keeping unit, e.g. "ORH-001". Used in Product structured data. */
-  sku: string;
   title: string;
   availableForSale: boolean;
   /** Storefront API `quantityAvailable`. Drives the low-stock indicator. */
@@ -57,8 +55,6 @@ export interface Product {
   id: string;
   handle: string;
   title: string;
-  /** Brand / Shopify vendor, e.g. "Vintage Fynd". Used in structured data. */
-  vendor: string;
   /** Plain-text description. */
   description: string;
   /** HTML description as returned by the Storefront API. */
@@ -87,7 +83,7 @@ export interface Product {
      product metafields in namespace `custom`, each exposed to the Storefront
      API. See lib/shopify/live/queries.ts. --- */
 
-  /** "Om denna vintage-pärla" copy. Metafield `custom.vintage_blurb`. */
+  /** "Om denna vintage-pärla" copy. Metafield `custom.vintage_story`. */
   vintageBlurb: string;
   /**
    * Original retail price for honest "was/now" comparison. Metafield
@@ -101,6 +97,18 @@ export interface Product {
   customsNote: string | null;
   /** Optional source lot/parti the piece came from. Metafield `custom.source_lot`. */
   sourceLot: string | null;
+  /**
+   * Per-piece catalogue number for the archive/inventory concept, rendered as
+   * "LOT 014". A stable 1-based index into the released catalogue. Metafield
+   * `custom.lot_number`; `null` when unassigned (no lot line is then shown).
+   */
+  lotNumber: number | null;
+  /**
+   * Ångerrätt-notis som visas som en synlig badge PÅ produktsidan, före
+   * köpknappen (aldrig gömd i beskrivningen). Metafield
+   * `custom.angerratt_notice`. `null` faller tillbaka på en standardnotis.
+   */
+  angerratt: string | null;
 }
 
 export interface Collection {
@@ -112,29 +120,16 @@ export interface Collection {
 }
 
 /* ------------------------------------------------------------------ */
-/* Static content: Shopify Pages and the Blog                          */
-/* ------------------------------------------------------------------ */
-
-/** A static Shopify Page (Storefront API `page(handle:)`). */
-export interface StorePage {
-  handle: string;
-  title: string;
-  bodyHtml: string;
-}
-
-/** A published blog article (Storefront API `blog(handle:) { articles }`). */
-export interface BlogArticle {
-  handle: string;
-  title: string;
-  bodyHtml: string;
-  summaryHtml: string;
-  /** ISO timestamp. */
-  publishedAt: string;
-}
-
-/* ------------------------------------------------------------------ */
 /* Cart shapes (mirror Storefront API Cart / CartLine / CartLineInput)  */
 /* ------------------------------------------------------------------ */
+
+/** A single piece contained inside a completed bundle line (for display). */
+export interface BundleContentItem {
+  productHandle: string;
+  productTitle: string;
+  variantTitle: string;
+  image: Image | null;
+}
 
 export interface CartLineMerchandise {
   variantId: string;
@@ -147,14 +142,13 @@ export interface CartLineMerchandise {
   image: Image | null;
   quantityAvailable: number;
   /**
-   * Set when this line was added via "Skapa ditt eget paket". Each piece is a
-   * REAL product variant line (real price, real stock), the automatic
-   * 15%-off-3-or-more discount applies the same way it would to any 3+ item
-   * cart. `bundleId` is purely a display tag (groups the pieces visually in
-   * the cart), not a pricing mechanism, once live this maps to a Shopify
-   * cart line attribute.
+   * When true, this line represents a completed "Skapa ditt eget paket"
+   * bundle: a single fixed-price line whose contents are listed in
+   * `bundleContents`. Once live, this maps to a Shopify bundle product variant
+   * (or a fixed-price bundle discount) plus line-item attributes.
    */
-  bundleId?: string;
+  isBundle?: boolean;
+  bundleContents?: BundleContentItem[];
 }
 
 export interface CartLine {
@@ -165,16 +159,10 @@ export interface CartLine {
 }
 
 export interface AppliedDiscount {
-  /** Empty string for the automatic discount (no customer-entered code). */
   code: string;
   /** Percentage off, e.g. 10 for 10%. */
   percentage: number;
   title: string;
-  /**
-   * True for the automatic "3+ items" bundle discount (no code, cannot be
-   * manually removed by the customer). False for a code the customer typed.
-   */
-  isAutomatic?: boolean;
 }
 
 export interface Cart {

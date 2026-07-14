@@ -1,63 +1,38 @@
-"use server";
-
-import { store } from "@/lib/shopify";
 import type { Cart } from "@/lib/shopify/types";
 
 /**
  * ============================================================================
- * CHECKOUT HANDOFF, SINGLE INTEGRATION POINT
+ * CHECKOUT HANDOFF, SINGLE INTEGRATION POINT (STUBBED)
  * ============================================================================
- * Checkout is owned by Shopify. This Server Action builds a REAL Shopify cart
- * from the local (client-side) cart, one line at a time via the same
- * StoreClient the rest of the app uses (lib/shopify/index.ts, mock or live
- * depending on NEXT_PUBLIC_USE_MOCK), applies the manually-entered discount
- * code if any (the automatic bundle discount needs no code, Shopify applies
- * it on its own once the real cart has 3+ items), and returns Shopify's
- * hosted `checkoutUrl`. Payments, shipping and taxes are all handled there.
  *
- * "use server" keeps this on the server: the Storefront token never reaches
- * the browser even though it's called directly from a client component.
+ * Checkout is owned by Shopify. When live, this function creates/updates a
+ * Shopify cart from the local cart, applies the discount code via
+ * `cartDiscountCodesUpdate`, and returns `cart.checkoutUrl`, the hosted
+ * checkout the customer is redirected to (payments, taxes, shipping and
+ * discounts are all Shopify-managed there).
  *
- * In mock mode `store.createCart()` never has a real checkoutUrl (there is no
- * real Shopify cart to redirect to), so this correctly falls through to the
- * "not ready yet" message below, unchanged mock behavior.
+ * Until Storefront API credentials exist, this returns a stub result so the UI
+ * can render the handoff clearly. Everything below is the ONLY place that needs
+ * to change to go live.
  * ============================================================================
  */
 
 export interface CheckoutResult {
   ready: boolean;
   checkoutUrl: string | null;
-  /** Message to show when checkout isn't ready (empty cart, live API error, or still in mock mode). */
+  /** Message to show when checkout is not yet wired to live Shopify. */
   message?: string;
 }
 
 export async function startCheckout(cart: Cart): Promise<CheckoutResult> {
-  if (cart.lines.length === 0) {
-    return { ready: false, checkoutUrl: null, message: "Varukorgen är tom." };
-  }
+  // --- LIVE IMPLEMENTATION (enable once credentials exist) -----------------
+  // 1. const shopifyCart = await createShopifyCart(cart.lines)
+  // 2. if (cart.discount) await applyShopifyDiscount(shopifyCart.id, cart.discount.code)
+  // 3. return { ready: true, checkoutUrl: shopifyCart.checkoutUrl }
+  // ------------------------------------------------------------------------
 
-  try {
-    let shopifyCart = await store.createCart();
-    for (const line of cart.lines) {
-      shopifyCart = await store.addLine(
-        shopifyCart.id ?? "",
-        line.merchandise.variantId,
-        line.quantity,
-      );
-    }
-    if (cart.discount && !cart.discount.isAutomatic && cart.discount.code) {
-      shopifyCart = await store.applyDiscount(shopifyCart.id ?? "", cart.discount.code);
-    }
-    if (shopifyCart.checkoutUrl) {
-      return { ready: true, checkoutUrl: shopifyCart.checkoutUrl };
-    }
-  } catch (err) {
-    console.error("startCheckout failed:", err);
-    return {
-      ready: false,
-      checkoutUrl: null,
-      message: "Kunde inte öppna kassan just nu. Försök igen om en liten stund.",
-    };
+  if (cart.checkoutUrl) {
+    return { ready: true, checkoutUrl: cart.checkoutUrl };
   }
 
   return {

@@ -1,80 +1,43 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
+import { Cormorant } from "next/font/google";
 import "./globals.css";
 
-/* Interface grotesque: nav, buttons, body, forms. */
-const inter = Inter({
+// One typeface, everywhere: headings, body, labels, prices, the wordmark.
+// Weights 300/400/500 plus italics, per the brand design guide.
+const cormorant = Cormorant({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-/* Editorial display serif: headings, product names, story, hero. */
-const fraunces = Fraunces({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500"],
   style: ["normal", "italic"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-/* The inventory voice: lot numbers, prices, stock counts, SKUs, timestamps. */
-const mono = JetBrains_Mono({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500"],
-  variable: "--font-mono",
+  variable: "--font-serif",
   display: "swap",
 });
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
-import { isNavCollectionHandle } from "@/lib/config/navigation";
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_TAGLINE } from "@/lib/config/site";
 import { CartProvider } from "@/lib/cart/CartContext";
-import { ConsentProvider } from "@/lib/consent/ConsentContext";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
-import { MemberBanner } from "@/components/layout/MemberBanner";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
-import { CookieConsent } from "@/components/layout/CookieConsent";
 import { EmailPopup } from "@/components/marketing/EmailPopup";
-import { Analytics } from "@/components/marketing/Analytics";
-import { JsonLd } from "@/components/seo/JsonLd";
-import { organizationSchema, websiteSchema } from "@/lib/seo/structured-data";
+import { JEWELRY_COLLECTION_HANDLES } from "@/lib/config/categories";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} · ${SITE_TAGLINE}`,
-    template: `%s · ${SITE_NAME}`,
+    default: "Fyndlådan, vintagesmycken i originalskick",
+    template: "%s · Fyndlådan",
   },
-  description: SITE_DESCRIPTION,
-  keywords: SITE_KEYWORDS,
-  applicationName: SITE_NAME,
-  alternates: { canonical: "/" },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
-  },
+  description:
+    "Vintagesmycken från ett svenskt varuhus, i originalskick. Örhängen, halsband, armband och mer, ett exemplar av det mesta.",
   openGraph: {
-    type: "website",
-    siteName: SITE_NAME,
-    title: `${SITE_NAME} · ${SITE_TAGLINE}`,
-    description: SITE_DESCRIPTION,
-    url: SITE_URL,
+    title: "Fyndlådan",
+    description: "Vintagesmycken från ett svenskt varuhus, i originalskick.",
     locale: "sv_SE",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${SITE_NAME} · ${SITE_TAGLINE}`,
-    description: SITE_DESCRIPTION,
+    type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F4F1EA",
+  themeColor: "#F6F4EE",
   width: "device-width",
   initialScale: 1,
 };
@@ -85,35 +48,27 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Categories drive nav + footer; content drives the marketing surfaces.
-  // store.getCollections() returns every Shopify collection (including
-  // system/curated ones not meant for primary nav), filter to the four
-  // jewelry categories, see lib/config/navigation.ts.
+  // Nav stays scoped to the four jewelry categories, keeping the accessory
+  // and curated collections out of the primary nav clutter.
   const [allCollections, content] = await Promise.all([
     store.getCollections(),
     getSiteContent(),
   ]);
-  const navCollections = allCollections.filter((c) => isNavCollectionHandle(c.handle));
+  const collections = allCollections.filter((c) =>
+    JEWELRY_COLLECTION_HANDLES.includes(c.handle),
+  );
 
   return (
-    <html
-      lang="sv"
-      className={`${inter.variable} ${fraunces.variable} ${mono.variable}`}
-    >
+    <html lang="sv" className={cormorant.variable}>
       <body>
-        <JsonLd data={[organizationSchema(), websiteSchema()]} />
-        <ConsentProvider>
-          <CartProvider>
-            <AnnouncementBanner />
-            <MemberBanner content={content.announcement} />
-            <Header collections={navCollections} />
-            <main className="min-h-[60vh]">{children}</main>
-            <Footer collections={navCollections} />
-            <CartDrawer />
-            <EmailPopup content={content.emailPopup} />
-            <CookieConsent />
-            <Analytics />
-          </CartProvider>
-        </ConsentProvider>
+        <CartProvider>
+          <AnnouncementBanner content={content.announcement} />
+          <Header collections={collections} />
+          <main className="min-h-[60vh]">{children}</main>
+          <Footer collections={collections} />
+          <CartDrawer />
+          <EmailPopup content={content.emailPopup} />
+        </CartProvider>
       </body>
     </html>
   );

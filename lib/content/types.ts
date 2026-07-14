@@ -26,7 +26,10 @@ export interface EmailPopupContent {
 
 export interface HeroContent {
   badge: string;
+  /** Plain lead words, e.g. "Direkt". */
   heading: string;
+  /** Italicized accent phrase that follows, e.g. "ur lagret". */
+  headingAccent: string;
   subheading: string;
 }
 
@@ -37,11 +40,18 @@ export interface BrandStoryContent {
   closingLine: string;
 }
 
-export interface BundleContent {
-  /** Number of pieces to complete a bundle. */
+export interface BundleTierContent {
+  id: string;
+  /** "Liten låda" / "Stor låda". */
+  label: string;
+  /** Number of pieces to complete a bundle at this tier. */
   size: number;
-  /** The real automatic Shopify discount's percentage off. */
-  discountPercentage: number;
+  /** Flat price for a completed bundle at this tier. */
+  pricePerBundle: number;
+}
+
+export interface BundleContent {
+  tiers: BundleTierContent[];
   currencyCode: string;
   packageName: string;
   packageBlurb: string;
@@ -50,13 +60,12 @@ export interface BundleContent {
 export interface SiteContent {
   announcement: AnnouncementContent;
   emailPopup: EmailPopupContent;
+  /**
+   * ISO end-time for a genuine timed drop, or null when there is no real
+   * deadline (the honest default). When null, no countdown renders anywhere.
+   */
+  saleCountdownEndsAt: string | null;
   hero: HeroContent;
   brandStory: BrandStoryContent;
   bundle: BundleContent;
-  /**
-   * Shop-wide ångerrätt notice, shown as a visible badge on every product
-   * page BEFORE the buy button (legal requirement, never hidden in the
-   * description). Shop-level metafield `custom.angerratt_notice`.
-   */
-  angerrattNotice: string;
 }

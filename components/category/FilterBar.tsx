@@ -5,14 +5,14 @@ import type { ProductSortKey } from "@/lib/shopify";
 
 const SORT_OPTIONS: { value: ProductSortKey; label: string }[] = [
   { value: "NEWEST", label: "Nyast" },
-  { value: "PRICE_ASC", label: "Pris: lågt–högt" },
-  { value: "PRICE_DESC", label: "Pris: högt–lågt" },
+  { value: "PRICE_ASC", label: "Pris: lågt till högt" },
+  { value: "PRICE_DESC", label: "Pris: högt till lågt" },
 ];
 
+/** Matches the real "Under 100 kr" Shopify collection threshold. */
 const PRICE_FILTERS: { label: string; max?: number }[] = [
   { label: "Alla priser", max: undefined },
-  { label: "Under 90 kr", max: 89 },
-  { label: "Under 110 kr", max: 109 },
+  { label: "Under 100 kr", max: 99 },
 ];
 
 /**
@@ -46,8 +46,8 @@ export function FilterBar({
   }
 
   return (
-    <div className="flex flex-col gap-3 border-b border-sand pb-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
+    <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="no-scrollbar -mx-1 flex gap-4 overflow-x-auto px-1">
         {PRICE_FILTERS.map((f) => {
           const active = (f.max ?? undefined) === maxPrice;
           return (
@@ -55,10 +55,8 @@ export function FilterBar({
               key={f.label}
               type="button"
               onClick={() => update({ maxPrice: f.max ?? null })}
-              className={`whitespace-nowrap rounded-pill px-3.5 py-1.5 text-sm font-semibold transition ${
-                active
-                  ? "bg-ink text-cream"
-                  : "bg-white text-ink hover:bg-sand"
+              className={`whitespace-nowrap border-b pb-0.5 text-body italic transition ${
+                active ? "border-ink text-ink" : "border-transparent text-ink-label hover:text-ink"
               }`}
             >
               {f.label}
@@ -67,8 +65,8 @@ export function FilterBar({
         })}
       </div>
 
-      <div className="flex items-center gap-2">
-        <span className="hidden text-sm text-plum-soft sm:inline">
+      <div className="flex items-center gap-3">
+        <span className="hidden text-body italic text-ink-label sm:inline">
           {totalCount} fynd
         </span>
         <label className="sr-only" htmlFor="sort">
@@ -78,7 +76,7 @@ export function FilterBar({
           id="sort"
           value={sort}
           onChange={(e) => update({ sort: e.target.value as ProductSortKey })}
-          className="rounded-pill border border-sand bg-white px-4 py-1.5 text-sm font-semibold text-ink focus:border-fuchsia-brand focus:outline-none"
+          className="border border-input-border bg-bg px-4 py-2 text-body text-ink focus:border-accent focus:outline-none"
         >
           {SORT_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>

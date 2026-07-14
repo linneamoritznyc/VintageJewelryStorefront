@@ -15,14 +15,14 @@ export function ProductGrid({
 }) {
   if (products.length === 0) {
     return (
-      <p className="py-16 text-center text-plum-soft">
+      <p className="py-16 text-center text-body italic text-ink-label">
         Inga fynd här just nu, kika in i en annan kategori.
       </p>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
       {products.map((product, i) => (
         <ProductCard
           key={product.id}

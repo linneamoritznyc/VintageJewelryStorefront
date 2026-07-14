@@ -1,71 +1,72 @@
 import type { Collection } from "../types";
 
 /**
- * The four storefront categories. Order here defines nav order. Adding a
- * category later is a single new entry (plus products tagged to its handle) , 
- * nothing downstream hardcodes this list's length.
+ * Mirrors the real Shopify collections. Category collections drive nav order;
+ * adding a category later is a single new entry (plus products tagged to its
+ * handle), nothing downstream hardcodes this list's length.
  */
 export const MOCK_COLLECTIONS: Collection[] = [
   {
     id: "gid://shopify/Collection/orhangen",
     handle: "orhangen",
     title: "Örhängen",
-    description:
-      "Från diskreta studs till dramatiska kristaller, örhängen som legat och väntat på sitt första öra.",
+    description: "Örhängen i originalskick, från diskreta studs till kristaller.",
     image: null,
   },
   {
     id: "gid://shopify/Collection/halsband",
     handle: "halsband",
     title: "Halsband",
-    description:
-      "Choker, kedjor och medaljonger ur konkurslagret. Aldrig burna, redo att lagras och blandas.",
+    description: "Choker, kedjor och medaljonger ur samma parti, i originalskick.",
     image: null,
   },
   {
     id: "gid://shopify/Collection/armband",
     handle: "armband",
     title: "Armband",
-    description:
-      "Pärlor, länkar och banglar att stapla. Deadstock för handleden, långt under ursprungspris.",
+    description: "Pärlor, länkar och banglar att stapla, i originalskick.",
     image: null,
   },
   {
     id: "gid://shopify/Collection/ovrigt",
     handle: "ovrigt",
     title: "Övrigt",
-    description:
-      "Fotlänkar, broscher, ringar och annat smått. Skattkammaren för det oväntade fyndet.",
-    image: null,
-  },
-  /**
-   * The three below are real Shopify collections too (not just the four
-   * categories), but they're curated/marketing collections rather than
-   * navigation categories, so they're deliberately excluded from primary nav
-   * (see lib/config/navigation.ts). Still reachable directly at
-   * /kategori/<handle> and used to source the homepage carousel.
-   */
-  {
-    id: "gid://shopify/Collection/under-100-kr",
-    handle: "under-100-kr",
-    title: "Under 100 kr",
-    description: "Alla våra fynd under 100 kr. Från 69 kr och uppåt. Perfekt att börja med.",
+    description: "Fotlänkar, broscher, ringar och annat smått ur lagret.",
     image: null,
   },
   {
     id: "gid://shopify/Collection/perfekta-presenter",
     handle: "perfekta-presenter",
     title: "Perfekta presenter",
-    description:
-      "Handplockade vintage-fynd som passar perfekt att ge bort. Alla kommer i vår fina presentförpackning om du väljer bundle-alternativet.",
+    description: "Ett urval fynd som blir en fin present, i originalskick.",
     image: null,
   },
   {
     id: "gid://shopify/Collection/manadens-fynd",
     handle: "manadens-fynd",
     title: "Månadens fynd",
-    description:
-      "Månadens utvalda vintage-fynd. Handplockade av oss för att visa spännvidden av vad som finns i vårt sortiment just nu. Uppdateras regelbundet.",
+    description: "Ett nytt urval ur lagret varje månad.",
+    image: null,
+  },
+  {
+    id: "gid://shopify/Collection/smyckeshallare",
+    handle: "smyckeshallare",
+    title: "Smyckeshållare",
+    description: "Förvara och visa upp fynden.",
+    image: null,
+  },
+  {
+    id: "gid://shopify/Collection/smyckesrengoring",
+    handle: "smyckesrengoring",
+    title: "Smyckesrengöring",
+    description: "Håll fynden i skick.",
+    image: null,
+  },
+  {
+    id: "gid://shopify/Collection/presentforpackningar",
+    handle: "presentforpackningar",
+    title: "Presentförpackningar",
+    description: "Gör om ett fynd till en färdig present.",
     image: null,
   },
 ];

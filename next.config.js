@@ -8,13 +8,6 @@ const nextConfig = {
       { protocol: "https", hostname: "cdn.shopify.com" },
     ],
   },
-  async redirects() {
-    return [
-      // Canonical routes now match the real Shopify page handles.
-      { source: "/villkor", destination: "/kopvillkor", permanent: true },
-      { source: "/integritet", destination: "/integritetspolicy", permanent: true },
-    ];
-  },
 };
 
 module.exports = nextConfig;

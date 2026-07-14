@@ -1,29 +1,36 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Link from "next/link";
-import { store } from "@/lib/shopify";
-import { RichContent } from "@/components/content/RichContent";
 
 export const metadata: Metadata = {
   title: "Vår historia",
-  alternates: { canonical: "/om-oss" },
   description:
-    "Historien bakom Fyndlådan, oanvända smycken räddade ur tomma varuhuslager.",
+    "Historien bakom Fyndlådan, vintagesmycken i originalskick från ett svenskt varuhus.",
 };
 
-export default async function AboutPage() {
-  const page = await store.getPage("om-oss");
-  if (!page) notFound();
-
+export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
-      <h1 className="font-display text-3xl font-extrabold text-ink sm:text-4xl">{page.title}</h1>
-      <RichContent html={page.bodyHtml} className="mt-6" />
+    <div className="mx-auto max-w-2xl px-6 py-10 sm:py-14">
+      <h1 className="text-heading font-light text-ink">Vår historia</h1>
+      <div className="mt-6 space-y-5 text-body text-ink-muted">
+        <p>
+          Ett svenskt varuhus lade ner. Kvar blev lådvis med örhängen, halsband
+          och armband som aldrig hann ut i butik, i originalförpackning, i
+          originalskick.
+        </p>
+        <p>
+          Vi köpte hela partiet. Nu säljer vi det vidare, till fasta priser,
+          precis som det låg i lagret.
+        </p>
+        <p className="text-ink">
+          Det är den enda leveransen som kommer. När ett fynd är slut går det
+          till någon annan.
+        </p>
+      </div>
       <Link
         href="/kategori/orhangen"
-        className="mt-8 inline-block rounded-pill bg-fuchsia-brand px-6 py-3 font-bold text-white transition hover:bg-fuchsia-deep"
+        className="mt-8 inline-block border border-accent bg-accent px-6 py-3 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover"
       >
-        Börja fynda
+        Se hela lagret
       </Link>
     </div>
   );
