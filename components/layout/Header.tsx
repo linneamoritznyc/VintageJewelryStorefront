@@ -52,10 +52,10 @@ export function Header({ collections }: { collections: Collection[] }) {
           Fyndlådan
         </Link>
 
-        <div className="flex items-center justify-end gap-5">
+        <div className="flex items-center justify-end gap-6">
           <Link
             href="/paket"
-            className="hidden border border-accent bg-accent px-4 py-2 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover lg:inline-block"
+            className="hidden text-body italic text-ink-label transition hover:text-ink lg:inline-block"
           >
             Skapa ditt paket
           </Link>
@@ -106,7 +106,7 @@ export function Header({ collections }: { collections: Collection[] }) {
             <li>
               <Link
                 href="/paket"
-                className="mt-2 block border border-accent bg-accent px-3 py-2.5 text-center text-body text-bg"
+                className="block border-b border-line py-2.5 text-body italic text-ink"
                 onClick={() => setMenuOpen(false)}
               >
                 Skapa ditt paket

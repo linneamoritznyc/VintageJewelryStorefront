@@ -299,8 +299,38 @@ export function BundleBuilder({
 
         {/* Price + CTA */}
         <div className="mt-6 border-t border-line pt-6">
+          {/* The pieces you have picked, listed once more so the selection is
+              easy to double-check. Each row removes that piece. */}
           {picks.length > 0 && (
-            <div className="flex items-baseline justify-between text-body text-ink-muted">
+            <ul className="mb-4 space-y-1.5">
+              {picks.map((p, i) => (
+                <li
+                  key={p.product.handle}
+                  className="flex items-baseline justify-between gap-3 text-body"
+                >
+                  <span className="flex items-baseline gap-2 text-ink">
+                    <span className="mono text-ink-label">{i + 1}.</span>
+                    {p.product.title}
+                  </span>
+                  <span className="flex items-baseline gap-3">
+                    <span className="mono text-ink-muted">
+                      {formatPrice(Number(p.variant.price.amount))}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => togglePick(p.product)}
+                      aria-label={`Ta bort ${p.product.title}`}
+                      className="text-body italic text-ink-label underline underline-offset-2 hover:text-ink"
+                    >
+                      Ta bort
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {picks.length > 0 && (
+            <div className="flex items-baseline justify-between border-t border-line pt-4 text-body text-ink-muted">
               <span>
                 Ordinarie ({picks.length} av {size})
               </span>
