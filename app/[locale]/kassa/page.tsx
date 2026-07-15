@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart/CartContext";
 import { startCheckout } from "@/lib/checkout";
 import { ProductImage } from "@/components/ui/ProductImage";
@@ -14,6 +15,7 @@ import { formatMoney } from "@/lib/utils/format";
  * "coming soon" state instead of redirecting.
  */
 export default function CheckoutPage() {
+  const t = useTranslations("checkout");
   const { cart, isReady, updateQuantity, removeLine } = useCart();
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -25,22 +27,20 @@ export default function CheckoutPage() {
     if (result.ready && result.checkoutUrl) {
       window.location.href = result.checkoutUrl;
     } else {
-      setStatus(result.message ?? "Kassan är inte tillgänglig än.");
+      setStatus(t("notReadyFallback"));
     }
   }
 
   if (isReady && cart.lines.length === 0) {
     return (
       <div className="mx-auto max-w-md px-6 py-20 text-center">
-        <h1 className="text-heading font-light text-ink">Din varukorg är tom</h1>
-        <p className="mt-2 text-body italic text-ink-label">
-          Fyll den med fynd innan du går till kassan.
-        </p>
+        <h1 className="text-heading font-light text-ink">{t("emptyTitle")}</h1>
+        <p className="mt-2 text-body italic text-ink-label">{t("emptySubtitle")}</p>
         <Link
           href="/"
           className="mt-6 inline-block border border-accent bg-accent px-6 py-3 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover"
         >
-          Till startsidan
+          {t("backToHome")}
         </Link>
       </div>
     );
@@ -50,7 +50,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
-      <h1 className="text-heading font-light text-ink">Kassa</h1>
+      <h1 className="text-heading font-light text-ink">{t("title")}</h1>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
         {/* Line items */}
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(line.id, line.quantity - 1)}
-                        aria-label="Minska antal"
+                        aria-label={t("decreaseQty")}
                         className="px-2.5 py-1 text-ink transition hover:text-accent"
                       >
                         −
@@ -94,7 +94,7 @@ export default function CheckoutPage() {
                         type="button"
                         onClick={() => updateQuantity(line.id, line.quantity + 1)}
                         disabled={!m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)}
-                        aria-label="Öka antal"
+                        aria-label={t("increaseQty")}
                         className="px-2.5 py-1 text-ink transition hover:text-accent disabled:opacity-30"
                       >
                         +
@@ -110,7 +110,7 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => removeLine(line.id)}
-                        aria-label={`Ta bort ${m.productTitle}`}
+                        aria-label={t("remove", { title: m.productTitle })}
                         className="text-ink-label transition hover:text-ink"
                       >
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -133,15 +133,15 @@ export default function CheckoutPage() {
         {/* Summary */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="border border-line bg-bg-panel p-5">
-            <h2 className="text-sub text-ink">Sammanfattning</h2>
+            <h2 className="text-sub text-ink">{t("summary")}</h2>
             <dl className="mt-4 space-y-2 text-body">
               <div className="flex justify-between text-ink-muted">
-                <dt>Delsumma</dt>
+                <dt>{t("subtotal")}</dt>
                 <dd className="mono">{formatMoney(cart.subtotal)}</dd>
               </div>
               {cart.discount && (
                 <div className="flex justify-between italic text-accent">
-                  <dt>Rabatt ({cart.discount.code})</dt>
+                  <dt>{t("discount", { code: cart.discount.code })}</dt>
                   <dd className="mono">
                     −
                     {formatMoney({
@@ -152,19 +152,17 @@ export default function CheckoutPage() {
                 </div>
               )}
               <div className="flex justify-between text-ink-muted">
-                <dt>Frakt</dt>
-                <dd>Beräknas i kassan</dd>
+                <dt>{t("shipping")}</dt>
+                <dd>{t("shippingCalculated")}</dd>
               </div>
               <div className="flex justify-between border-t border-line pt-2 text-sub text-ink">
-                <dt>Att betala</dt>
+                <dt>{t("toPay")}</dt>
                 <dd className="mono">{formatMoney(cart.total)}</dd>
               </div>
             </dl>
 
             {/* 14-day right of withdrawal, disclosed before purchase. */}
-            <p className="mt-3 text-small italic text-ink-label">
-              14 dagars ångerrätt enligt distansavtalslagen.
-            </p>
+            <p className="mt-3 text-small italic text-ink-label">{t("withdrawalNote")}</p>
 
             <button
               type="button"
@@ -172,7 +170,7 @@ export default function CheckoutPage() {
               disabled={pending}
               className="mt-5 w-full border border-accent bg-accent px-6 py-3.5 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover disabled:opacity-60"
             >
-              {pending ? "Öppnar kassan" : "Betala säkert via Shopify"}
+              {pending ? t("opening") : t("payButton")}
             </button>
 
             {status && (
@@ -182,7 +180,7 @@ export default function CheckoutPage() {
             )}
 
             <p className="mt-3 text-center text-small italic text-ink-label">
-              Betalning, frakt och moms hanteras säkert av Shopify.
+              {t("securePaymentNote")}
             </p>
           </div>
 
@@ -190,7 +188,7 @@ export default function CheckoutPage() {
             href="/"
             className="mt-3 block text-center text-small italic text-ink-muted underline underline-offset-2 transition hover:text-ink"
           >
-            Fortsätt handla
+            {t("continueShopping")}
           </Link>
         </aside>
       </div>

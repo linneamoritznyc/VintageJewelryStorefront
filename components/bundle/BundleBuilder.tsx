@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
+import { useTranslations } from "next-intl";
 import type {
   Product,
   Collection,
@@ -54,13 +55,14 @@ export function BundleBuilder({
   collections: Collection[];
   bundle: BundleContent;
 }) {
+  const t = useTranslations("bundle");
   const { addLine, applyDiscount, removeDiscount, cart } = useCart();
   const [tierId, setTierId] = useState(bundle.tiers[0]?.id);
-  const tier = bundle.tiers.find((t) => t.id === tierId) ?? bundle.tiers[0];
+  const tier = bundle.tiers.find((tb) => tb.id === tierId) ?? bundle.tiers[0];
   const categoryTitle = useMemo(() => {
     const map = new Map(collections.map((c) => [c.handle, c.title]));
-    return (handle: string | undefined) => (handle && map.get(handle)) || "Fynd";
-  }, [collections]);
+    return (handle: string | undefined) => (handle && map.get(handle)) || t("fallbackCategory");
+  }, [collections, t]);
 
   const [picks, setPicks] = useState<Pick[]>([]);
   const [justAdded, setJustAdded] = useState(false);
@@ -113,7 +115,7 @@ export function BundleBuilder({
     const merchandise: CartLineMerchandise = {
       variantId: `bundle:${tier.id}:${picks.map((p) => p.product.handle).join("+")}`,
       productHandle: "paket",
-      productTitle: `${tier.label} (${size} delar)`,
+      productTitle: t("cartLineTitle", { tierLabel: tier.label, size }),
       variantTitle: bundle.packageName,
       selectedOptions: [],
       price: {
@@ -140,15 +142,15 @@ export function BundleBuilder({
       setCouponInput("");
       setCouponError(null);
     } else {
-      setCouponError("Ogiltig kod.");
+      setCouponError(t("couponInvalid"));
     }
   }
 
   const ctaLabel = justAdded
-    ? "Paketet ligger i varukorgen"
+    ? t("addedToCart")
     : isFull
-      ? "Lägg i varukorgen"
-      : `Välj ${remaining} till`;
+      ? t("addToCart")
+      : t("pickMore", { count: remaining });
 
   return (
     <MotionConfig reducedMotion="user">
@@ -156,10 +158,10 @@ export function BundleBuilder({
         {/* Tray */}
         <div className="border border-line bg-bg-panel p-6">
           <div className="flex items-baseline justify-between">
-            <p className="text-body italic text-ink-label">{bundle.packageName}, ingår</p>
-            <p className="mono text-body text-ink-muted">
-              {picks.length} av {size}
+            <p className="text-body italic text-ink-label">
+              {bundle.packageName}, {t("includedIn")}
             </p>
+            <p className="mono text-body text-ink-muted">{t("ofCount", { picked: picks.length, size })}</p>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-px bg-line">
@@ -171,7 +173,7 @@ export function BundleBuilder({
                     key={i}
                     className="flex aspect-square flex-col items-center justify-center gap-2 border border-dashed border-line bg-bg-tile text-ink-label"
                   >
-                    <span className="text-body italic">Tom plats</span>
+                    <span className="text-body italic">{t("emptySlot")}</span>
                     <span className="text-body leading-none">+</span>
                   </div>
                 );
@@ -182,7 +184,7 @@ export function BundleBuilder({
                     key={pick.product.handle}
                     type="button"
                     onClick={() => togglePick(pick.product)}
-                    aria-label={`Ta bort ${pick.product.title}`}
+                    aria-label={t("removeItem", { title: pick.product.title })}
                     className="relative aspect-square overflow-hidden border border-accent bg-bg"
                     initial={{ opacity: 0, y: 14, scale: 0.94 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -198,7 +200,7 @@ export function BundleBuilder({
               );
             })}
             {/* The presentask, its own visible tile alongside the picks. */}
-            <ArchivePlaceholder label="Ask" className="aspect-square" />
+            <ArchivePlaceholder label={t("boxLabel")} className="aspect-square" />
           </div>
 
           <p className="mt-4 text-small italic text-ink-label">{bundle.packageBlurb}</p>
@@ -208,23 +210,25 @@ export function BundleBuilder({
         <div>
           {/* Tier selector */}
           <div className="grid grid-cols-2 gap-px bg-line">
-            {bundle.tiers.map((t) => (
+            {bundle.tiers.map((bt) => (
               <button
-                key={t.id}
+                key={bt.id}
                 type="button"
-                onClick={() => selectTier(t.id)}
-                aria-pressed={t.id === tier.id}
+                onClick={() => selectTier(bt.id)}
+                aria-pressed={bt.id === tier.id}
                 className={`border p-5 text-left transition ${
-                  t.id === tier.id ? "border-accent bg-bg-selected" : "border-line bg-bg"
+                  bt.id === tier.id ? "border-accent bg-bg-selected" : "border-line bg-bg"
                 }`}
               >
-                <span className="block text-sub text-ink">{t.label}</span>
-                <span className="block text-body italic text-ink-label">{t.size} delar</span>
+                <span className="block text-sub text-ink">{bt.label}</span>
+                <span className="block text-body italic text-ink-label">
+                  {bt.size} {t("pieces")}
+                </span>
               </button>
             ))}
           </div>
 
-          <p className="mt-6 text-body italic text-ink-label">Tryck för att lägga i lådan</p>
+          <p className="mt-6 text-body italic text-ink-label">{t("tapToAdd")}</p>
 
           <div className="mt-3 grid grid-cols-2 gap-px bg-line">
             {available.map((product) => {
@@ -257,13 +261,15 @@ export function BundleBuilder({
           <div className="mt-6 border-t border-line pt-6">
             {cart.discount ? (
               <div className="flex items-center justify-between">
-                <p className="text-body italic text-accent">{cart.discount.code} tillagd</p>
+                <p className="text-body italic text-accent">
+                  {t("couponAdded", { code: cart.discount.code })}
+                </p>
                 <button
                   type="button"
                   onClick={removeDiscount}
                   className="text-small italic text-ink-muted underline underline-offset-2 hover:text-ink"
                 >
-                  Ta bort
+                  {t("removeCoupon")}
                 </button>
               </div>
             ) : (
@@ -275,15 +281,15 @@ export function BundleBuilder({
                     setCouponInput(e.target.value);
                     setCouponError(null);
                   }}
-                  placeholder="Rabattkod"
-                  aria-label="Rabattkod"
+                  placeholder={t("couponPlaceholder")}
+                  aria-label={t("couponPlaceholder")}
                   className="min-w-0 flex-1 border border-input-border bg-bg px-4 py-3 text-body uppercase text-ink placeholder:normal-case placeholder:text-placeholder focus:border-accent focus:outline-none"
                 />
                 <button
                   type="submit"
                   className="border border-ink px-6 py-3 text-body text-ink transition hover:bg-ink hover:text-bg"
                 >
-                  Lägg till
+                  {t("couponApply")}
                 </button>
               </form>
             )}
@@ -312,10 +318,10 @@ export function BundleBuilder({
                       <button
                         type="button"
                         onClick={() => togglePick(p.product)}
-                        aria-label={`Ta bort ${p.product.title}`}
+                        aria-label={t("removeItem", { title: p.product.title })}
                         className="text-body italic text-ink-label underline underline-offset-2 hover:text-ink"
                       >
-                        Ta bort
+                        {t("remove")}
                       </button>
                     </span>
                   </li>
@@ -324,9 +330,7 @@ export function BundleBuilder({
             )}
             {picks.length > 0 && (
               <div className="flex items-baseline justify-between border-t border-line pt-4 text-body text-ink-muted">
-                <span>
-                  Ordinarie ({picks.length} av {size})
-                </span>
+                <span>{t("regularPrice", { picked: picks.length, size })}</span>
                 <span className="mono">{formatPrice(piecesSum)}</span>
               </div>
             )}
@@ -335,7 +339,7 @@ export function BundleBuilder({
                 <span className="mono block text-numeral font-light text-ink">
                   {formatPrice(tier.pricePerBundle)}
                 </span>
-                <span className="text-body italic text-ink-label">paketpris</span>
+                <span className="text-body italic text-ink-label">{t("packagePriceLabel")}</span>
               </div>
               <motion.button
                 type="button"
@@ -358,7 +362,7 @@ export function BundleBuilder({
                   transition={{ duration: 0.2 }}
                   className="mt-2 text-right text-body italic text-accent"
                 >
-                  Du sparar {formatPrice(saving)}
+                  {t("youSave", { amount: formatPrice(saving) })}
                 </motion.p>
               )}
             </AnimatePresence>

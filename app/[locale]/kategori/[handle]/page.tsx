@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { store, type ProductSortKey } from "@/lib/shopify";
 import { FilterBar } from "@/components/category/FilterBar";
@@ -17,10 +18,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { handle: string };
+  params: { handle: string; locale: string };
 }): Promise<Metadata> {
   const collection = await store.getCollection(params.handle);
-  if (!collection) return { title: "Kategori hittades inte" };
+  if (!collection) {
+    const t = await getTranslations({ locale: params.locale, namespace: "category" });
+    return { title: t("notFoundTitle") };
+  }
   return {
     title: collection.title,
     description: collection.description,
@@ -35,9 +39,12 @@ export default async function CategoryPage({
   params,
   searchParams,
 }: {
-  params: { handle: string };
+  params: { handle: string; locale: string };
   searchParams: { sort?: string; maxPrice?: string };
 }) {
+  setRequestLocale(params.locale);
+  const t = await getTranslations("category");
+  const tBread = await getTranslations("breadcrumb");
   const collection = await store.getCollection(params.handle);
   if (!collection) notFound();
 
@@ -58,9 +65,9 @@ export default async function CategoryPage({
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-12">
-      <nav className="mb-4 text-body italic text-ink-label" aria-label="Brödsmulor">
+      <nav className="mb-4 text-body italic text-ink-label" aria-label={tBread("label")}>
         <Link href="/" className="transition hover:text-ink">
-          Hem
+          {tBread("home")}
         </Link>
         <span className="mx-1.5" aria-hidden>
           /
@@ -76,9 +83,7 @@ export default async function CategoryPage({
       <FilterBar totalCount={totalCount} sort={sort} maxPrice={maxPrice} />
 
       {products.length === 0 ? (
-        <p className="py-16 text-center text-body italic text-ink-label">
-          Inga fynd matchar filtret just nu.
-        </p>
+        <p className="py-16 text-center text-body italic text-ink-label">{t("noResults")}</p>
       ) : (
         <CategoryListing
           key={filterKey}

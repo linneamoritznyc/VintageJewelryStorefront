@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { EmailPopupContent } from "@/lib/content/types";
 
 /**
@@ -10,6 +11,7 @@ import type { EmailPopupContent } from "@/lib/content/types";
  * configured sink (Shopify customer list, Google Sheet).
  */
 export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
+  const t = useTranslations("emailCapture");
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [company, setCompany] = useState("");
@@ -21,11 +23,11 @@ export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
     e.preventDefault();
     const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     if (!valid) {
-      setError("Ange en giltig e-postadress.");
+      setError(t("invalidEmail"));
       return;
     }
     if (!consent) {
-      setError("Kryssa i samtycket för att bli medlem.");
+      setError(t("consentRequired"));
       return;
     }
     setSubmitting(true);
@@ -39,7 +41,7 @@ export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
       if (!res.ok) throw new Error();
       setSubmitted(true);
     } catch {
-      setError("Något gick fel. Försök igen om en stund.");
+      setError(t("genericError"));
     } finally {
       setSubmitting(false);
     }
@@ -49,13 +51,13 @@ export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
     <section className="mx-auto max-w-6xl px-6">
       <div className="grid items-center gap-8 border-y border-line py-14 sm:grid-cols-2 sm:gap-14">
         <div className="max-w-md">
-          <p className="meta">Bli medlem</p>
+          <p className="meta">{t("eyebrow")}</p>
           <h2 className="mt-3 text-heading font-light text-ink">{content.heading}</h2>
         </div>
         <div>
           {submitted ? (
             <p className="text-body text-ink">
-              Din kod:{" "}
+              {t("yourCode")}{" "}
               <span className="mono border border-line px-3 py-1 font-medium">{content.code}</span>
             </p>
           ) : (
@@ -68,8 +70,8 @@ export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
                     setEmail(e.target.value);
                     setError(null);
                   }}
-                  placeholder="din@epost.se"
-                  aria-label="E-postadress"
+                  placeholder={t("emailPlaceholder")}
+                  aria-label={t("emailLabel")}
                   className="min-w-[220px] flex-1 border border-input-border bg-bg px-4 py-3 text-body text-ink placeholder:text-placeholder focus:border-accent focus:outline-none"
                 />
                 <button
@@ -77,7 +79,7 @@ export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
                   disabled={submitting}
                   className="whitespace-nowrap border border-accent bg-accent px-6 py-3 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover disabled:opacity-60"
                 >
-                  {submitting ? "Skickar" : "Bli medlem"}
+                  {submitting ? t("sending") : t("submit")}
                 </button>
               </div>
               {/* Honeypot: hidden from real users. */}
@@ -100,8 +102,7 @@ export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
                   }}
                   className="mt-0.5 h-4 w-4 flex-shrink-0 border-input-border accent-accent"
                 />
-                Jag vill få nyhetsbrev med erbjudanden och nya fynd. Jag kan avregistrera mig när
-                som helst.
+                {t("consent")}
               </label>
             </form>
           )}

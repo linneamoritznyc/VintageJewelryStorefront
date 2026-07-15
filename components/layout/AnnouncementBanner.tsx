@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { AnnouncementContent } from "@/lib/content/types";
 
 /**
@@ -11,6 +12,7 @@ import type { AnnouncementContent } from "@/lib/content/types";
 const DISMISS_KEY = "vjs-announcement-dismissed";
 
 export function AnnouncementBanner({ content }: { content: AnnouncementContent }) {
+  const t = useTranslations("emailCapture");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function AnnouncementBanner({ content }: { content: AnnouncementContent }
       </div>
       <button
         type="button"
-        aria-label="Stäng meddelande"
+        aria-label={t("closeAnnouncement")}
         onClick={() => {
           window.localStorage.setItem(DISMISS_KEY, content.code);
           setVisible(false);

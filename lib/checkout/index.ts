@@ -20,10 +20,13 @@ import type { Cart } from "@/lib/shopify/types";
 export interface CheckoutResult {
   ready: boolean;
   checkoutUrl: string | null;
-  /** Message to show when checkout is not yet wired to live Shopify. */
-  message?: string;
 }
 
+/**
+ * The "not ready yet" case has no message here on purpose: this module has
+ * no locale context (it isn't a component), so the caller renders that copy
+ * itself via useTranslations("checkout").notReadyFallback.
+ */
 export async function startCheckout(cart: Cart): Promise<CheckoutResult> {
   // --- LIVE IMPLEMENTATION (enable once credentials exist) -----------------
   // 1. const shopifyCart = await createShopifyCart(cart.lines)
@@ -35,10 +38,5 @@ export async function startCheckout(cart: Cart): Promise<CheckoutResult> {
     return { ready: true, checkoutUrl: cart.checkoutUrl };
   }
 
-  return {
-    ready: false,
-    checkoutUrl: null,
-    message:
-      "Kassan kopplas till Shopifys säkra checkout så snart butiken är live. Din varukorg är sparad.",
-  };
+  return { ready: false, checkoutUrl: null };
 }

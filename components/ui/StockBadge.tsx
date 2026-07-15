@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import type { StockStatus } from "@/lib/utils/stock";
 
 /**
@@ -12,7 +13,11 @@ export function StockBadge({
   status: StockStatus;
   className?: string;
 }) {
-  if (!status.label) return null;
+  const t = useTranslations("stock");
+  if (!status.labelKey) return null;
 
-  return <span className={`meta ${className}`}>{status.label}</span>;
+  const label =
+    status.labelKey === "soldOut" ? t("soldOut") : t("lowStock", { count: status.quantity });
+
+  return <span className={`meta ${className}`}>{label}</span>;
 }

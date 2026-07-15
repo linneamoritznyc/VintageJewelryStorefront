@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { store } from "@/lib/shopify";
 import { ProductGallery } from "@/components/product/ProductGallery";
@@ -9,10 +10,13 @@ import { ProductCarousel } from "@/components/home/ProductCarousel";
 export async function generateMetadata({
   params,
 }: {
-  params: { handle: string };
+  params: { handle: string; locale: string };
 }): Promise<Metadata> {
   const product = await store.getProduct(params.handle);
-  if (!product) return { title: "Produkt hittades inte" };
+  if (!product) {
+    const t = await getTranslations({ locale: params.locale, namespace: "product" });
+    return { title: t("notFoundTitle") };
+  }
   return {
     title: product.title,
     description: product.description,
@@ -23,7 +27,14 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({ params }: { params: { handle: string } }) {
+export default async function ProductPage({
+  params,
+}: {
+  params: { handle: string; locale: string };
+}) {
+  setRequestLocale(params.locale);
+  const t = await getTranslations("product");
+  const tBread = await getTranslations("breadcrumb");
   const product = await store.getProduct(params.handle);
   if (!product) notFound();
 
@@ -40,9 +51,9 @@ export default async function ProductPage({ params }: { params: { handle: string
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-12">
-      <nav className="mb-4 text-body italic text-ink-label" aria-label="Brödsmulor">
+      <nav className="mb-4 text-body italic text-ink-label" aria-label={tBread("label")}>
         <Link href="/" className="transition hover:text-ink">
-          Hem
+          {tBread("home")}
         </Link>
         {collection && (
           <>
@@ -77,7 +88,7 @@ export default async function ProductPage({ params }: { params: { handle: string
 
           {product.description && (
             <div className="border-t border-line pt-5">
-              <h2 className="text-sub text-ink">Beskrivning</h2>
+              <h2 className="text-sub text-ink">{t("description")}</h2>
               <p className="mt-2 text-body text-ink-muted">{product.description}</p>
             </div>
           )}
@@ -85,7 +96,7 @@ export default async function ProductPage({ params }: { params: { handle: string
           {/* Per-product vintage story */}
           {product.vintageBlurb && (
             <div className="border border-line bg-bg-panel p-5">
-              <h2 className="text-sub text-ink">Om denna vintage-pärla</h2>
+              <h2 className="text-sub text-ink">{t("vintageStory")}</h2>
               <p className="mt-2 text-body text-ink-muted">{product.vintageBlurb}</p>
             </div>
           )}
@@ -100,7 +111,7 @@ export default async function ProductPage({ params }: { params: { handle: string
       {relatedProducts.length > 0 && (
         <section className="mt-20 border-t border-line pt-10">
           <h2 className="mb-6 text-heading font-light text-ink">
-            Fler fynd i {collection?.title ?? "samma kategori"}
+            {t("moreIn", { category: collection?.title ?? t("sameCategory") })}
           </h2>
           <ProductCarousel products={relatedProducts} />
         </section>

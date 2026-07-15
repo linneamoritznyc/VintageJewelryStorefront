@@ -1,39 +1,35 @@
 import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Integritetspolicy",
-  description: "Så hanterar Fyndlådan dina personuppgifter.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: "legal.privacy" });
+  return { title: t("title"), description: t("description") };
+}
 
-export default function PrivacyPage() {
+export default async function PrivacyPage({ params }: { params: { locale: string } }) {
+  setRequestLocale(params.locale);
+  const t = await getTranslations("legal.privacy");
   return (
     <div className="mx-auto max-w-2xl px-6 py-10 sm:py-14">
-      <h1 className="text-heading font-light text-ink">Integritetspolicy</h1>
+      <h1 className="text-heading font-light text-ink">{t("title")}</h1>
       <div className="mt-6 space-y-6 text-body text-ink-muted">
-        <p>
-          Vi värnar om din integritet och behandlar dina personuppgifter i enlighet med GDPR. Nedan
-          beskriver vi kortfattat hur vi hanterar din data.
-        </p>
+        <p>{t("intro")}</p>
         <section>
-          <h2 className="text-sub text-ink">Vilka uppgifter vi samlar in</h2>
-          <p className="mt-2">
-            Vid köp samlar vi in de uppgifter som behövs för att behandla din beställning, till
-            exempel namn, adress och kontaktuppgifter. Vid nyhetsbrevsregistrering sparar vi din
-            e-postadress.
-          </p>
+          <h2 className="text-sub text-ink">{t("collectHeading")}</h2>
+          <p className="mt-2">{t("collectBody")}</p>
         </section>
         <section>
-          <h2 className="text-sub text-ink">Hur vi använder uppgifterna</h2>
-          <p className="mt-2">
-            Uppgifterna används för att hantera dina köp, ge dig kundservice och, om du valt det,
-            skicka erbjudanden. Betalning och orderhantering sker via Shopify.
-          </p>
+          <h2 className="text-sub text-ink">{t("useHeading")}</h2>
+          <p className="mt-2">{t("useBody")}</p>
         </section>
         <section>
-          <h2 className="text-sub text-ink">Dina rättigheter</h2>
+          <h2 className="text-sub text-ink">{t("rightsHeading")}</h2>
           <p className="mt-2">
-            Du har rätt att begära utdrag, rättelse eller radering av dina uppgifter. Kontakta oss
-            på{" "}
+            {t("rightsBody")}{" "}
             <a href="mailto:hej@fyndladan.se" className="text-ink underline hover:text-accent">
               hej@fyndladan.se
             </a>

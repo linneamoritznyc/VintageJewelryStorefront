@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import type { Product } from "@/lib/shopify/types";
 import { ProductCard } from "./ProductCard";
 
@@ -13,11 +14,10 @@ export function ProductGrid({
   /** How many leading cards should load their image eagerly (above the fold). */
   priorityCount?: number;
 }) {
+  const t = useTranslations("category");
   if (products.length === 0) {
     return (
-      <p className="py-16 text-center text-body italic text-ink-label">
-        Inga fynd här just nu, kika in i en annan kategori.
-      </p>
+      <p className="py-16 text-center text-body italic text-ink-label">{t("noResultsGrid")}</p>
     );
   }
 

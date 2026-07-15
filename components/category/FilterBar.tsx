@@ -1,19 +1,8 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { ProductSortKey } from "@/lib/shopify";
-
-const SORT_OPTIONS: { value: ProductSortKey; label: string }[] = [
-  { value: "NEWEST", label: "Nyast" },
-  { value: "PRICE_ASC", label: "Pris: lågt till högt" },
-  { value: "PRICE_DESC", label: "Pris: högt till lågt" },
-];
-
-/** Matches the real "Under 100 kr" Shopify collection threshold. */
-const PRICE_FILTERS: { label: string; max?: number }[] = [
-  { label: "Alla priser", max: undefined },
-  { label: "Under 100 kr", max: 99 },
-];
 
 /**
  * Sort + basic price filter for category pages. Updates URL query params so the
@@ -29,8 +18,21 @@ export function FilterBar({
   sort: ProductSortKey;
   maxPrice?: number;
 }) {
+  const t = useTranslations("category");
   const router = useRouter();
   const pathname = usePathname();
+
+  const SORT_OPTIONS: { value: ProductSortKey; label: string }[] = [
+    { value: "NEWEST", label: t("sortNewest") },
+    { value: "PRICE_ASC", label: t("sortPriceAsc") },
+    { value: "PRICE_DESC", label: t("sortPriceDesc") },
+  ];
+
+  /** Matches the real "Under 100 kr" Shopify collection threshold. */
+  const PRICE_FILTERS: { label: string; max?: number }[] = [
+    { label: t("allPrices"), max: undefined },
+    { label: t("under100"), max: 99 },
+  ];
 
   function update(next: { sort?: ProductSortKey; maxPrice?: number | null }) {
     const params = new URLSearchParams();
@@ -65,9 +67,11 @@ export function FilterBar({
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="hidden text-body italic text-ink-label sm:inline">{totalCount} fynd</span>
+        <span className="hidden text-body italic text-ink-label sm:inline">
+          {t("finds", { count: totalCount })}
+        </span>
         <label className="sr-only" htmlFor="sort">
-          Sortera
+          {t("sortLabel")}
         </label>
         <select
           id="sort"
@@ -77,7 +81,7 @@ export function FilterBar({
         >
           {SORT_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
-              Sortera: {o.label}
+              {o.label}
             </option>
           ))}
         </select>

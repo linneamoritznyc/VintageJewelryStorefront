@@ -1,47 +1,45 @@
 import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
-export const metadata: Metadata = {
-  title: "Leverans och retur",
-  description: "Information om frakt, leveranstid och returer hos Fyndlådan.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: "legal.shipping" });
+  return { title: t("title"), description: t("description") };
+}
 
-export default function ShippingPage() {
+export default async function ShippingPage({ params }: { params: { locale: string } }) {
+  setRequestLocale(params.locale);
+  const t = await getTranslations("legal.shipping");
   return (
     <div className="mx-auto max-w-2xl px-6 py-10 sm:py-14">
-      <h1 className="text-heading font-light text-ink">Leverans och retur</h1>
+      <h1 className="text-heading font-light text-ink">{t("title")}</h1>
       <div className="mt-6 space-y-6 text-body text-ink-muted">
         <section>
-          <h2 className="text-sub text-ink">Frakt</h2>
-          <p className="mt-2">
-            Vi skickar med spårbar leverans inom Sverige. Fraktkostnad och leveransalternativ visas
-            i kassan, som hanteras säkert via Shopify.
-          </p>
+          <h2 className="text-sub text-ink">{t("shippingHeading")}</h2>
+          <p className="mt-2">{t("shippingBody")}</p>
         </section>
         <section>
-          <h2 className="text-sub text-ink">Leveranstid</h2>
-          <p className="mt-2">
-            Beställningar packas normalt inom 1 till 3 arbetsdagar. Därefter tillkommer postens
-            leveranstid.
-          </p>
+          <h2 className="text-sub text-ink">{t("timeHeading")}</h2>
+          <p className="mt-2">{t("timeBody")}</p>
         </section>
         <section>
-          <h2 className="text-sub text-ink">Retur och ångerrätt</h2>
-          <p className="mt-2">
-            Du har 14 dagars ångerrätt enligt distansavtalslagen. Varan ska returneras i oanvänt
-            skick.
-          </p>
+          <h2 className="text-sub text-ink">{t("returnHeading")}</h2>
+          <p className="mt-2">{t("returnBody")}</p>
           <p className="mt-3">
             <Link
               href="/angra-kop"
               className="text-ink underline underline-offset-2 hover:text-accent"
             >
-              Ångra ditt köp
+              {t("cancelLink")}
             </Link>
           </p>
         </section>
         <p className="text-small italic text-ink-label">
-          Har du frågor? Mejla oss på{" "}
+          {t("questions")}{" "}
           <a href="mailto:hej@fyndladan.se" className="text-ink underline hover:text-accent">
             hej@fyndladan.se
           </a>

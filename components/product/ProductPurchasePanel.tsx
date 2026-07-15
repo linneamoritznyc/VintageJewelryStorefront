@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Product, ProductVariant, CartLineMerchandise } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/CartContext";
 import { PriceTag } from "@/components/ui/PriceTag";
@@ -15,6 +16,7 @@ import { stockStatus } from "@/lib/utils/stock";
  * size variants added in Shopify admin).
  */
 export function ProductPurchasePanel({ product }: { product: Product }) {
+  const t = useTranslations("product");
   const { addLine } = useCart();
   const hasOptions = product.options.length > 0;
 
@@ -100,7 +102,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
                     } ${soldOut ? "opacity-40" : ""}`}
                   >
                     {value}
-                    {soldOut && <span className="ml-1 italic">(slut)</span>}
+                    {soldOut && <span className="ml-1 italic">{t("optionSoldOut")}</span>}
                   </button>
                 );
               })}
@@ -115,7 +117,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             disabled={quantity <= 1}
-            aria-label="Minska antal"
+            aria-label={t("decreaseQty")}
             className="px-4 py-2.5 text-sub text-ink transition hover:text-accent disabled:opacity-30"
           >
             −
@@ -125,7 +127,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             type="button"
             onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
             disabled={quantity >= maxQty}
-            aria-label="Öka antal"
+            aria-label={t("increaseQty")}
             className="px-4 py-2.5 text-sub text-ink transition hover:text-accent disabled:opacity-30"
           >
             +
@@ -138,13 +140,11 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           disabled={!canAdd}
           className="flex-1 border border-accent bg-accent px-6 py-3.5 text-center text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-line disabled:bg-bg-tile disabled:text-ink-label"
         >
-          {!canAdd ? "Slutsåld" : added ? "Tillagd" : "Lägg i varukorg"}
+          {!canAdd ? t("soldOut") : added ? t("added") : t("addToCart")}
         </button>
       </div>
 
-      <p className="text-small italic text-ink-label">
-        Fri frakt över 400 kr. Säker betalning via Shopify.
-      </p>
+      <p className="text-small italic text-ink-label">{t("freeShippingNote")}</p>
     </div>
   );
 }

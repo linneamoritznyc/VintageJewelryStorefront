@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Choice = "cash" | "credit";
 
@@ -11,6 +12,7 @@ type Choice = "cash" | "credit";
  * store credit. Stubbed submit (no live order lookup yet), marked below.
  */
 export function AngraForm() {
+  const t = useTranslations("cancelPurchase");
   const [orderNumber, setOrderNumber] = useState("");
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"lookup" | "choose" | "done">("lookup");
@@ -20,7 +22,7 @@ export function AngraForm() {
   function lookup(e: React.FormEvent) {
     e.preventDefault();
     if (!orderNumber.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError("Ange ordernummer och en giltig e-postadress.");
+      setError(t("formError"));
       return;
     }
     setError(null);
@@ -39,14 +41,12 @@ export function AngraForm() {
   if (step === "done") {
     return (
       <div className="mt-8 border border-line bg-bg-panel p-6">
-        <p className="meta">Bekräftat</p>
+        <p className="meta">{t("confirmedLabel")}</p>
         <p className="mt-2 text-sub text-ink">
-          {choice === "cash" ? "Pengarna är på väg" : "Ditt tillgodo är klart"}
+          {choice === "cash" ? t("cashDoneTitle") : t("creditDoneTitle")}
         </p>
         <p className="mt-2 text-body text-ink-muted">
-          {choice === "cash"
-            ? "Hela beloppet betalas tillbaka till samma kort eller konto inom några bankdagar."
-            : "Ditt tillgodo på 110 procent av beloppet är redo att användas i kassan."}
+          {choice === "cash" ? t("cashDoneBody") : t("creditDoneBody")}
         </p>
       </div>
     );
@@ -55,8 +55,8 @@ export function AngraForm() {
   if (step === "choose") {
     return (
       <form onSubmit={confirm} className="mt-8">
-        <p className="meta">Order {orderNumber}</p>
-        <p className="mt-2 text-body text-ink-muted">Välj hur du vill ha ersättningen.</p>
+        <p className="meta">{t("order", { number: orderNumber })}</p>
+        <p className="mt-2 text-body text-ink-muted">{t("chooseRefund")}</p>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <label
@@ -73,11 +73,9 @@ export function AngraForm() {
                 onChange={() => setChoice("cash")}
                 className="h-4 w-4 accent-accent"
               />
-              <span className="text-sub text-ink">Pengarna tillbaka</span>
+              <span className="text-sub text-ink">{t("cashTitle")}</span>
             </span>
-            <span className="mt-2 block text-body text-ink-muted">
-              Vi betalar tillbaka hela beloppet till samma kort eller konto.
-            </span>
+            <span className="mt-2 block text-body text-ink-muted">{t("cashDescription")}</span>
           </label>
 
           <label
@@ -94,11 +92,9 @@ export function AngraForm() {
                 onChange={() => setChoice("credit")}
                 className="h-4 w-4 accent-accent"
               />
-              <span className="text-sub text-ink">Tillgodo hos oss</span>
+              <span className="text-sub text-ink">{t("creditTitle")}</span>
             </span>
-            <span className="mt-2 block text-body text-ink-muted">
-              Du får 110 procent av beloppet att handla för.
-            </span>
+            <span className="mt-2 block text-body text-ink-muted">{t("creditDescription")}</span>
           </label>
         </div>
 
@@ -106,7 +102,7 @@ export function AngraForm() {
           type="submit"
           className="mt-5 w-full border border-accent bg-accent px-6 py-3.5 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover sm:w-auto"
         >
-          Bekräfta
+          {t("confirm")}
         </button>
       </form>
     );
@@ -120,7 +116,7 @@ export function AngraForm() {
     >
       <div className="flex-1">
         <label htmlFor="order" className="meta">
-          Ordernummer
+          {t("orderNumber")}
         </label>
         <input
           id="order"
@@ -133,7 +129,7 @@ export function AngraForm() {
       </div>
       <div className="flex-1">
         <label htmlFor="email" className="meta">
-          E-postadress
+          {t("email")}
         </label>
         <input
           id="email"
@@ -148,7 +144,7 @@ export function AngraForm() {
         type="submit"
         className="border border-ink px-6 py-2.5 text-body text-ink transition hover:bg-ink hover:text-bg"
       >
-        Fortsätt
+        {t("continue")}
       </button>
       {error && <p className="text-small italic text-error sm:basis-full">{error}</p>}
     </form>
