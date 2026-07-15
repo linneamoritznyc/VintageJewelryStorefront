@@ -10,11 +10,7 @@ import type { AnnouncementContent } from "@/lib/content/types";
  */
 const DISMISS_KEY = "vjs-announcement-dismissed";
 
-export function AnnouncementBanner({
-  content,
-}: {
-  content: AnnouncementContent;
-}) {
+export function AnnouncementBanner({ content }: { content: AnnouncementContent }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -29,7 +25,7 @@ export function AnnouncementBanner({
     <div className="relative border-b border-line bg-bg-panel text-ink">
       <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-10 py-2.5 text-center text-body italic">
         <span>{content.message}</span>
-        <span className="mono not-italic font-medium">{content.code}</span>
+        <span className="mono font-medium not-italic">{content.code}</span>
       </div>
       <button
         type="button"

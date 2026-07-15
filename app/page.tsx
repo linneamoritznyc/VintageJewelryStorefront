@@ -19,9 +19,7 @@ export default async function HomePage() {
   ]);
   const { hero, brandStory, bundle } = content;
 
-  const collections = allCollections.filter((c) =>
-    JEWELRY_COLLECTION_HANDLES.includes(c.handle),
-  );
+  const collections = allCollections.filter((c) => JEWELRY_COLLECTION_HANDLES.includes(c.handle));
   const jewelryOnly = recentJewelry.filter((p) =>
     p.collections.some((c) => JEWELRY_COLLECTION_HANDLES.includes(c)),
   );
@@ -97,7 +95,10 @@ export default async function HomePage() {
             <h2 className="text-heading font-light text-ink">Senaste fynden</h2>
             <p className="meta mt-1">Nyss inregistrerat i lagret</p>
           </div>
-          <Link href="/kategori/orhangen" className="text-body italic text-ink-label transition hover:text-ink">
+          <Link
+            href="/kategori/orhangen"
+            className="text-body italic text-ink-label transition hover:text-ink"
+          >
             Visa fler
           </Link>
         </div>
@@ -177,7 +178,10 @@ export default async function HomePage() {
             <h2 className="text-heading font-light text-ink">Nya fynd</h2>
             <p className="meta mt-1">Mer ur samma parti</p>
           </div>
-          <Link href="/kategori/halsband" className="text-body italic text-ink-label transition hover:text-ink">
+          <Link
+            href="/kategori/halsband"
+            className="text-body italic text-ink-label transition hover:text-ink"
+          >
             Visa fler
           </Link>
         </div>

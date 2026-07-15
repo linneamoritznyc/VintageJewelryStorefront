@@ -20,9 +20,7 @@ export default async function BundlePage() {
 
   // Only real vintage pieces go in the bundle, not the accessory add-ons
   // (smyckeshållare, rengöring, presentförpackning).
-  const collections = allCollections.filter((c) =>
-    JEWELRY_COLLECTION_HANDLES.includes(c.handle),
-  );
+  const collections = allCollections.filter((c) => JEWELRY_COLLECTION_HANDLES.includes(c.handle));
   const products = allProducts.filter((p) =>
     p.collections.some((c) => JEWELRY_COLLECTION_HANDLES.includes(c)),
   );

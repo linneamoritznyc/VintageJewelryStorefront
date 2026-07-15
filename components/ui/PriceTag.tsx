@@ -10,18 +10,8 @@ import { formatMoney } from "@/lib/utils/format";
  * "was" price is illegal, so this deliberately never renders a struck-through
  * price or a percentage-off badge. Just the real price, read from Shopify.
  */
-export function PriceTag({
-  price,
-  size = "md",
-}: {
-  price: Money;
-  size?: "sm" | "md" | "lg";
-}) {
+export function PriceTag({ price, size = "md" }: { price: Money; size?: "sm" | "md" | "lg" }) {
   const priceSize = size === "lg" ? "text-numeral" : size === "sm" ? "text-body" : "text-sub";
 
-  return (
-    <span className={`mono font-normal text-ink ${priceSize}`}>
-      {formatMoney(price)}
-    </span>
-  );
+  return <span className={`mono font-normal text-ink ${priceSize}`}>{formatMoney(price)}</span>;
 }

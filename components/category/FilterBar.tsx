@@ -37,8 +37,7 @@ export function FilterBar({
     const nextSort = next.sort ?? sort;
     if (nextSort && nextSort !== "NEWEST") params.set("sort", nextSort);
 
-    const nextMax =
-      next.maxPrice === undefined ? maxPrice : next.maxPrice ?? undefined;
+    const nextMax = next.maxPrice === undefined ? maxPrice : (next.maxPrice ?? undefined);
     if (typeof nextMax === "number") params.set("maxPrice", String(nextMax));
 
     const qs = params.toString();
@@ -66,9 +65,7 @@ export function FilterBar({
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="hidden text-body italic text-ink-label sm:inline">
-          {totalCount} fynd
-        </span>
+        <span className="hidden text-body italic text-ink-label sm:inline">{totalCount} fynd</span>
         <label className="sr-only" htmlFor="sort">
           Sortera
         </label>

@@ -26,7 +26,7 @@ Du har två vägar:
 
 - **Rekommenderat:** ladda upp dina **riktiga produktfoton** i Shopify (per
   produkt, efter importen). Det är ändå det du vill ha i en skarp butik.
-- **Snabbtest:** vill du bara ha *någon* bild i dev-butiken kan du fylla i
+- **Snabbtest:** vill du bara ha _någon_ bild i dev-butiken kan du fylla i
   `Image Src` med publika platshållar-URL:er innan import.
 
 När butiken är live hämtar sajten automatiskt dina riktiga Shopify-bilder — då

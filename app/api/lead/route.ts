@@ -27,10 +27,7 @@ export async function POST(request: Request) {
   }
 
   if (typeof email !== "string" || !EMAIL_RE.test(email.trim())) {
-    return NextResponse.json(
-      { ok: false, error: "Ange en giltig e-postadress." },
-      { status: 400 },
-    );
+    return NextResponse.json({ ok: false, error: "Ange en giltig e-postadress." }, { status: 400 });
   }
 
   if (consent !== true) {

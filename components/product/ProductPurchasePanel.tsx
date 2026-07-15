@@ -83,9 +83,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             <div className="flex flex-wrap gap-2">
               {opt.values.map((value) => {
                 const variantForValue = product.variants.find((v) =>
-                  v.selectedOptions.some(
-                    (o) => o.name === opt.name && o.value === value,
-                  ),
+                  v.selectedOptions.some((o) => o.name === opt.name && o.value === value),
                 );
                 const soldOut = !variantForValue?.availableForSale;
                 const isActive = selected[opt.name] === value;
@@ -93,9 +91,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
                   <button
                     key={value}
                     type="button"
-                    onClick={() =>
-                      setSelected((s) => ({ ...s, [opt.name]: value }))
-                    }
+                    onClick={() => setSelected((s) => ({ ...s, [opt.name]: value }))}
                     aria-pressed={isActive}
                     className={`border px-4 py-2 text-body transition ${
                       isActive

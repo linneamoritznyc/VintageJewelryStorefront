@@ -13,17 +13,15 @@ export default function AboutPage() {
       <h1 className="text-heading font-light text-ink">Vår historia</h1>
       <div className="mt-6 space-y-5 text-body text-ink-muted">
         <p>
-          Ett svenskt varuhus lade ner. Kvar blev lådvis med örhängen, halsband
-          och armband som aldrig hann ut i butik, i originalförpackning, i
-          originalskick.
+          Ett svenskt varuhus lade ner. Kvar blev lådvis med örhängen, halsband och armband som
+          aldrig hann ut i butik, i originalförpackning, i originalskick.
         </p>
         <p>
-          Vi köpte hela partiet. Nu säljer vi det vidare, till fasta priser,
-          precis som det låg i lagret.
+          Vi köpte hela partiet. Nu säljer vi det vidare, till fasta priser, precis som det låg i
+          lagret.
         </p>
         <p className="text-ink">
-          Det är den enda leveransen som kommer. När ett fynd är slut går det
-          till någon annan.
+          Det är den enda leveransen som kommer. När ett fynd är slut går det till någon annan.
         </p>
       </div>
       <Link

@@ -10,11 +10,14 @@ export function Footer({ collections }: { collections: Collection[] }) {
         </div>
 
         <div>
-          <h4 className="text-body italic text-ink-label">Handla</h4>
+          <h3 className="text-body italic text-ink-label">Handla</h3>
           <ul className="mt-3 space-y-2 text-body">
             {collections.map((c) => (
               <li key={c.handle}>
-                <Link href={`/kategori/${c.handle}`} className="text-ink-muted transition hover:text-ink">
+                <Link
+                  href={`/kategori/${c.handle}`}
+                  className="text-ink-muted transition hover:text-ink"
+                >
                   {c.title}
                 </Link>
               </li>
@@ -28,7 +31,7 @@ export function Footer({ collections }: { collections: Collection[] }) {
         </div>
 
         <div>
-          <h4 className="text-body italic text-ink-label">Om oss</h4>
+          <h3 className="text-body italic text-ink-label">Om oss</h3>
           <ul className="mt-3 space-y-2 text-body">
             <li>
               <Link href="/om-oss" className="text-ink-muted transition hover:text-ink">
@@ -57,7 +60,7 @@ export function Footer({ collections }: { collections: Collection[] }) {
         </div>
 
         <div>
-          <h4 className="text-body italic text-ink-label">Villkor</h4>
+          <h3 className="text-body italic text-ink-label">Villkor</h3>
           <ul className="mt-3 space-y-2 text-body">
             <li>
               <Link href="/villkor" className="text-ink-muted transition hover:text-ink">

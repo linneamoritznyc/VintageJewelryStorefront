@@ -23,11 +23,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({
-  params,
-}: {
-  params: { handle: string };
-}) {
+export default async function ProductPage({ params }: { params: { handle: string } }) {
   const product = await store.getProduct(params.handle);
   if (!product) notFound();
 
@@ -40,8 +36,7 @@ export default async function ProductPage({
   ]);
 
   const relatedProducts =
-    related?.products.filter((p) => p.handle !== product.handle).slice(0, 8) ??
-    [];
+    related?.products.filter((p) => p.handle !== product.handle).slice(0, 8) ?? [];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8 sm:py-12">

@@ -113,7 +113,11 @@ export function AngraForm() {
   }
 
   return (
-    <form onSubmit={lookup} noValidate className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end">
+    <form
+      onSubmit={lookup}
+      noValidate
+      className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end"
+    >
       <div className="flex-1">
         <label htmlFor="order" className="meta">
           Ordernummer

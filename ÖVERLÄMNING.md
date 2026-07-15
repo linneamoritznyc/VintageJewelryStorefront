@@ -6,8 +6,8 @@ utvecklare, och exakt hur du tar sajten live och tar över den.
 
 > **Kort version:** Shopify är motorn (produkter, lager, priser, betalning,
 > ordrar). Den här koden är den snygga skyltfönster-delen framför Shopify. Allt
-> som handlar om *att sälja* sköter du i Shopify utan kod. Allt som handlar om
-> *hur sajten är byggd* kräver en utvecklare.
+> som handlar om _att sälja_ sköter du i Shopify utan kod. Allt som handlar om
+> _hur sajten är byggd_ kräver en utvecklare.
 
 ---
 
@@ -16,7 +16,7 @@ utvecklare, och exakt hur du tar sajten live och tar över den.
 ```
    DU (i Shopify admin)                Sajten (koden)                Kund
    ─────────────────────               ───────────────               ──────
-   Produkter, bilder, priser  ──►                          
+   Produkter, bilder, priser  ──►
    Lager, varianter                    Next.js-frontend      ──►     Snyggt
    Rabattkoder                 ──►   (hämtar allt från       ──►     skyltfönster
    Innehåll (metaobjects)      ──►    Shopify via API)       ──►     på mobilen
@@ -35,13 +35,13 @@ utvecklare, och exakt hur du tar sajten live och tar över den.
 
 ## 2. Teknikval, och varför
 
-| Val | Vad vi använder | Varför |
-| --- | --- | --- |
-| Ramverk | **Next.js** (React) | Vanligast i världen → lätt och billigt att hitta utvecklare senare |
-| Hosting | **Vercel** | Kopplas till koden och publicerar automatiskt vid varje ändring |
-| Backend | **Shopify** (Storefront API) | Du sköter butiken i ett gränssnitt du redan kan |
-| Innehåll | **Shopify metaobjects** | Du redigerar texter/kampanjer själv, utan utvecklare |
-| Språk/stil | Svenska, mobilanpassat | Byggt för din målgrupp |
+| Val        | Vad vi använder              | Varför                                                             |
+| ---------- | ---------------------------- | ------------------------------------------------------------------ |
+| Ramverk    | **Next.js** (React)          | Vanligast i världen → lätt och billigt att hitta utvecklare senare |
+| Hosting    | **Vercel**                   | Kopplas till koden och publicerar automatiskt vid varje ändring    |
+| Backend    | **Shopify** (Storefront API) | Du sköter butiken i ett gränssnitt du redan kan                    |
+| Innehåll   | **Shopify metaobjects**      | Du redigerar texter/kampanjer själv, utan utvecklare               |
+| Språk/stil | Svenska, mobilanpassat       | Byggt för din målgrupp                                             |
 
 Det finns ett alternativ som heter **Hydrogen + Oxygen** (Shopifys eget ramverk
 och hosting). Fördelen är "allt under ett tak, en faktura". Vi valde Next.js +
@@ -141,7 +141,7 @@ För att du ska äga allt behöver du få (och byta lösenord på):
 - **Nedräkning / kampanjkänsla:** ingen app, det är en inbyggd funktion i sajten.
 
 > ⚠️ **Viktigt om appar:** Väldigt många appar i Shopify App Store är byggda för
-> *vanliga Shopify-teman* och fungerar **inte automatiskt** på en headless-sajt
+> _vanliga Shopify-teman_ och fungerar **inte automatiskt** på en headless-sajt
 > som den här. Innan du köper en app: kolla att den stöder "headless" eller
 > "Storefront API", annars kan det krävas extra utvecklarjobb. Fråga gärna din
 > utvecklare först.
@@ -169,4 +169,4 @@ dokumentation: https://code.claude.com/docs/en/claude-code-on-the-web
 
 ---
 
-*Teknisk fördjupning och kodstruktur finns i `README.md`.*
+_Teknisk fördjupning och kodstruktur finns i `README.md`._

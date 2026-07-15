@@ -26,8 +26,7 @@ export const EMAIL_POPUP = {
   discountPercentage: STOREWIDE_DISCOUNT_PERCENTAGE,
   code: STOREWIDE_DISCOUNT_CODE,
   heading: "Först till kvarn",
-  subheading:
-    "Vi mejlar när nya fynd släpps ur lagret. Nya medlemmar får tio procent.",
+  subheading: "Vi mejlar när nya fynd släpps ur lagret. Nya medlemmar får tio procent.",
 };
 
 /**

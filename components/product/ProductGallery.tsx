@@ -8,13 +8,7 @@ import { ProductImage } from "@/components/ui/ProductImage";
  * Product image gallery. Supports the ~2 images per product in the catalog but
  * scales to any number. Main image + thumbnail strip; mobile-first.
  */
-export function ProductGallery({
-  images,
-  title,
-}: {
-  images: ShopImage[];
-  title: string;
-}) {
+export function ProductGallery({ images, title }: { images: ShopImage[]; title: string }) {
   const [active, setActive] = useState(0);
   const safeImages = images.length > 0 ? images : [];
   const current = safeImages[active] ?? safeImages[0];

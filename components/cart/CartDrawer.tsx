@@ -9,15 +9,8 @@ import { formatMoney } from "@/lib/utils/format";
 import type { CartLine } from "@/lib/shopify/types";
 
 export function CartDrawer() {
-  const {
-    cart,
-    isOpen,
-    closeCart,
-    updateQuantity,
-    removeLine,
-    applyDiscount,
-    removeDiscount,
-  } = useCart();
+  const { cart, isOpen, closeCart, updateQuantity, removeLine, applyDiscount, removeDiscount } =
+    useCart();
 
   // Lock body scroll while open.
   useEffect(() => {
@@ -128,9 +121,9 @@ export function CartDrawer() {
                     <dd className="mono">
                       −
                       {formatMoney({
-                        amount: (
-                          Number(cart.subtotal.amount) - Number(cart.total.amount)
-                        ).toFixed(2),
+                        amount: (Number(cart.subtotal.amount) - Number(cart.total.amount)).toFixed(
+                          2,
+                        ),
                         currencyCode: cart.total.currencyCode,
                       })}
                     </dd>
@@ -170,8 +163,7 @@ function CartLineRow({
   onRemove: (id: string) => void;
 }) {
   const m = line.merchandise;
-  const hasVariant =
-    m.variantTitle && m.variantTitle !== "Default Title" && !m.isBundle;
+  const hasVariant = m.variantTitle && m.variantTitle !== "Default Title" && !m.isBundle;
 
   return (
     <li className="flex gap-3 border-b border-line py-3 last:border-b-0">
@@ -197,9 +189,7 @@ function CartLineRow({
                 {m.productTitle}
               </Link>
             )}
-            {hasVariant && (
-              <p className="text-small italic text-ink-label">{m.variantTitle}</p>
-            )}
+            {hasVariant && <p className="text-small italic text-ink-label">{m.variantTitle}</p>}
             {m.isBundle && m.bundleContents && (
               <ul className="mt-1 space-y-0.5 text-small italic text-ink-label">
                 {m.bundleContents.map((item, i) => (
@@ -235,15 +225,11 @@ function CartLineRow({
             >
               −
             </button>
-            <span className="mono min-w-[1.5rem] text-center text-body">
-              {line.quantity}
-            </span>
+            <span className="mono min-w-[1.5rem] text-center text-body">{line.quantity}</span>
             <button
               type="button"
               onClick={() => onUpdate(line.id, line.quantity + 1)}
-              disabled={
-                !m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)
-              }
+              disabled={!m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)}
               aria-label="Öka antal"
               className="px-2.5 py-1 text-ink transition hover:text-accent disabled:opacity-30"
             >

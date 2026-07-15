@@ -18,6 +18,10 @@
     font-size: 18px;
     line-height: 1.5;
     font-weight: 400;
+    /* Full-bleed horizontal-scroll strips (edge-to-edge tabs/carousels) can
+       leak a sub-pixel amount past the viewport; never let that show as a
+       whole-page horizontal scrollbar on mobile. */
+    overflow-x: hidden;
   }
 
   h1,
@@ -71,6 +75,10 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+    /* Fade the trailing edge so a clipped last item reads as "scroll for
+       more", not as cut-off content, on narrow (mobile) viewports. */
+    mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;

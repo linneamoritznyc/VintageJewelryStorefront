@@ -19,40 +19,117 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     availableForSale
     createdAt
     tags
-    featuredImage { url altText width height }
-    images(first: 8) { nodes { url altText width height } }
-    options { id name values }
-    priceRange { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } }
-    compareAtPriceRange { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } }
-    collections(first: 10) { nodes { handle } }
+    featuredImage {
+      url
+      altText
+      width
+      height
+    }
+    images(first: 8) {
+      nodes {
+        url
+        altText
+        width
+        height
+      }
+    }
+    options {
+      id
+      name
+      values
+    }
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    compareAtPriceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    collections(first: 10) {
+      nodes {
+        handle
+      }
+    }
     variants(first: 50) {
       nodes {
         id
         title
         availableForSale
         quantityAvailable
-        selectedOptions { name value }
-        price { amount currencyCode }
-        compareAtPrice { amount currencyCode }
-        image { url altText width height }
+        selectedOptions {
+          name
+          value
+        }
+        price {
+          amount
+          currencyCode
+        }
+        compareAtPrice {
+          amount
+          currencyCode
+        }
+        image {
+          url
+          altText
+          width
+          height
+        }
       }
     }
-    vintageBlurb: metafield(namespace: "custom", key: "vintage_story") { value }
-    originalRetail: metafield(namespace: "custom", key: "original_retail") { value }
-    isDropship: metafield(namespace: "custom", key: "is_dropship") { value }
-    customsNote: metafield(namespace: "custom", key: "customs_note") { value }
-    sourceLot: metafield(namespace: "custom", key: "source_lot") { value }
-    lotNumber: metafield(namespace: "custom", key: "lot_number") { value }
-    angerratt: metafield(namespace: "custom", key: "angerratt_notice") { value }
+    vintageBlurb: metafield(namespace: "custom", key: "vintage_story") {
+      value
+    }
+    originalRetail: metafield(namespace: "custom", key: "original_retail") {
+      value
+    }
+    isDropship: metafield(namespace: "custom", key: "is_dropship") {
+      value
+    }
+    customsNote: metafield(namespace: "custom", key: "customs_note") {
+      value
+    }
+    sourceLot: metafield(namespace: "custom", key: "source_lot") {
+      value
+    }
+    lotNumber: metafield(namespace: "custom", key: "lot_number") {
+      value
+    }
+    angerratt: metafield(namespace: "custom", key: "angerratt_notice") {
+      value
+    }
   }
 `;
 
 export const PRODUCTS_QUERY = /* GraphQL */ `
   ${PRODUCT_FRAGMENT}
-  query Products($first: Int!, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean, $after: String) {
+  query Products(
+    $first: Int!
+    $query: String
+    $sortKey: ProductSortKeys
+    $reverse: Boolean
+    $after: String
+  ) {
     products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse, after: $after) {
-      nodes { ...ProductFields }
-      pageInfo { hasNextPage endCursor }
+      nodes {
+        ...ProductFields
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
@@ -60,25 +137,49 @@ export const PRODUCTS_QUERY = /* GraphQL */ `
 export const PRODUCT_BY_HANDLE_QUERY = /* GraphQL */ `
   ${PRODUCT_FRAGMENT}
   query ProductByHandle($handle: String!) {
-    product(handle: $handle) { ...ProductFields }
+    product(handle: $handle) {
+      ...ProductFields
+    }
   }
 `;
 
 export const COLLECTIONS_QUERY = /* GraphQL */ `
   query Collections($first: Int!) {
     collections(first: $first) {
-      nodes { id handle title description image { url altText width height } }
+      nodes {
+        id
+        handle
+        title
+        description
+        image {
+          url
+          altText
+          width
+          height
+        }
+      }
     }
   }
 `;
 
 export const COLLECTION_PRODUCTS_QUERY = /* GraphQL */ `
   ${PRODUCT_FRAGMENT}
-  query CollectionProducts($handle: String!, $first: Int!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $after: String) {
+  query CollectionProducts(
+    $handle: String!
+    $first: Int!
+    $sortKey: ProductCollectionSortKeys
+    $reverse: Boolean
+    $after: String
+  ) {
     collection(handle: $handle) {
       products(first: $first, sortKey: $sortKey, reverse: $reverse, after: $after) {
-        nodes { ...ProductFields }
-        pageInfo { hasNextPage endCursor }
+        nodes {
+          ...ProductFields
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
       }
     }
   }
@@ -91,8 +192,20 @@ const CART_FRAGMENT = /* GraphQL */ `
     id
     checkoutUrl
     totalQuantity
-    cost { subtotalAmount { amount currencyCode } totalAmount { amount currencyCode } }
-    discountCodes { code applicable }
+    cost {
+      subtotalAmount {
+        amount
+        currencyCode
+      }
+      totalAmount {
+        amount
+        currencyCode
+      }
+    }
+    discountCodes {
+      code
+      applicable
+    }
     lines(first: 100) {
       nodes {
         id
@@ -101,12 +214,29 @@ const CART_FRAGMENT = /* GraphQL */ `
           ... on ProductVariant {
             id
             title
-            selectedOptions { name value }
-            price { amount currencyCode }
-            compareAtPrice { amount currencyCode }
+            selectedOptions {
+              name
+              value
+            }
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+              currencyCode
+            }
             quantityAvailable
-            image { url altText width height }
-            product { handle title }
+            image {
+              url
+              altText
+              width
+              height
+            }
+            product {
+              handle
+              title
+            }
           }
         }
       }
@@ -116,38 +246,64 @@ const CART_FRAGMENT = /* GraphQL */ `
 
 export const CART_CREATE = /* GraphQL */ `
   ${CART_FRAGMENT}
-  mutation CartCreate { cartCreate { cart { ...CartFields } } }
+  mutation CartCreate {
+    cartCreate {
+      cart {
+        ...CartFields
+      }
+    }
+  }
 `;
 
 export const CART_QUERY = /* GraphQL */ `
   ${CART_FRAGMENT}
-  query Cart($id: ID!) { cart(id: $id) { ...CartFields } }
+  query Cart($id: ID!) {
+    cart(id: $id) {
+      ...CartFields
+    }
+  }
 `;
 
 export const CART_LINES_ADD = /* GraphQL */ `
   ${CART_FRAGMENT}
   mutation CartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
-    cartLinesAdd(cartId: $cartId, lines: $lines) { cart { ...CartFields } }
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        ...CartFields
+      }
+    }
   }
 `;
 
 export const CART_LINES_UPDATE = /* GraphQL */ `
   ${CART_FRAGMENT}
   mutation CartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
-    cartLinesUpdate(cartId: $cartId, lines: $lines) { cart { ...CartFields } }
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        ...CartFields
+      }
+    }
   }
 `;
 
 export const CART_LINES_REMOVE = /* GraphQL */ `
   ${CART_FRAGMENT}
   mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
-    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) { cart { ...CartFields } }
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        ...CartFields
+      }
+    }
   }
 `;
 
 export const CART_DISCOUNT_CODES_UPDATE = /* GraphQL */ `
   ${CART_FRAGMENT}
   mutation CartDiscountCodesUpdate($cartId: ID!, $codes: [String!]!) {
-    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $codes) { cart { ...CartFields } }
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $codes) {
+      cart {
+        ...CartFields
+      }
+    }
   }
 `;

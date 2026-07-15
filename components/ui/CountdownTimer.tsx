@@ -106,8 +106,7 @@ export function CountdownTimer({
         aria-label="Tid kvar av kampanjen"
       >
         {remaining.days > 0 && <span>{remaining.days}d</span>}
-        <span>{pad(remaining.hours)}</span>:
-        <span>{pad(remaining.minutes)}</span>:
+        <span>{pad(remaining.hours)}</span>:<span>{pad(remaining.minutes)}</span>:
         <span>{pad(remaining.seconds)}</span>
       </span>
     );

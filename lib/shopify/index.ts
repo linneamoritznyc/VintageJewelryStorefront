@@ -45,9 +45,4 @@ if (liveRequested && !hasLiveCredentials) {
 export const store: StoreClient = useLive ? liveClient : mockClient;
 
 export * from "./types";
-export type {
-  StoreClient,
-  ProductSortKey,
-  ProductQueryOptions,
-  ProductConnection,
-} from "./client";
+export type { StoreClient, ProductSortKey, ProductQueryOptions, ProductConnection } from "./client";

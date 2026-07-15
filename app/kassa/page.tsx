@@ -57,8 +57,7 @@ export default function CheckoutPage() {
         <ul className="divide-y divide-line border border-line bg-bg p-4">
           {cart.lines.map((line) => {
             const m = line.merchandise;
-            const hasVariant =
-              m.variantTitle && m.variantTitle !== "Default Title" && !m.isBundle;
+            const hasVariant = m.variantTitle && m.variantTitle !== "Default Title" && !m.isBundle;
             return (
               <li key={line.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
                 {m.image && (
@@ -94,9 +93,7 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(line.id, line.quantity + 1)}
-                        disabled={
-                          !m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)
-                        }
+                        disabled={!m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)}
                         aria-label="Öka antal"
                         className="px-2.5 py-1 text-ink transition hover:text-accent disabled:opacity-30"
                       >

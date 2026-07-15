@@ -1,28 +1,19 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Design system for the storefront (per DESIGN-GUIDE.md).
+ * Design system for the storefront.
  *
  * One typeface (Cormorant), one accent (olive), paper and ink otherwise.
  * Flat: no gradients, no shadows, no rounded corners, 1px hairlines only.
  * Legibility floor: nothing under 16px; labels are 18-19px italic sentence
  * case, never a pale grey on cream.
- *
- * Legacy token names from the earlier "Lagret" pass (paper/rule/signal/
- * ink-muted/ink-faint, plus the original cream/sand/plum/fuchsia/gold/mint
- * aliases) are kept mapped onto this palette so any not-yet-migrated surface
- * still renders correctly, never broken, never off-brand.
  */
 const config: Config = {
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./lib/**/*.{ts,tsx}",
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./lib/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // --- Current tokens (DESIGN-GUIDE.md) ---
+        // --- Current tokens ---
         bg: "#F6F4EE",
         "bg-panel": "#E8E4DB",
         "bg-tile": "#EAE6DD",
@@ -32,9 +23,9 @@ const config: Config = {
           // "muted" = secondary text, "label" = eyebrows/captions (legibility
           // floor: never lighter than this on cream).
           muted: "#57564E",
-          label: "#6F6B5F",
+          label: "#5A5648",
         },
-        placeholder: "#A9A498",
+        placeholder: "#676352",
         line: "#DCD8CE",
         "input-border": "#C9C6BB",
         accent: {
@@ -43,31 +34,6 @@ const config: Config = {
         },
         // Muted terracotta for coupon/form error states only.
         error: "#9A5A47",
-
-        // --- Legacy aliases from the earlier "Lagret" pass, remapped. ---
-        paper: {
-          DEFAULT: "#F6F4EE",
-          raised: "#F6F4EE",
-          sunk: "#EAE6DD",
-        },
-        rule: "#DCD8CE",
-        signal: "#4A4E3C",
-        cream: "#F6F4EE",
-        sand: "#E8E4DB",
-        plum: {
-          DEFAULT: "#1C1B17",
-          soft: "#57564E",
-        },
-        fuchsia: {
-          brand: "#4A4E3C",
-          hot: "#3A3D30",
-          deep: "#1C1B17",
-        },
-        gold: {
-          DEFAULT: "#6F6B5F",
-          soft: "#EAE6DD",
-        },
-        mint: "#57564E",
       },
       fontFamily: {
         // One typeface everywhere.

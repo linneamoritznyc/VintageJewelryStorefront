@@ -101,7 +101,10 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
 
         <div className="border-b border-line px-6 py-8 text-center">
           <p className="meta">Bli medlem</p>
-          <p className="mono mt-1 text-hero text-accent" style={{ fontSize: "clamp(40px, 6vw, 56px)" }}>
+          <p
+            className="mono mt-1 text-hero text-accent"
+            style={{ fontSize: "clamp(40px, 6vw, 56px)" }}
+          >
             {content.discountPercentage}%
           </p>
           <p className="text-body text-ink-muted">på din första beställning</p>
@@ -110,7 +113,7 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
         <div className="px-6 py-6">
           {submitted ? (
             <div className="text-center">
-              <h3 className="font-light text-heading text-ink">Välkommen</h3>
+              <h3 className="text-heading font-light text-ink">Välkommen</h3>
               <p className="mt-2 text-body text-ink-muted">
                 Din kod för {content.discountPercentage}% rabatt i kassan:
               </p>
@@ -127,12 +130,10 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
             </div>
           ) : (
             <>
-              <h3 id="email-popup-title" className="text-center font-light text-heading text-ink">
+              <h3 id="email-popup-title" className="text-center text-heading font-light text-ink">
                 {content.heading}
               </h3>
-              <p className="mt-2 text-center text-body text-ink-muted">
-                {content.subheading}
-              </p>
+              <p className="mt-2 text-center text-body text-ink-muted">{content.subheading}</p>
               <form onSubmit={submit} noValidate className="mt-4">
                 <input
                   type="email"
@@ -165,8 +166,8 @@ export function EmailPopup({ content }: { content: EmailPopupContent }) {
                     }}
                     className="mt-0.5 h-4 w-4 flex-shrink-0 border-input-border accent-accent"
                   />
-                  Jag vill få nyhetsbrev med erbjudanden och nya fynd. Jag kan
-                  avregistrera mig när som helst.
+                  Jag vill få nyhetsbrev med erbjudanden och nya fynd. Jag kan avregistrera mig när
+                  som helst.
                 </label>
                 {error && <p className="mt-1.5 text-small italic text-error">{error}</p>}
                 <button

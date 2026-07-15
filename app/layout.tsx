@@ -42,21 +42,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Categories drive nav + footer; content drives the marketing surfaces.
   // Nav stays scoped to the four jewelry categories, keeping the accessory
   // and curated collections out of the primary nav clutter.
-  const [allCollections, content] = await Promise.all([
-    store.getCollections(),
-    getSiteContent(),
-  ]);
-  const collections = allCollections.filter((c) =>
-    JEWELRY_COLLECTION_HANDLES.includes(c.handle),
-  );
+  const [allCollections, content] = await Promise.all([store.getCollections(), getSiteContent()]);
+  const collections = allCollections.filter((c) => JEWELRY_COLLECTION_HANDLES.includes(c.handle));
 
   return (
     <html lang="sv" className={cormorant.variable}>

@@ -66,10 +66,7 @@ export function BundleBuilder({
   const [couponInput, setCouponInput] = useState("");
   const [couponError, setCouponError] = useState<string | null>(null);
 
-  const available = useMemo(
-    () => products.filter((p) => p.availableForSale),
-    [products],
-  );
+  const available = useMemo(() => products.filter((p) => p.availableForSale), [products]);
 
   const size = tier.size;
   const isFull = picks.length >= size;
@@ -157,9 +154,7 @@ export function BundleBuilder({
       {/* Tray */}
       <div className="border border-line bg-bg-panel p-6">
         <div className="flex items-baseline justify-between">
-          <p className="text-body italic text-ink-label">
-            {bundle.packageName}, ingår
-          </p>
+          <p className="text-body italic text-ink-label">{bundle.packageName}, ingår</p>
           <p className="mono text-body text-ink-muted">
             {picks.length} av {size}
           </p>
@@ -198,9 +193,7 @@ export function BundleBuilder({
           <ArchivePlaceholder label="Ask" className="aspect-square" />
         </div>
 
-        <p className="mt-4 text-small italic text-ink-label">
-          {bundle.packageBlurb}
-        </p>
+        <p className="mt-4 text-small italic text-ink-label">{bundle.packageBlurb}</p>
       </div>
 
       {/* Picker + price */}
@@ -218,16 +211,12 @@ export function BundleBuilder({
               }`}
             >
               <span className="block text-sub text-ink">{t.label}</span>
-              <span className="block text-body italic text-ink-label">
-                {t.size} delar
-              </span>
+              <span className="block text-body italic text-ink-label">{t.size} delar</span>
             </button>
           ))}
         </div>
 
-        <p className="mt-6 text-body italic text-ink-label">
-          Tryck för att lägga i lådan
-        </p>
+        <p className="mt-6 text-body italic text-ink-label">Tryck för att lägga i lådan</p>
 
         <div className="mt-3 grid grid-cols-2 gap-px bg-line">
           {available.map((product) => {
@@ -260,9 +249,7 @@ export function BundleBuilder({
         <div className="mt-6 border-t border-line pt-6">
           {cart.discount ? (
             <div className="flex items-center justify-between">
-              <p className="text-body italic text-accent">
-                {cart.discount.code} tillagd
-              </p>
+              <p className="text-body italic text-accent">{cart.discount.code} tillagd</p>
               <button
                 type="button"
                 onClick={removeDiscount}
@@ -292,9 +279,7 @@ export function BundleBuilder({
               </button>
             </form>
           )}
-          {couponError && (
-            <p className="mt-1.5 text-small italic text-error">{couponError}</p>
-          )}
+          {couponError && <p className="mt-1.5 text-small italic text-error">{couponError}</p>}
         </div>
 
         {/* Price + CTA */}

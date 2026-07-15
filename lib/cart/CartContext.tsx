@@ -49,7 +49,7 @@ type Action =
 let lineCounter = 0;
 function nextLineId(): string {
   lineCounter += 1;
-  return `line-${lineCounter}-${lineCounter * 2654435761 % 1000000}`;
+  return `line-${lineCounter}-${(lineCounter * 2654435761) % 1000000}`;
 }
 
 function reducer(state: CartState, action: Action): CartState {
@@ -61,9 +61,7 @@ function reducer(state: CartState, action: Action): CartState {
       const { merchandise, quantity } = action;
       // Bundles are always distinct lines (each is a unique fixed-price set).
       if (!merchandise.isBundle) {
-        const existing = state.lines.find(
-          (l) => l.merchandise.variantId === merchandise.variantId,
-        );
+        const existing = state.lines.find((l) => l.merchandise.variantId === merchandise.variantId);
         if (existing) {
           const capped = Math.min(
             existing.quantity + quantity,
@@ -71,9 +69,7 @@ function reducer(state: CartState, action: Action): CartState {
           );
           return {
             ...state,
-            lines: state.lines.map((l) =>
-              l.id === existing.id ? { ...l, quantity: capped } : l,
-            ),
+            lines: state.lines.map((l) => (l.id === existing.id ? { ...l, quantity: capped } : l)),
           };
         }
       }
@@ -143,9 +139,7 @@ function computeCart(state: CartState): Cart {
     }
   }
 
-  const totalAmount = discount
-    ? subtotalAmount * (1 - discount.percentage / 100)
-    : subtotalAmount;
+  const totalAmount = discount ? subtotalAmount * (1 - discount.percentage / 100) : subtotalAmount;
 
   const totalQuantity = state.lines.reduce((sum, l) => sum + l.quantity, 0);
 
@@ -227,8 +221,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         dispatch({ type: "ADD", merchandise, quantity });
         setIsOpen(true);
       },
-      updateQuantity: (lineId, quantity) =>
-        dispatch({ type: "UPDATE_QTY", lineId, quantity }),
+      updateQuantity: (lineId, quantity) => dispatch({ type: "UPDATE_QTY", lineId, quantity }),
       removeLine: (lineId) => dispatch({ type: "REMOVE", lineId }),
       applyDiscount: (code) => {
         const coupon = findCoupon(code);

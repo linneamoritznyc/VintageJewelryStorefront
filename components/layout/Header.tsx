@@ -44,11 +44,7 @@ export function Header({ collections }: { collections: Collection[] }) {
           </nav>
         </div>
 
-        <Link
-          href="/"
-          className="wordmark text-center text-ink"
-          onClick={() => setMenuOpen(false)}
-        >
+        <Link href="/" className="wordmark text-center text-ink" onClick={() => setMenuOpen(false)}>
           Fyndlådan
         </Link>
 
@@ -79,9 +75,7 @@ export function Header({ collections }: { collections: Collection[] }) {
                 strokeLinecap="round"
               />
             </svg>
-            {isReady && count > 0 && (
-              <span className="mono text-body text-accent">{count}</span>
-            )}
+            {isReady && count > 0 && <span className="mono text-body text-accent">{count}</span>}
           </button>
         </div>
       </div>

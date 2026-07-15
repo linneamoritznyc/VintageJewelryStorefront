@@ -4,9 +4,7 @@ const nextConfig = {
   images: {
     // When real Shopify data is wired in, product images are served from the
     // Shopify CDN. Add the CDN host here so next/image can optimize them.
-    remotePatterns: [
-      { protocol: "https", hostname: "cdn.shopify.com" },
-    ],
+    remotePatterns: [{ protocol: "https", hostname: "cdn.shopify.com" }],
   },
 };
 

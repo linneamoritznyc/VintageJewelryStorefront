@@ -14,25 +14,28 @@ export default function ShippingPage() {
         <section>
           <h2 className="text-sub text-ink">Frakt</h2>
           <p className="mt-2">
-            Vi skickar med spårbar leverans inom Sverige. Fraktkostnad och
-            leveransalternativ visas i kassan, som hanteras säkert via Shopify.
+            Vi skickar med spårbar leverans inom Sverige. Fraktkostnad och leveransalternativ visas
+            i kassan, som hanteras säkert via Shopify.
           </p>
         </section>
         <section>
           <h2 className="text-sub text-ink">Leveranstid</h2>
           <p className="mt-2">
-            Beställningar packas normalt inom 1 till 3 arbetsdagar. Därefter
-            tillkommer postens leveranstid.
+            Beställningar packas normalt inom 1 till 3 arbetsdagar. Därefter tillkommer postens
+            leveranstid.
           </p>
         </section>
         <section>
           <h2 className="text-sub text-ink">Retur och ångerrätt</h2>
           <p className="mt-2">
-            Du har 14 dagars ångerrätt enligt distansavtalslagen. Varan ska
-            returneras i oanvänt skick.
+            Du har 14 dagars ångerrätt enligt distansavtalslagen. Varan ska returneras i oanvänt
+            skick.
           </p>
           <p className="mt-3">
-            <Link href="/angra-kop" className="text-ink underline underline-offset-2 hover:text-accent">
+            <Link
+              href="/angra-kop"
+              className="text-ink underline underline-offset-2 hover:text-accent"
+            >
               Ångra ditt köp
             </Link>
           </p>

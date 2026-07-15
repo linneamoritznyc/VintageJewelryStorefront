@@ -58,10 +58,7 @@ function cell(value: string | number | boolean | null | undefined): string {
 }
 
 function bodyHtml(description: string, story: string): string {
-  return (
-    `<p>${description}</p>` +
-    `<p><strong>Om denna vintage-pärla:</strong> ${story}</p>`
-  );
+  return `<p>${description}</p>` + `<p><strong>Om denna vintage-pärla:</strong> ${story}</p>`;
 }
 
 const rows: string[] = [COLUMNS.join(",")];
@@ -75,7 +72,7 @@ for (const product of MOCK_PRODUCTS) {
   product.variants.forEach((variant, index) => {
     const isFirst = index === 0;
     const optionValue = hasOptions
-      ? variant.selectedOptions[0]?.value ?? variant.title
+      ? (variant.selectedOptions[0]?.value ?? variant.title)
       : "Default Title";
 
     const row = [
@@ -94,9 +91,7 @@ for (const product of MOCK_PRODUCTS) {
       "deny",
       "manual",
       Number(variant.price.amount).toFixed(2),
-      variant.compareAtPrice
-        ? Number(variant.compareAtPrice.amount).toFixed(2)
-        : "",
+      variant.compareAtPrice ? Number(variant.compareAtPrice.amount).toFixed(2) : "",
       "TRUE",
       "TRUE",
       // Image Src intentionally blank — see shopify/README.md.

@@ -44,7 +44,14 @@ function Pearl({ cx, cy, r, p }: { cx: number; cy: number; r: number; p: Palette
   return (
     <g>
       <circle cx={cx} cy={cy} r={r} fill={p.pearl} stroke={p.dark} strokeWidth={0.6} />
-      <ellipse cx={cx - r * 0.32} cy={cy - r * 0.32} rx={r * 0.34} ry={r * 0.24} fill={p.pearlHi} opacity={0.9} />
+      <ellipse
+        cx={cx - r * 0.32}
+        cy={cy - r * 0.32}
+        rx={r * 0.34}
+        ry={r * 0.24}
+        fill={p.pearlHi}
+        opacity={0.9}
+      />
     </g>
   );
 }
@@ -59,7 +66,13 @@ function Gem({ cx, cy, r, p }: { cx: number; cy: number; r: number; p: Palette }
 }
 
 function metalStroke(p: Palette, w = 6) {
-  return { fill: "none", stroke: p.base, strokeWidth: w, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  return {
+    fill: "none",
+    stroke: p.base,
+    strokeWidth: w,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
 }
 
 /* --- the art set --- */
@@ -88,7 +101,13 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
     <g>
       {[72, 128].map((x) => (
         <g key={x} transform={`translate(${x} 100)`}>
-          <path d="M0 -26 L7 -8 L26 -8 L11 4 L17 22 L0 11 L-17 22 L-11 4 L-26 -8 L-7 -8 Z" fill={p.base} stroke={p.dark} strokeWidth={1.2} strokeLinejoin="round" />
+          <path
+            d="M0 -26 L7 -8 L26 -8 L11 4 L17 22 L0 11 L-17 22 L-11 4 L-26 -8 L-7 -8 Z"
+            fill={p.base}
+            stroke={p.dark}
+            strokeWidth={1.2}
+            strokeLinejoin="round"
+          />
           <circle cx={0} cy={-4} r={4} fill={p.light} />
         </g>
       ))}
@@ -99,7 +118,17 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
       {[72, 128].map((x) => (
         <g key={x} transform={`translate(${x} 100)`}>
           {[0, 72, 144, 216, 288].map((a) => (
-            <ellipse key={a} cx={0} cy={-15} rx={8} ry={13} fill={p.gem} stroke={p.gemDark} strokeWidth={0.8} transform={`rotate(${a})`} />
+            <ellipse
+              key={a}
+              cx={0}
+              cy={-15}
+              rx={8}
+              ry={13}
+              fill={p.gem}
+              stroke={p.gemDark}
+              strokeWidth={0.8}
+              transform={`rotate(${a})`}
+            />
           ))}
           <circle cx={0} cy={0} r={7} fill={p.light} stroke={p.dark} strokeWidth={0.8} />
         </g>
@@ -116,7 +145,12 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
           {[-16, 0, 16].map((dx, i) => (
             <g key={dx}>
               <line x1={x + dx} y1={74} x2={x + dx} y2={90 + i * 4} {...metalStroke(p, 2)} />
-              <path d={`M${x + dx} ${92 + i * 4} l6 8 l-6 12 l-6 -12 z`} fill={p.gem} stroke={p.gemDark} strokeWidth={0.8} />
+              <path
+                d={`M${x + dx} ${92 + i * 4} l6 8 l-6 12 l-6 -12 z`}
+                fill={p.gem}
+                stroke={p.gemDark}
+                strokeWidth={0.8}
+              />
             </g>
           ))}
         </g>
@@ -128,7 +162,13 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
       {[72, 128].map((x) => (
         <g key={x}>
           <line x1={x} y1={60} x2={x} y2={78} {...metalStroke(p, 3)} />
-          <path d={`M${x} 80 l22 40 l-44 0 z`} fill={p.gem} stroke={p.gemDark} strokeWidth={1.2} strokeLinejoin="round" />
+          <path
+            d={`M${x} 80 l22 40 l-44 0 z`}
+            fill={p.gem}
+            stroke={p.gemDark}
+            strokeWidth={1.2}
+            strokeLinejoin="round"
+          />
         </g>
       ))}
     </g>
@@ -138,7 +178,12 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
       {[72, 128].map((x) => (
         <g key={x}>
           <line x1={x} y1={58} x2={x} y2={74} {...metalStroke(p, 3)} />
-          <path d={`M${x + 6} 78 a24 24 0 1 0 0 44 a30 30 0 0 1 0 -44 z`} fill={p.base} stroke={p.dark} strokeWidth={1} />
+          <path
+            d={`M${x + 6} 78 a24 24 0 1 0 0 44 a30 30 0 0 1 0 -44 z`}
+            fill={p.base}
+            stroke={p.dark}
+            strokeWidth={1}
+          />
         </g>
       ))}
     </g>
@@ -182,7 +227,14 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
   "necklace-chain": (p) => (
     <g>
       <path d="M46 64 Q100 156 154 64" {...metalStroke(p, 5)} />
-      <path d="M46 64 Q100 156 154 64" fill="none" stroke={p.light} strokeWidth={1.5} strokeDasharray="2 6" strokeLinecap="round" />
+      <path
+        d="M46 64 Q100 156 154 64"
+        fill="none"
+        stroke={p.light}
+        strokeWidth={1.5}
+        strokeDasharray="2 6"
+        strokeLinecap="round"
+      />
       <circle cx={46} cy={64} r={5} fill={p.base} />
       <circle cx={154} cy={64} r={5} fill={p.base} />
     </g>
@@ -190,22 +242,51 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
   "necklace-heart": (p) => (
     <g>
       <path d="M52 60 Q100 150 148 60" {...metalStroke(p, 4)} />
-      <path d="M100 108 C86 92 66 100 66 118 C66 134 100 152 100 152 C100 152 134 134 134 118 C134 100 114 92 100 108 Z" fill={p.gem} stroke={p.gemDark} strokeWidth={1.5} />
-      <ellipse cx={88} cy={116} rx={6} ry={4} fill={p.gemHi} opacity={0.8} transform="rotate(-30 88 116)" />
+      <path
+        d="M100 108 C86 92 66 100 66 118 C66 134 100 152 100 152 C100 152 134 134 134 118 C134 100 114 92 100 108 Z"
+        fill={p.gem}
+        stroke={p.gemDark}
+        strokeWidth={1.5}
+      />
+      <ellipse
+        cx={88}
+        cy={116}
+        rx={6}
+        ry={4}
+        fill={p.gemHi}
+        opacity={0.8}
+        transform="rotate(-30 88 116)"
+      />
     </g>
   ),
   "necklace-moonstar": (p) => (
     <g>
       <path d="M52 60 Q100 150 148 60" {...metalStroke(p, 4)} />
-      <path d="M96 116 a17 17 0 1 0 0 32 a21 21 0 0 1 0 -32 z" fill={p.base} stroke={p.dark} strokeWidth={1} />
-      <path d="M124 108 l4 10 l11 0 l-9 7 l4 11 l-10 -7 l-10 7 l4 -11 l-9 -7 l11 0 z" fill={p.gem} stroke={p.gemDark} strokeWidth={0.8} />
+      <path
+        d="M96 116 a17 17 0 1 0 0 32 a21 21 0 0 1 0 -32 z"
+        fill={p.base}
+        stroke={p.dark}
+        strokeWidth={1}
+      />
+      <path
+        d="M124 108 l4 10 l11 0 l-9 7 l4 11 l-10 -7 l-10 7 l4 -11 l-9 -7 l11 0 z"
+        fill={p.gem}
+        stroke={p.gemDark}
+        strokeWidth={0.8}
+      />
     </g>
   ),
   "necklace-stone": (p) => (
     <g>
       <path d="M52 62 Q100 150 148 62" {...metalStroke(p, 4)} />
       <g transform="translate(100 128)">
-        <path d="M0 -20 l14 10 l-6 24 l-16 0 l-6 -24 z" fill={p.gem} stroke={p.gemDark} strokeWidth={1.4} strokeLinejoin="round" />
+        <path
+          d="M0 -20 l14 10 l-6 24 l-16 0 l-6 -24 z"
+          fill={p.gem}
+          stroke={p.gemDark}
+          strokeWidth={1.4}
+          strokeLinejoin="round"
+        />
         <path d="M0 -20 l14 10 l-14 6 l-14 -6 z" fill={p.gemHi} opacity={0.7} />
       </g>
     </g>
@@ -215,7 +296,17 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
       <path d="M52 60 Q100 150 148 60" {...metalStroke(p, 4)} />
       <g transform="translate(100 126)">
         {[0, 60, 120, 180, 240, 300].map((a) => (
-          <ellipse key={a} cx={0} cy={-14} rx={8} ry={12} fill={p.gem} stroke={p.gemDark} strokeWidth={0.8} transform={`rotate(${a})`} />
+          <ellipse
+            key={a}
+            cx={0}
+            cy={-14}
+            rx={8}
+            ry={12}
+            fill={p.gem}
+            stroke={p.gemDark}
+            strokeWidth={0.8}
+            transform={`rotate(${a})`}
+          />
         ))}
         <circle cx={0} cy={0} r={8} fill={p.light} stroke={p.dark} strokeWidth={0.8} />
       </g>
@@ -223,10 +314,21 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
   ),
   "bracelet-pearl": (p) => (
     <g>
-      <ellipse cx={100} cy={100} rx={62} ry={46} fill="none" stroke={p.dark} strokeWidth={0.6} opacity={0.4} />
+      <ellipse
+        cx={100}
+        cy={100}
+        rx={62}
+        ry={46}
+        fill="none"
+        stroke={p.dark}
+        strokeWidth={0.6}
+        opacity={0.4}
+      />
       {Array.from({ length: 16 }).map((_, i) => {
         const a = (i / 16) * Math.PI * 2;
-        return <Pearl key={i} cx={100 + Math.cos(a) * 62} cy={100 + Math.sin(a) * 46} r={9} p={p} />;
+        return (
+          <Pearl key={i} cx={100 + Math.cos(a) * 62} cy={100 + Math.sin(a) * 46} r={9} p={p} />
+        );
       })}
     </g>
   ),
@@ -237,7 +339,18 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
         const cx = 100 + Math.cos(a) * 60;
         const cy = 100 + Math.sin(a) * 44;
         return (
-          <rect key={i} x={cx - 11} y={cy - 8} width={22} height={16} rx={8} fill="none" stroke={p.base} strokeWidth={5} transform={`rotate(${(a * 180) / Math.PI + 90} ${cx} ${cy})`} />
+          <rect
+            key={i}
+            x={cx - 11}
+            y={cy - 8}
+            width={22}
+            height={16}
+            rx={8}
+            fill="none"
+            stroke={p.base}
+            strokeWidth={5}
+            transform={`rotate(${(a * 180) / Math.PI + 90} ${cx} ${cy})`}
+          />
         );
       })}
     </g>
@@ -245,7 +358,16 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
   "bracelet-bangle": (p) => (
     <g>
       <ellipse cx={100} cy={100} rx={62} ry={46} fill="none" stroke={p.base} strokeWidth={11} />
-      <ellipse cx={100} cy={100} rx={62} ry={46} fill="none" stroke={p.light} strokeWidth={3} opacity={0.7} />
+      <ellipse
+        cx={100}
+        cy={100}
+        rx={62}
+        ry={46}
+        fill="none"
+        stroke={p.light}
+        strokeWidth={3}
+        opacity={0.7}
+      />
     </g>
   ),
   "bracelet-tennis": (p) => (
@@ -267,9 +389,38 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
   ),
   "bracelet-braid": (p) => (
     <g>
-      <ellipse cx={100} cy={100} rx={60} ry={44} fill="none" stroke={p.dark} strokeWidth={9} opacity={0.85} />
-      <ellipse cx={100} cy={100} rx={60} ry={44} fill="none" stroke={p.base} strokeWidth={9} strokeDasharray="10 10" />
-      <ellipse cx={100} cy={100} rx={60} ry={44} fill="none" stroke={p.light} strokeWidth={9} strokeDasharray="10 10" strokeDashoffset={10} opacity={0.7} />
+      <ellipse
+        cx={100}
+        cy={100}
+        rx={60}
+        ry={44}
+        fill="none"
+        stroke={p.dark}
+        strokeWidth={9}
+        opacity={0.85}
+      />
+      <ellipse
+        cx={100}
+        cy={100}
+        rx={60}
+        ry={44}
+        fill="none"
+        stroke={p.base}
+        strokeWidth={9}
+        strokeDasharray="10 10"
+      />
+      <ellipse
+        cx={100}
+        cy={100}
+        rx={60}
+        ry={44}
+        fill="none"
+        stroke={p.light}
+        strokeWidth={9}
+        strokeDasharray="10 10"
+        strokeDashoffset={10}
+        opacity={0.7}
+      />
     </g>
   ),
   anklet: (p) => (
@@ -286,7 +437,17 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
   "brooch-flower": (p) => (
     <g transform="translate(100 100)">
       {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
-        <ellipse key={a} cx={0} cy={-30} rx={12} ry={22} fill={p.gem} stroke={p.gemDark} strokeWidth={1} transform={`rotate(${a})`} />
+        <ellipse
+          key={a}
+          cx={0}
+          cy={-30}
+          rx={12}
+          ry={22}
+          fill={p.gem}
+          stroke={p.gemDark}
+          strokeWidth={1}
+          transform={`rotate(${a})`}
+        />
       ))}
       <circle cx={0} cy={0} r={16} fill={p.base} stroke={p.dark} strokeWidth={1.2} />
       <circle cx={0} cy={0} r={8} fill={p.light} />
@@ -296,8 +457,18 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
     <g transform="translate(100 100)">
       {[-1, 1].map((s) => (
         <g key={s} transform={`scale(${s} 1)`}>
-          <path d="M4 0 C34 -34 54 -20 44 4 C40 16 20 18 4 6 Z" fill={p.gem} stroke={p.gemDark} strokeWidth={1.2} />
-          <path d="M4 8 C30 8 44 22 38 36 C30 48 12 40 4 20 Z" fill={p.gemHi} stroke={p.gemDark} strokeWidth={1.2} />
+          <path
+            d="M4 0 C34 -34 54 -20 44 4 C40 16 20 18 4 6 Z"
+            fill={p.gem}
+            stroke={p.gemDark}
+            strokeWidth={1.2}
+          />
+          <path
+            d="M4 8 C30 8 44 22 38 36 C30 48 12 40 4 20 Z"
+            fill={p.gemHi}
+            stroke={p.gemDark}
+            strokeWidth={1.2}
+          />
         </g>
       ))}
       <rect x={-3} y={-30} width={6} height={64} rx={3} fill={p.base} />
@@ -319,7 +490,16 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
   ),
   hairclip: (p) => (
     <g transform="rotate(-18 100 100)">
-      <rect x={40} y={88} width={120} height={24} rx={12} fill={p.base} stroke={p.dark} strokeWidth={1.2} />
+      <rect
+        x={40}
+        y={88}
+        width={120}
+        height={24}
+        rx={12}
+        fill={p.base}
+        stroke={p.dark}
+        strokeWidth={1.2}
+      />
       <Pearl cx={64} cy={100} r={8} p={p} />
       <Pearl cx={90} cy={100} r={8} p={p} />
       <Pearl cx={116} cy={100} r={8} p={p} />
@@ -349,11 +529,39 @@ const ART: Record<string, (p: Palette) => ReactNode> = {
   ),
   giftbox: (p) => (
     <g>
-      <rect x={52} y={92} width={96} height={72} rx={6} fill={p.gem} stroke={p.gemDark} strokeWidth={2} />
-      <rect x={44} y={74} width={112} height={26} rx={6} fill={p.gemHi} stroke={p.gemDark} strokeWidth={2} />
+      <rect
+        x={52}
+        y={92}
+        width={96}
+        height={72}
+        rx={6}
+        fill={p.gem}
+        stroke={p.gemDark}
+        strokeWidth={2}
+      />
+      <rect
+        x={44}
+        y={74}
+        width={112}
+        height={26}
+        rx={6}
+        fill={p.gemHi}
+        stroke={p.gemDark}
+        strokeWidth={2}
+      />
       <rect x={92} y={74} width={16} height={90} fill={p.base} opacity={0.9} />
-      <path d="M100 74 C86 52 60 56 72 72 C80 82 96 78 100 74 Z" fill={p.base} stroke={p.dark} strokeWidth={1} />
-      <path d="M100 74 C114 52 140 56 128 72 C120 82 104 78 100 74 Z" fill={p.base} stroke={p.dark} strokeWidth={1} />
+      <path
+        d="M100 74 C86 52 60 56 72 72 C80 82 96 78 100 74 Z"
+        fill={p.base}
+        stroke={p.dark}
+        strokeWidth={1}
+      />
+      <path
+        d="M100 74 C114 52 140 56 128 72 C120 82 104 78 100 74 Z"
+        fill={p.base}
+        stroke={p.dark}
+        strokeWidth={1}
+      />
     </g>
   ),
 };

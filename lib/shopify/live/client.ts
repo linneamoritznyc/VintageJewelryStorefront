@@ -4,15 +4,7 @@ import type {
   ProductConnection,
   ProductSortKey,
 } from "../client";
-import type {
-  Cart,
-  CartLine,
-  Collection,
-  Image,
-  Money,
-  Product,
-  ProductVariant,
-} from "../types";
+import type { Cart, CartLine, Collection, Image, Money, Product, ProductVariant } from "../types";
 import {
   PRODUCTS_QUERY,
   PRODUCT_BY_HANDLE_QUERY,
@@ -57,10 +49,7 @@ function endpoint(): string {
   return `https://${domain}/api/${API_VERSION}/graphql.json`;
 }
 
-async function storefront<T>(
-  query: string,
-  variables: Record<string, unknown> = {},
-): Promise<T> {
+async function storefront<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
   const token = process.env.SHOPIFY_STOREFRONT_API_TOKEN;
   if (!token) {
     throw new Error(
@@ -143,8 +132,8 @@ function mapVariant(v: RawVariant): ProductVariant {
 
 function mapProduct(p: RawProduct): Product {
   const images = (p.images?.nodes ?? []).map((i) => mapImage(i)!).filter(Boolean);
-  const featuredImage =
-    mapImage(p.featuredImage) ?? images[0] ?? {
+  const featuredImage = mapImage(p.featuredImage) ??
+    images[0] ?? {
       url: "",
       altText: p.title,
       width: 0,
@@ -276,10 +265,9 @@ function collectionSort(sort: ProductSortKey): { sortKey: string; reverse: boole
 
 export const liveClient: StoreClient = {
   async getCollections(): Promise<Collection[]> {
-    const data = await storefront<{ collections: { nodes: RawCollection[] } }>(
-      COLLECTIONS_QUERY,
-      { first: 50 },
-    );
+    const data = await storefront<{ collections: { nodes: RawCollection[] } }>(COLLECTIONS_QUERY, {
+      first: 50,
+    });
     return data.collections.nodes.map(mapCollection);
   },
 
@@ -289,14 +277,7 @@ export const liveClient: StoreClient = {
   },
 
   async getProducts(options: ProductQueryOptions = {}): Promise<ProductConnection> {
-    const {
-      collection,
-      sort = "NEWEST",
-      minPrice,
-      maxPrice,
-      page = 1,
-      pageSize = 12,
-    } = options;
+    const { collection, sort = "NEWEST", minPrice, maxPrice, page = 1, pageSize = 12 } = options;
 
     // The interface is page-based; the Storefront API is cursor-based. Walk
     // cursors until we have enough items for the requested page.
@@ -309,14 +290,16 @@ export const liveClient: StoreClient = {
       const take = Math.min(50, needed - collected.length);
       if (collection) {
         const { sortKey, reverse } = collectionSort(sort);
-        const data: { collection: { products: RawProductConnection } | null } =
-          await storefront(COLLECTION_PRODUCTS_QUERY, {
+        const data: { collection: { products: RawProductConnection } | null } = await storefront(
+          COLLECTION_PRODUCTS_QUERY,
+          {
             handle: collection,
             first: take,
             sortKey,
             reverse,
             after,
-          });
+          },
+        );
         const conn: RawProductConnection | undefined = data.collection?.products;
         if (!conn) break;
         collected.push(...conn.nodes.map(mapProduct));
@@ -468,7 +451,10 @@ interface RawProduct {
   images: { nodes: RawImage[] } | null;
   options: { id: string; name: string; values: string[] }[];
   priceRange: { minVariantPrice: RawMoney; maxVariantPrice: RawMoney };
-  compareAtPriceRange: { minVariantPrice: RawMoney | null; maxVariantPrice: RawMoney | null } | null;
+  compareAtPriceRange: {
+    minVariantPrice: RawMoney | null;
+    maxVariantPrice: RawMoney | null;
+  } | null;
   collections: { nodes: { handle: string }[] } | null;
   variants: { nodes: RawVariant[] } | null;
   vintageBlurb: { value: string } | null;

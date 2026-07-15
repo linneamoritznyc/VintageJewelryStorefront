@@ -28,9 +28,7 @@ export async function generateMetadata({
 }
 
 function parseSort(value?: string): ProductSortKey {
-  return VALID_SORTS.includes(value as ProductSortKey)
-    ? (value as ProductSortKey)
-    : "NEWEST";
+  return VALID_SORTS.includes(value as ProductSortKey) ? (value as ProductSortKey) : "NEWEST";
 }
 
 export default async function CategoryPage({
@@ -45,8 +43,7 @@ export default async function CategoryPage({
 
   const sort = parseSort(searchParams.sort);
   const maxPriceRaw = Number(searchParams.maxPrice);
-  const maxPrice =
-    Number.isFinite(maxPriceRaw) && maxPriceRaw > 0 ? maxPriceRaw : undefined;
+  const maxPrice = Number.isFinite(maxPriceRaw) && maxPriceRaw > 0 ? maxPriceRaw : undefined;
 
   const { products, totalCount, hasNextPage } = await store.getProducts({
     collection: params.handle,

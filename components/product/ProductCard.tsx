@@ -28,9 +28,7 @@ export function ProductCard({
         />
       </div>
       <div className="flex flex-1 flex-col gap-1 px-3 py-3">
-        <h3 className="line-clamp-2 text-body leading-tight text-ink">
-          {product.title}
-        </h3>
+        <h3 className="line-clamp-2 text-body leading-tight text-ink">{product.title}</h3>
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           <PriceTag price={product.priceRange.minVariantPrice} size="sm" />
           <StockBadge status={stock} />

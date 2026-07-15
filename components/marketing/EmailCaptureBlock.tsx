@@ -56,9 +56,7 @@ export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
           {submitted ? (
             <p className="text-body text-ink">
               Din kod:{" "}
-              <span className="mono border border-line px-3 py-1 font-medium">
-                {content.code}
-              </span>
+              <span className="mono border border-line px-3 py-1 font-medium">{content.code}</span>
             </p>
           ) : (
             <form onSubmit={submit} noValidate>
@@ -102,8 +100,8 @@ export function EmailCaptureBlock({ content }: { content: EmailPopupContent }) {
                   }}
                   className="mt-0.5 h-4 w-4 flex-shrink-0 border-input-border accent-accent"
                 />
-                Jag vill få nyhetsbrev med erbjudanden och nya fynd. Jag kan
-                avregistrera mig när som helst.
+                Jag vill få nyhetsbrev med erbjudanden och nya fynd. Jag kan avregistrera mig när
+                som helst.
               </label>
             </form>
           )}

@@ -9,10 +9,7 @@ import { pushLeadToSheet } from "./sheets";
  * always resolves. Errors are logged server-side for operator visibility.
  */
 export async function recordLead(lead: LeadSubmission): Promise<void> {
-  const [shopify, sheet] = await Promise.all([
-    pushLeadToShopify(lead),
-    pushLeadToSheet(lead),
-  ]);
+  const [shopify, sheet] = await Promise.all([pushLeadToShopify(lead), pushLeadToSheet(lead)]);
 
   if (!shopify.ok) {
     console.error("[leads] Shopify write failed:", shopify.error);

@@ -4,13 +4,7 @@ import type {
   ProductConnection,
   ProductSortKey,
 } from "../client";
-import type {
-  Cart,
-  CartLine,
-  Collection,
-  Money,
-  Product,
-} from "../types";
+import type { Cart, CartLine, Collection, Money, Product } from "../types";
 import { findCoupon } from "@/lib/config/coupons";
 import { MOCK_PRODUCTS } from "./products";
 import { MOCK_COLLECTIONS } from "./collections";
@@ -100,14 +94,7 @@ export const mockClient: StoreClient = {
   },
 
   async getProducts(options: ProductQueryOptions = {}): Promise<ProductConnection> {
-    const {
-      collection,
-      sort = "NEWEST",
-      minPrice,
-      maxPrice,
-      page = 1,
-      pageSize = 12,
-    } = options;
+    const { collection, sort = "NEWEST", minPrice, maxPrice, page = 1, pageSize = 12 } = options;
 
     let filtered = MOCK_PRODUCTS;
     if (collection) filtered = filtered.filter((p) => p.collections.includes(collection));
@@ -169,7 +156,10 @@ export const mockClient: StoreClient = {
 
     const existing = cart.lines.find((l) => l.merchandise.variantId === variantId);
     if (existing) {
-      existing.quantity = Math.min(existing.quantity + quantity, Math.max(1, variant.quantityAvailable));
+      existing.quantity = Math.min(
+        existing.quantity + quantity,
+        Math.max(1, variant.quantityAvailable),
+      );
     } else {
       lineSeq += 1;
       cart.lines.push({
