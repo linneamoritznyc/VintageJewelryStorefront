@@ -87,16 +87,10 @@ const config: Config = {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
-        "slot-in": {
-          "0%": { opacity: "0", transform: "translateY(8px) scale(0.96)" },
-          "70%": { opacity: "1", transform: "translateY(0) scale(1.03)" },
-          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
-        },
       },
       animation: {
         "slide-in-right": "slide-in-right 0.28s ease-out",
         "fade-in": "fade-in 0.15s ease-out",
-        "slot-in": "slot-in 0.3s ease-out",
       },
     },
   },
