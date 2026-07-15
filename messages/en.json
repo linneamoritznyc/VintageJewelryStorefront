@@ -1,4 +1,8 @@
 {
+  "common": {
+    "decreaseQty": "Decrease quantity",
+    "increaseQty": "Increase quantity"
+  },
   "nav": {
     "openMenu": "Open menu",
     "categories": "Categories",
@@ -57,8 +61,6 @@
   },
   "product": {
     "notFoundTitle": "Product not found",
-    "decreaseQty": "Decrease quantity",
-    "increaseQty": "Increase quantity",
     "optionSoldOut": "(sold out)",
     "soldOut": "Sold out",
     "added": "Added",
@@ -99,9 +101,7 @@
     "couponPlaceholder": "e.g. LÅDAN10",
     "couponApply": "Apply",
     "couponRemove": "Remove",
-    "couponInvalid": "Invalid code.",
-    "decreaseQty": "Decrease quantity",
-    "increaseQty": "Increase quantity"
+    "couponInvalid": "Invalid code."
   },
   "checkout": {
     "emptyTitle": "Your cart is empty",
@@ -119,8 +119,6 @@
     "payButton": "Pay securely via Shopify",
     "securePaymentNote": "Payment, shipping and tax are handled securely by Shopify.",
     "continueShopping": "Continue shopping",
-    "decreaseQty": "Decrease quantity",
-    "increaseQty": "Increase quantity",
     "remove": "Remove {title}",
     "notReadyFallback": "Checkout isn't available yet."
   },

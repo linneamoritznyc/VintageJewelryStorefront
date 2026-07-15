@@ -17,6 +17,7 @@ import { stockStatus } from "@/lib/utils/stock";
  */
 export function ProductPurchasePanel({ product }: { product: Product }) {
   const t = useTranslations("product");
+  const tCommon = useTranslations("common");
   const { addLine } = useCart();
   const hasOptions = product.options.length > 0;
 
@@ -117,7 +118,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             disabled={quantity <= 1}
-            aria-label={t("decreaseQty")}
+            aria-label={tCommon("decreaseQty")}
             className="px-4 py-2.5 text-sub text-ink transition hover:text-accent disabled:opacity-30"
           >
             −
@@ -127,7 +128,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             type="button"
             onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
             disabled={quantity >= maxQty}
-            aria-label={t("increaseQty")}
+            aria-label={tCommon("increaseQty")}
             className="px-4 py-2.5 text-sub text-ink transition hover:text-accent disabled:opacity-30"
           >
             +

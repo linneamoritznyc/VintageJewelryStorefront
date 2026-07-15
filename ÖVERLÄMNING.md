@@ -42,6 +42,7 @@ utvecklare, och exakt hur du tar sajten live och tar över den.
 | Backend    | **Shopify** (Storefront API) | Du sköter butiken i ett gränssnitt du redan kan                    |
 | Innehåll   | **Shopify metaobjects**      | Du redigerar texter/kampanjer själv, utan utvecklare               |
 | Språk/stil | Svenska, mobilanpassat       | Byggt för din målgrupp                                             |
+| Språk      | Svenska (standard) + Engelska (`/en/...`) | Öppnar upp för internationella kunder                 |
 
 Det finns ett alternativ som heter **Hydrogen + Oxygen** (Shopifys eget ramverk
 och hosting). Fördelen är "allt under ett tak, en faktura". Vi valde Next.js +
@@ -89,32 +90,46 @@ Allt detta läses genom **ett enda ställe**, `lib/content/index.ts`, som är
 förberett för att i stället läsa från Shopify metaobjects. Efter steg 5 nedan
 ändrar **du** allt detta själv i Shopify.
 
+**Om den engelska sajten:** navigering, footer, knappar och sidtexter är
+översatta och ligger i `messages/sv.json` / `messages/en.json` — en
+utvecklare ändrar dem där. Produktnamn och kategorinamn är riktig
+Shopify-data och översätts istället via Shopifys gratisapp **"Translate &
+Adapt"**, utan kod.
+
 ---
 
 ## 5. Gå live, checklista (för utvecklare)
 
-Sajten kör idag på **låtsasdata** så att den fungerar utan Shopify-konto. För
-att koppla på den riktiga butiken:
+**Status: steg 1–4 och 7 är redan gjorda.** Sajten kör live mot den riktiga
+butiken (`vintagejewelrystorefront.myshopify.com`) — miljövariablerna är satta
+i Vercel och produkterna finns redan uppe. Kvar är steg 5 och 6.
 
-1. **Skapa Shopify-butiken** och lägg till försäljningskanalen **Headless**
-   (eller Hydrogen). Generera en **Storefront API-token**.
-2. **Lägg in nycklarna** i miljövariabler (se `.env.example`):
-   `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_API_TOKEN`,
-   `SHOPIFY_STOREFRONT_API_VERSION`.
-3. **Byt datalagret:** implementera det riktiga API:t i
-   `lib/shopify/storefront-client.ts` och peka om exporten i
-   `lib/shopify/index.ts`. Komponenterna behöver inte röras. Hela checklistan
-   finns som kommentar högst upp i `lib/shopify/index.ts`.
-4. **Lägg upp produkterna** i Shopify (kategorierna heter `orhangen`,
-   `halsband`, `armband`, `ovrigt`). Lägg den korta vintage-berättelsen i ett
-   **metafält** (`story.body`).
-5. **Skapa metaobjects för innehåll** (banner, kampanjdatum, paketpris,
+1. ✅ **Shopify-butiken** finns, med en anpassad app (Storefront API-integration)
+   som genererat en **Storefront API-token**.
+2. ✅ **Nycklarna** är satta som miljövariabler i Vercel: `SHOPIFY_STORE_DOMAIN`,
+   `SHOPIFY_STOREFRONT_API_TOKEN`, `NEXT_PUBLIC_USE_MOCK=false`. Namnen måste
+   matcha exakt (inget `NEXT_PUBLIC_`-prefix på de två Shopify-variablerna) —
+   annars faller sajten tillbaka på låtsasdata i tysthet.
+3. ✅ **Datalagret** är redan bytt: `lib/shopify/index.ts` väljer automatiskt
+   den riktiga klienten (`lib/shopify/live/client.ts`) när steg 2 ovan är
+   uppfyllt. Ingen ytterligare kod behövde skrivas eller pekas om.
+4. ✅ **Produkterna** finns uppe i Shopify (kategorierna heter `orhangen`,
+   `halsband`, `armband`, `ovrigt`). Vintage-berättelsen läses från
+   metafältet **`custom.vintage_story`** (inte `story.body` som en äldre
+   version av den här guiden sa).
+5. ⬜ **Skapa metaobjects för innehåll** (banner, kampanjdatum, paketpris,
    startsidetexter) enligt fältlistan i kommentaren i `lib/content/index.ts`,
-   och koppla `getSiteContent()` till dem. Nu redigerar ägaren innehållet själv.
-6. **Koppla kassan:** returnera Shopifys riktiga `checkoutUrl` i
-   `lib/checkout/index.ts` (allt annat är redan förberett).
-7. **Publicera:** koppla GitHub-repot till **Vercel**, lägg in miljövariablerna
-   där, och peka din **domän** dit.
+   och koppla `getSiteContent()` till dem. Tills detta är gjort styrs de
+   texterna fortfarande i kod (`lib/config/*`, `lib/content/mock.ts`) —
+   se punkt 4 nedan. Detta är den enda återstående punkten som krävs för att
+   du ska kunna redigera kampanjtexter själv utan utvecklare.
+6. ⬜ **Koppla kassan:** varukorgen skapar ännu ingen riktig Shopify-cart
+   (`lib/cart/CartContext.tsx` anropar aldrig `store.createCart()`), så
+   `lib/checkout/index.ts` visar fortfarande "kassan är inte klar än" istället
+   för att skicka kunden vidare till Shopifys betalsida. Detta krävs innan
+   sajten faktiskt kan ta betalt.
+7. ✅ **Publicerad:** GitHub-repot är kopplat till Vercel och publicerar
+   automatiskt vid varje ändring på `main`.
 
 ---
 

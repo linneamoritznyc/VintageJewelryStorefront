@@ -1,4 +1,8 @@
 {
+  "common": {
+    "decreaseQty": "Minska antal",
+    "increaseQty": "Öka antal"
+  },
   "nav": {
     "openMenu": "Öppna meny",
     "categories": "Kategorier",
@@ -57,8 +61,6 @@
   },
   "product": {
     "notFoundTitle": "Produkt hittades inte",
-    "decreaseQty": "Minska antal",
-    "increaseQty": "Öka antal",
     "optionSoldOut": "(slut)",
     "soldOut": "Slutsåld",
     "added": "Tillagd",
@@ -99,9 +101,7 @@
     "couponPlaceholder": "T.ex. LÅDAN10",
     "couponApply": "Använd",
     "couponRemove": "Ta bort",
-    "couponInvalid": "Ogiltig kod.",
-    "decreaseQty": "Minska antal",
-    "increaseQty": "Öka antal"
+    "couponInvalid": "Ogiltig kod."
   },
   "checkout": {
     "emptyTitle": "Din varukorg är tom",
@@ -119,8 +119,6 @@
     "payButton": "Betala säkert via Shopify",
     "securePaymentNote": "Betalning, frakt och moms hanteras säkert av Shopify.",
     "continueShopping": "Fortsätt handla",
-    "decreaseQty": "Minska antal",
-    "increaseQty": "Öka antal",
     "remove": "Ta bort {title}",
     "notReadyFallback": "Kassan är inte tillgänglig än."
   },

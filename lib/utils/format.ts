@@ -20,9 +20,3 @@ export function formatMoney(money: Money): string {
 export function formatPrice(amount: number, currencyCode = "SEK"): string {
   return formatMoney({ amount: amount.toFixed(2), currencyCode });
 }
-
-/** Format a lot number as an archive catalogue code, e.g. 14 -> "LOT 014". */
-export function formatLot(lotNumber: number | null | undefined): string | null {
-  if (lotNumber == null || !Number.isFinite(lotNumber)) return null;
-  return `LOT ${String(lotNumber).padStart(3, "0")}`;
-}

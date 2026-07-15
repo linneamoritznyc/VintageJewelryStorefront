@@ -16,6 +16,7 @@ import { formatMoney } from "@/lib/utils/format";
  */
 export default function CheckoutPage() {
   const t = useTranslations("checkout");
+  const tCommon = useTranslations("common");
   const { cart, isReady, updateQuantity, removeLine } = useCart();
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -82,7 +83,7 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(line.id, line.quantity - 1)}
-                        aria-label={t("decreaseQty")}
+                        aria-label={tCommon("decreaseQty")}
                         className="px-2.5 py-1 text-ink transition hover:text-accent"
                       >
                         −
@@ -94,7 +95,7 @@ export default function CheckoutPage() {
                         type="button"
                         onClick={() => updateQuantity(line.id, line.quantity + 1)}
                         disabled={!m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)}
-                        aria-label={t("increaseQty")}
+                        aria-label={tCommon("increaseQty")}
                         className="px-2.5 py-1 text-ink transition hover:text-accent disabled:opacity-30"
                       >
                         +

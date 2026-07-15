@@ -163,6 +163,7 @@ function CartLineRow({
   onRemove: (id: string) => void;
 }) {
   const t = useTranslations("cart");
+  const tCommon = useTranslations("common");
   const tBundle = useTranslations("bundle");
   const m = line.merchandise;
   const hasVariant = m.variantTitle && m.variantTitle !== "Default Title" && !m.isBundle;
@@ -222,7 +223,7 @@ function CartLineRow({
             <button
               type="button"
               onClick={() => onUpdate(line.id, line.quantity - 1)}
-              aria-label={t("decreaseQty")}
+              aria-label={tCommon("decreaseQty")}
               className="px-2.5 py-1 text-ink transition hover:text-accent"
             >
               −
@@ -232,7 +233,7 @@ function CartLineRow({
               type="button"
               onClick={() => onUpdate(line.id, line.quantity + 1)}
               disabled={!m.isBundle && line.quantity >= Math.max(1, m.quantityAvailable)}
-              aria-label={t("increaseQty")}
+              aria-label={tCommon("increaseQty")}
               className="px-2.5 py-1 text-ink transition hover:text-accent disabled:opacity-30"
             >
               +

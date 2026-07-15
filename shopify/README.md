@@ -1,5 +1,11 @@
 # Shopify-import — mock-katalogen som produkt-CSV
 
+> ⚠️ **Förlegad sedan butiken gick live.** Den riktiga butiken
+> (`vintagejewelrystorefront.myshopify.com`) har redan sin egen, riktiga
+> katalog. Importera **inte** den här filen dit — den skulle skapa
+> dubbletter av låtsasprodukter bredvid de riktiga. Den här CSV:n är kvar
+> bara som referens för att snabbt fylla en **separat test-/dev-butik**.
+
 `fyndladan-products.csv` är hela mock-katalogen (34 produkter, ≥8 per
 kategori) i **Shopifys egna importformat**. Använd den för att fylla en
 (dev-)butik med exakt samma katalog som sajten byggdes mot, så att du kan testa
@@ -36,9 +42,9 @@ används inte illustrationerna längre.
 
 I den här CSV:n ligger vintage-berättelsen i produktens **brödtext** så att den
 garanterat importeras. På sikt bör den ligga i ett **metafält**
-(`story.body`), vilket är vad sajten läser i skarpt läge (se
-`lib/shopify/index.ts`). Efter importen kan du flytta texten till metafältet,
-eller fylla metafältet direkt.
+(`custom.vintage_story`), vilket är vad sajten faktiskt läser i skarpt läge
+(se mappningen i `lib/shopify/live/client.ts`). Efter importen kan du flytta
+texten till metafältet, eller fylla metafältet direkt.
 
 ## Regenerera CSV:n
 

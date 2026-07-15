@@ -10,6 +10,16 @@ The brand hook is the deadstock/liquidation origin story — smycken räddade ur
 ett tömt lager, i originalskick, långt under ursprungspris — surfaced as a
 "treasure hunt" + "last chance" experience.
 
+The site is bilingual: Swedish (default, unprefixed URLs) and English
+(`/en/...`), via [next-intl](https://next-intl.dev) — see "Internationalization" below.
+
+**Production status:** the live deployment currently runs on **real Shopify
+data** (`NEXT_PUBLIC_USE_MOCK=false` in Vercel, with real
+`SHOPIFY_STORE_DOMAIN` / `SHOPIFY_STOREFRONT_API_TOKEN` credentials set).
+Everything in this README about the mock/live mechanism describes how it
+works generally; local development still defaults to mock unless you set
+those three variables yourself.
+
 For the non-technical store owner's handoff guide (what you edit yourself in
 Shopify vs. what needs a developer, and the go-live checklist), see
 **[`ÖVERLÄMNING.md`](./ÖVERLÄMNING.md)** (Swedish).
@@ -69,14 +79,19 @@ serving mock data with no visible error.
 
 ```
 app/                     Routes (App Router)
-  page.tsx               Homepage (hero, latest finds, brand story, bundle CTA, email capture)
-  kategori/[handle]/     Category listing (sort + price filter + load-more)
-  produkt/[handle]/      Product detail (gallery, variants, add-to-cart, vintage story)
-  paket/                 "Skapa ditt eget paket" — the flagship bundle builder
-  kassa/                 Checkout summary + Shopify handoff (stubbed until live)
-  angra-kop/             Right-of-withdrawal (ångerrätt) flow
-  om-oss, leverans, villkor, integritet   Static Swedish content
-  api/lead/              Lead-capture endpoint (email popup / forms)
+  [locale]/               Every user-facing route, doubled for sv (unprefixed) and en (/en/...)
+    page.tsx               Homepage (hero, latest finds, brand story, bundle CTA, email capture)
+    kategori/[handle]/     Category listing (sort + price filter + load-more)
+    produkt/[handle]/      Product detail (gallery, variants, add-to-cart, vintage story)
+    paket/                 "Skapa ditt eget paket" — the flagship bundle builder
+    kassa/                 Checkout summary + Shopify handoff (stubbed until live)
+    angra-kop/             Right-of-withdrawal (ångerrätt) flow
+    om-oss, leverans, villkor, integritet   Static content, both locales
+  api/lead/               Lead-capture endpoint (email popup / forms) — locale-neutral
+  robots.ts, sitemap.ts, llms.txt/   SEO/crawler endpoints — locale-neutral, emit both locale URLs
+
+i18n/                     next-intl routing/navigation/request config
+messages/                 sv.json / en.json translation dictionaries
 
 components/               UI, product, cart, bundle, marketing, layout components
 lib/
@@ -138,11 +153,41 @@ No component code changes for any of this — see the header comments in
 ### Known gaps (accurate as of this cleanup pass)
 
 - **Content metaobjects are not wired up.** `getShopifySiteContent()` is
-  documented but not implemented; see `lib/content/index.ts`.
-- **SEO/crawler infrastructure was removed, not just unbuilt.** `app/robots.ts`,
-  `app/sitemap.ts` and `app/llms.txt` existed at one point and were dropped in
-  a later full visual reskin. The site currently ships no sitemap, no
-  `robots.txt`, and no structured data.
+  documented but not implemented; see `lib/content/index.ts`. The content
+  layer (banner, popup, homepage hero/story, bundle package copy) always
+  serves code-level content (`lib/content/mock.ts`), regardless of whether
+  the commerce data layer is live or mock. Its English copy lives inline in
+  `lib/content/mock.ts` (an `EN_COPY` block), not in `messages/en.json` —
+  intentional, since this whole layer is meant to move to Shopify metaobjects
+  (which carry their own per-market translations) rather than grow into a
+  second i18n system.
+- **No structured data (JSON-LD)** on product/category pages. `robots.ts`,
+  `sitemap.ts` and `llms.txt` exist and work (see below) — only structured
+  data is missing.
+- **Checkout stays stubbed regardless of live/mock commerce data.**
+  `lib/cart/CartContext.tsx` never calls `store.createCart()`, so
+  `cart.checkoutUrl` is always `null` and `lib/checkout/index.ts` always
+  returns the "not ready" fallback. Wiring the cart to real Shopify cart
+  mutations is a separate step from turning on live product data.
+
+## Internationalization
+
+- Locales: `sv` (default, unprefixed — `/`, `/paket`, `/kategori/orhangen`)
+  and `en` (prefixed — `/en`, `/en/paket`, `/en/kategori/orhangen`), via
+  [`next-intl`](https://next-intl.dev). Config: `i18n/routing.ts`,
+  `i18n/request.ts`, `middleware.ts`.
+- `i18n/navigation.ts` exports a drop-in `Link` (and `useRouter`/`usePathname`)
+  that auto-prefixes hrefs with the current locale — use it instead of
+  `next/link` in any new component.
+- Static UI/body copy lives in `messages/sv.json` / `messages/en.json`,
+  read via `useTranslations`/`getTranslations`. Product titles, collection
+  names and product metafields (e.g. the vintage story, the ångerrätt notice)
+  are **not** covered — they're real Shopify catalog data, translated (once
+  the store needs it) via Shopify's own **Translate & Adapt** app, not by
+  this codebase.
+- Legal pages (`villkor`, `integritet`, `leverans`) have English copy, but it
+  is machine-translated policy text — have it reviewed (native speaker, or
+  legal counsel for the purchase terms) before treating it as authoritative.
 
 ---
 
