@@ -20,8 +20,10 @@ import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { EmailPopup } from "@/components/marketing/EmailPopup";
 import { JEWELRY_COLLECTION_HANDLES } from "@/lib/config/categories";
+import { SITE_URL } from "@/lib/config/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Fyndlådan, vintagesmycken i originalskick",
     template: "%s · Fyndlådan",
