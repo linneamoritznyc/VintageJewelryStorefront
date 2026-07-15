@@ -1,0 +1,28 @@
+{
+  "nav": {
+    "openMenu": "Open menu",
+    "categories": "Categories",
+    "categoriesMobile": "Categories (mobile)",
+    "bundleLink": "Build your own gift box",
+    "cartOpen": "Open cart",
+    "cartOpenWithCount": "Open cart, {count} items"
+  },
+  "footer": {
+    "bundleLink": "Build your own gift box",
+    "shopHeading": "Shop",
+    "aboutHeading": "About",
+    "termsHeading": "Terms",
+    "ourStory": "Our story",
+    "shippingReturns": "Shipping and returns",
+    "cancelPurchase": "Cancel your order",
+    "myAccount": "My account",
+    "purchaseTerms": "Terms of purchase",
+    "privacyPolicy": "Privacy policy",
+    "copyright": "© {year} Fyndlådan."
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "sv": "Svenska",
+    "en": "English"
+  }
+}

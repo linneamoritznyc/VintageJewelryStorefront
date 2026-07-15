@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { store, type ProductSortKey } from "@/lib/shopify";
 import { FilterBar } from "@/components/category/FilterBar";
 import { CategoryListing } from "@/components/category/CategoryListing";

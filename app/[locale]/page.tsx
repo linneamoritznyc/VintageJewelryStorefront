@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
 import { ProductCarousel } from "@/components/home/ProductCarousel";

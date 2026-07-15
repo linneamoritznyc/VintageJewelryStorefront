@@ -1,0 +1,28 @@
+{
+  "nav": {
+    "openMenu": "Öppna meny",
+    "categories": "Kategorier",
+    "categoriesMobile": "Kategorier (mobil)",
+    "bundleLink": "Skapa ditt paket",
+    "cartOpen": "Öppna varukorg",
+    "cartOpenWithCount": "Öppna varukorg, {count} varor"
+  },
+  "footer": {
+    "bundleLink": "Skapa ditt paket",
+    "shopHeading": "Handla",
+    "aboutHeading": "Om oss",
+    "termsHeading": "Villkor",
+    "ourStory": "Vår historia",
+    "shippingReturns": "Leverans och retur",
+    "cancelPurchase": "Ångra ditt köp",
+    "myAccount": "Mitt konto",
+    "purchaseTerms": "Köpvillkor",
+    "privacyPolicy": "Integritetspolicy",
+    "copyright": "© {year} Fyndlådan."
+  },
+  "languageSwitcher": {
+    "label": "Språk",
+    "sv": "Svenska",
+    "en": "English"
+  }
+}

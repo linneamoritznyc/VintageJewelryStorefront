@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import type { Product } from "@/lib/shopify/types";
 import type { ProductSortKey } from "@/lib/shopify";
 import { ProductGrid } from "@/components/product/ProductGrid";
-import { loadMoreProductsAction } from "@/app/kategori/[handle]/actions";
+import { loadMoreProductsAction } from "@/app/[locale]/kategori/[handle]/actions";
 
 /**
  * Client wrapper that renders the initial (server-fetched) product page and

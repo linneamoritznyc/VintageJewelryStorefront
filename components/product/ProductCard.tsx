@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Product } from "@/lib/shopify/types";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { PriceTag } from "@/components/ui/PriceTag";

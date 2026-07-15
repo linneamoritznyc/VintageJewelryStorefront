@@ -1,11 +1,14 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { Link } from "@/i18n/navigation";
 import type { Collection } from "@/lib/shopify/types";
 import { useCart } from "@/lib/cart/CartContext";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 export function Header({ collections }: { collections: Collection[] }) {
+  const t = useTranslations("nav");
   const { cart, openCart, isReady } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const count = cart.totalQuantity;
@@ -17,7 +20,7 @@ export function Header({ collections }: { collections: Collection[] }) {
           <button
             type="button"
             className="flex items-center justify-center p-1.5 text-ink lg:hidden"
-            aria-label="Öppna meny"
+            aria-label={t("openMenu")}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
           >
@@ -31,7 +34,7 @@ export function Header({ collections }: { collections: Collection[] }) {
             </svg>
           </button>
 
-          <nav className="hidden items-center gap-6 lg:flex" aria-label="Kategorier">
+          <nav className="hidden items-center gap-6 lg:flex" aria-label={t("categories")}>
             {collections.map((c) => (
               <Link
                 key={c.handle}
@@ -48,18 +51,19 @@ export function Header({ collections }: { collections: Collection[] }) {
           Fyndlådan
         </Link>
 
-        <div className="flex items-center justify-end gap-6">
+        <div className="flex items-center justify-end gap-4">
+          <LanguageSwitcher />
           <Link
             href="/paket"
             className="hidden text-body italic text-ink-label transition hover:text-ink lg:inline-block"
           >
-            Skapa ditt paket
+            {t("bundleLink")}
           </Link>
           <button
             type="button"
             onClick={openCart}
             className="flex items-center gap-1.5 p-1.5 text-ink transition hover:text-accent"
-            aria-label={`Öppna varukorg${count > 0 ? `, ${count} varor` : ""}`}
+            aria-label={count > 0 ? t("cartOpenWithCount", { count }) : t("cartOpen")}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path
@@ -83,7 +87,7 @@ export function Header({ collections }: { collections: Collection[] }) {
       {menuOpen && (
         <nav
           className="border-t border-line bg-bg px-6 py-3 lg:hidden"
-          aria-label="Kategorier (mobil)"
+          aria-label={t("categoriesMobile")}
         >
           <ul className="flex flex-col gap-1">
             {collections.map((c) => (
@@ -103,7 +107,7 @@ export function Header({ collections }: { collections: Collection[] }) {
                 className="block border-b border-line py-2.5 text-body italic text-ink"
                 onClick={() => setMenuOpen(false)}
               >
-                Skapa ditt paket
+                {t("bundleLink")}
               </Link>
             </li>
           </ul>

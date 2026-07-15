@@ -4,10 +4,11 @@ import { SITE_URL } from "@/lib/config/site";
 
 /**
  * Dynamic sitemap covering every crawlable URL: the static pages, every
- * collection, and every product. This is the main lever for getting the
- * whole catalog indexed (and for sitelinks). Product/collection fetches are
- * wrapped so a transient Shopify hiccup degrades to the static routes
- * instead of failing the build.
+ * collection, and every product, each in both locales (Swedish unprefixed,
+ * English under /en) with an alternates.languages entry linking the two so
+ * crawlers know they're translations of the same page, not duplicates.
+ * Product/collection fetches are wrapped so a transient Shopify hiccup
+ * degrades to the static routes instead of failing the build.
  */
 
 const STATIC_PATHS: {
@@ -24,15 +25,33 @@ const STATIC_PATHS: {
   { path: "/integritet", priority: 0.3, changeFrequency: "yearly" },
 ];
 
+function localizedEntry(
+  path: string,
+  priority: number,
+  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"],
+  lastModified: Date,
+): MetadataRoute.Sitemap[number] {
+  const svPath = path === "/" ? "" : path;
+  return {
+    url: `${SITE_URL}${svPath}`,
+    lastModified,
+    changeFrequency,
+    priority,
+    alternates: {
+      languages: {
+        sv: `${SITE_URL}${svPath}`,
+        en: `${SITE_URL}/en${svPath}`,
+      },
+    },
+  };
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  const entries: MetadataRoute.Sitemap = STATIC_PATHS.map((s) => ({
-    url: `${SITE_URL}${s.path}`,
-    lastModified: now,
-    changeFrequency: s.changeFrequency,
-    priority: s.priority,
-  }));
+  const entries: MetadataRoute.Sitemap = STATIC_PATHS.map((s) =>
+    localizedEntry(s.path, s.priority, s.changeFrequency, now),
+  );
 
   try {
     const [collections, products] = await Promise.all([
@@ -41,21 +60,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     for (const c of collections) {
-      entries.push({
-        url: `${SITE_URL}/kategori/${c.handle}`,
-        lastModified: now,
-        changeFrequency: "daily",
-        priority: 0.9,
-      });
+      entries.push(localizedEntry(`/kategori/${c.handle}`, 0.9, "daily", now));
     }
 
     for (const p of products) {
-      entries.push({
-        url: `${SITE_URL}/produkt/${p.handle}`,
-        lastModified: p.createdAt ? new Date(p.createdAt) : now,
-        changeFrequency: "weekly",
-        priority: 0.8,
-      });
+      entries.push(
+        localizedEntry(
+          `/produkt/${p.handle}`,
+          0.8,
+          "weekly",
+          p.createdAt ? new Date(p.createdAt) : now,
+        ),
+      );
     }
   } catch {
     // Shopify unavailable at build: ship the static routes rather than fail.
