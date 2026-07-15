@@ -50,9 +50,9 @@ import { getMockSiteContent } from "./mock";
  * The `code` field must match a real Shopify discount code (see coupons).
  * ============================================================================
  */
-export const getSiteContent = cache(async (): Promise<SiteContent> => {
-  // return getShopifySiteContent();   // <-- enable once metaobjects exist
-  return getMockSiteContent();
+export const getSiteContent = cache(async (locale: string = "sv"): Promise<SiteContent> => {
+  // return getShopifySiteContent(locale);   // <-- enable once metaobjects exist
+  return getMockSiteContent(locale);
 });
 
 export * from "./types";

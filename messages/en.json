@@ -24,5 +24,27 @@
     "label": "Language",
     "sv": "Svenska",
     "en": "English"
+  },
+  "home": {
+    "heroPlaceholder": "Hero image, to be replaced with a photo",
+    "seeAll": "See the whole stock",
+    "usp1": "In original condition",
+    "usp2": "Free shipping over 400 kr",
+    "usp3": "14-day right of return",
+    "usp4": "One of most pieces",
+    "saleEndsIn": "Clearance sale, ends in",
+    "latestFinds": "Latest finds",
+    "latestFindsSubheading": "Just added to the stockroom",
+    "showMore": "Show more",
+    "storyImagePlaceholder": "Archive photo, to be replaced with a photo",
+    "readFullStory": "Read the full story",
+    "categories": "Categories",
+    "categoryImagePlaceholder": "Photo",
+    "pieceCount": "{count} pieces",
+    "flagship": "The flagship",
+    "buildYourOwn": "Build your own gift box",
+    "buildYourOwnDescription": "Pick a box, tap in your finds, and get it all shipped in a {packageName}. From {price}.",
+    "newFinds": "New finds",
+    "newFindsSubheading": "More from the same lot"
   }
 }

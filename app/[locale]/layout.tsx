@@ -94,7 +94,7 @@ export default async function RootLayout({
   // and curated collections out of the primary nav clutter.
   const [allCollections, content, messages] = await Promise.all([
     store.getCollections(),
-    getSiteContent(),
+    getSiteContent(locale),
     getMessages(),
   ]);
   const collections = allCollections.filter((c) => JEWELRY_COLLECTION_HANDLES.includes(c.handle));

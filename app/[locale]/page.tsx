@@ -1,3 +1,4 @@
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { store } from "@/lib/shopify";
 import { getSiteContent } from "@/lib/content";
@@ -8,14 +9,16 @@ import { ArchivePlaceholder } from "@/components/ui/ArchivePlaceholder";
 import { formatPrice } from "@/lib/utils/format";
 import { JEWELRY_COLLECTION_HANDLES } from "@/lib/config/categories";
 
-export default async function HomePage() {
+export default async function HomePage({ params: { locale } }: { params: { locale: string } }) {
+  setRequestLocale(locale);
+  const t = await getTranslations("home");
   const [allCollections, recentJewelry, allProducts, content] = await Promise.all([
     store.getCollections(),
     // Over-fetch, then filter to jewelry only (accessories are more recently
     // added in the mock data and would otherwise crowd out the carousels).
     store.getLatestProducts(40),
     store.getAllProducts(),
-    getSiteContent(),
+    getSiteContent(locale),
   ]);
   const { hero, brandStory, bundle } = content;
 
@@ -38,7 +41,7 @@ export default async function HomePage() {
       <section className="border-b border-line">
         <div className="relative">
           <ArchivePlaceholder
-            label="Hero, ersätt med foto"
+            label={t("heroPlaceholder")}
             className="aspect-[4/5] w-full sm:aspect-[16/9]"
           />
           <div className="absolute inset-x-0 bottom-0 p-6 sm:p-12">
@@ -51,7 +54,7 @@ export default async function HomePage() {
               href="/kategori/orhangen"
               className="mt-6 inline-block border border-accent bg-accent px-6 py-3 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover"
             >
-              Se hela lagret
+              {t("seeAll")}
             </Link>
           </div>
         </div>
@@ -60,12 +63,7 @@ export default async function HomePage() {
       {/* USP row */}
       <section className="border-b border-line">
         <div className="mx-auto grid max-w-6xl grid-cols-2 sm:grid-cols-4">
-          {[
-            "I originalskick",
-            "Fri frakt över 400 kr",
-            "14 dagars ångerrätt",
-            "Ett exemplar av det mesta",
-          ].map((usp, i) => (
+          {[t("usp1"), t("usp2"), t("usp3"), t("usp4")].map((usp, i) => (
             <div
               key={usp}
               className={`border-line px-4 py-5 text-center text-body italic text-ink-label ${
@@ -82,7 +80,7 @@ export default async function HomePage() {
       {content.saleCountdownEndsAt && (
         <div className="border-b border-line py-3 text-center">
           <span className="text-body italic text-ink-muted">
-            Lagerrensning, slutar om{" "}
+            {t("saleEndsIn")}{" "}
             <CountdownTimer endsAt={content.saleCountdownEndsAt} compact className="text-ink" />
           </span>
         </div>
@@ -92,14 +90,14 @@ export default async function HomePage() {
       <section className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
         <div className="mb-6 flex items-end justify-between border-b border-line pb-4">
           <div>
-            <h2 className="text-heading font-light text-ink">Senaste fynden</h2>
-            <p className="meta mt-1">Nyss inregistrerat i lagret</p>
+            <h2 className="text-heading font-light text-ink">{t("latestFinds")}</h2>
+            <p className="meta mt-1">{t("latestFindsSubheading")}</p>
           </div>
           <Link
             href="/kategori/orhangen"
             className="text-body italic text-ink-label transition hover:text-ink"
           >
-            Visa fler
+            {t("showMore")}
           </Link>
         </div>
         <ProductCarousel products={latest} />
@@ -109,7 +107,7 @@ export default async function HomePage() {
       <section className="border-y border-line bg-bg-panel">
         <div className="mx-auto grid max-w-6xl items-center gap-0 sm:grid-cols-2">
           <ArchivePlaceholder
-            label="Arkivbild, ersätt med foto"
+            label={t("storyImagePlaceholder")}
             className="aspect-square sm:aspect-auto sm:h-full sm:min-h-[420px]"
           />
           <div className="px-6 py-14 sm:px-16">
@@ -125,7 +123,7 @@ export default async function HomePage() {
               href="/om-oss"
               className="mt-5 inline-block border-b border-ink pb-[3px] text-body text-ink transition hover:text-accent"
             >
-              Läs hela historien
+              {t("readFullStory")}
             </Link>
           </div>
         </div>
@@ -134,7 +132,7 @@ export default async function HomePage() {
       {/* Category tiles, honest per-category counts */}
       <section className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
         <h2 className="mb-6 border-b border-line pb-4 text-heading font-light text-ink">
-          Kategorier
+          {t("categories")}
         </h2>
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
           {collections.map((c) => {
@@ -142,10 +140,10 @@ export default async function HomePage() {
             return (
               <Link key={c.handle} href={`/kategori/${c.handle}`} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden border border-line">
-                  <ArchivePlaceholder label="Bild" className="h-full w-full" />
+                  <ArchivePlaceholder label={t("categoryImagePlaceholder")} className="h-full w-full" />
                 </div>
                 <p className="mt-2 text-sub text-ink">{c.title}</p>
-                <p className="text-body italic text-ink-label">{count} styck</p>
+                <p className="text-body italic text-ink-label">{t("pieceCount", { count })}</p>
               </Link>
             );
           })}
@@ -155,18 +153,19 @@ export default async function HomePage() {
       {/* Bundle builder entry point, the flagship. */}
       <section className="border-y border-line bg-bg-panel">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-          <p className="meta">Flaggskeppet</p>
-          <h2 className="mt-3 text-heading font-light text-ink">Skapa ditt eget paket</h2>
+          <p className="meta">{t("flagship")}</p>
+          <h2 className="mt-3 text-heading font-light text-ink">{t("buildYourOwn")}</h2>
           <p className="mt-3 max-w-md text-body text-ink-muted">
-            Välj en låda, tryck fram dina fynd och få allt skickat i en{" "}
-            {bundle.packageName.toLowerCase()}. Från{" "}
-            <span className="mono text-ink">{formatPrice(cheapestTier.pricePerBundle)}</span>.
+            {t("buildYourOwnDescription", {
+              packageName: bundle.packageName.toLowerCase(),
+              price: formatPrice(cheapestTier.pricePerBundle),
+            })}
           </p>
           <Link
             href="/paket"
             className="mt-6 inline-block border border-accent bg-accent px-6 py-3 text-body text-bg transition hover:border-accent-hover hover:bg-accent-hover"
           >
-            Skapa ditt paket
+            {t("buildYourOwn")}
           </Link>
         </div>
       </section>
@@ -175,14 +174,14 @@ export default async function HomePage() {
       <section className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
         <div className="mb-6 flex items-end justify-between border-b border-line pb-4">
           <div>
-            <h2 className="text-heading font-light text-ink">Nya fynd</h2>
-            <p className="meta mt-1">Mer ur samma parti</p>
+            <h2 className="text-heading font-light text-ink">{t("newFinds")}</h2>
+            <p className="meta mt-1">{t("newFindsSubheading")}</p>
           </div>
           <Link
             href="/kategori/halsband"
             className="text-body italic text-ink-label transition hover:text-ink"
           >
-            Visa fler
+            {t("showMore")}
           </Link>
         </div>
         <ProductCarousel products={newest} />

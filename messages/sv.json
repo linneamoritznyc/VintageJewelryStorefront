@@ -24,5 +24,27 @@
     "label": "Språk",
     "sv": "Svenska",
     "en": "English"
+  },
+  "home": {
+    "heroPlaceholder": "Hero, ersätt med foto",
+    "seeAll": "Se hela lagret",
+    "usp1": "I originalskick",
+    "usp2": "Fri frakt över 400 kr",
+    "usp3": "14 dagars ångerrätt",
+    "usp4": "Ett exemplar av det mesta",
+    "saleEndsIn": "Lagerrensning, slutar om",
+    "latestFinds": "Senaste fynden",
+    "latestFindsSubheading": "Nyss inregistrerat i lagret",
+    "showMore": "Visa fler",
+    "storyImagePlaceholder": "Arkivbild, ersätt med foto",
+    "readFullStory": "Läs hela historien",
+    "categories": "Kategorier",
+    "categoryImagePlaceholder": "Bild",
+    "pieceCount": "{count} styck",
+    "flagship": "Flaggskeppet",
+    "buildYourOwn": "Skapa ditt eget paket",
+    "buildYourOwnDescription": "Välj en låda, tryck fram dina fynd och få allt skickat i en {packageName}. Från {price}.",
+    "newFinds": "Nya fynd",
+    "newFindsSubheading": "Mer ur samma parti"
   }
 }
